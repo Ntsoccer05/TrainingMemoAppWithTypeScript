@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig({
   plugins: [
     laravel({
-      input: ['resources/css/app.css', 'resources/js/app.js'],
+      input: ['resources/css/app.css'],
       refresh: true,
     }),
     vue({
@@ -21,6 +21,15 @@ export default defineConfig({
     host: true,
     hmr: {
       host: 'localhost'
+    },
+    // ホットリロード設定
+    watch: {
+        usePolling: true
     }
-  }
+  },
+  resolve: {
+    alias: {
+      '@': '/resources/js',
+    },
+  },
 });

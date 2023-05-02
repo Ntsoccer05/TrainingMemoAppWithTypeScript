@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../pages/home.vue';
+import Home from '../views/home.vue';
+import Record from '../views/recordContents.vue'
 
 const routes = [
   {
@@ -8,8 +9,9 @@ const routes = [
     component: Home
   },
   {
-
-
+    path: '/record',
+    name: 'record',
+    component: Record
   }
 ]
 
