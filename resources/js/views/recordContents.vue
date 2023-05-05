@@ -4,9 +4,9 @@
             <caption class="p-5 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800">
                 <form action="" method="post">
                     <input type="hidden" name="_token" :value="csrf">
-                    <p class="text-lg" ref="menu">種目：{{ menu[1].content }}</p>
+                    <!-- <p class="text-lg" ref="menu">種目：{{ menu.content }}</p> -->
                 </form>
-                <button class="block w-11/12 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border-2 border-black mt-3 mb-3" @click="fillBeforeRecord">前回の記録を埋める</button>
+                <button class="block w-11/12 bg-blue-500 hover:bg-blue-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 mx-auto" @click="fillBeforeRecord">前回の記録を埋める</button>
                 <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">今日のトータルセット数：１０セット</p>
             </caption>
             <thead>
@@ -57,13 +57,14 @@
                     </td>
                 </tr>
             </tbody>
+            <div>{{ menu }}</div>
         </table>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue';
 export default{
-    setup(props) {
+    setup() {
         const hasOneHand = ref(false);
         const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -75,12 +76,6 @@ export default{
                 rep: '回数',
                 rest: '休憩時間'
             };
-        
-        // propsでわたってくる
-        const menu = [
-            {id:1, content: 'ベンチプレス', oneSide: 0},
-            {id:2, content: 'ワンハンドダンベルローイング', oneSide:1}
-        ];
         
         const contents = [
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60},
@@ -103,12 +98,12 @@ export default{
         }
 
         onMounted(() => {
-            if(menu[1].oneSide = 1){
-                hasOneHand.value != hasOneHand.value;
-            }
+            // if(menu.oneSide = 1){
+            //     hasOneHand.value != hasOneHand.value;
+            // }
         });
 
-        return {header, contents, csrf, menu, hasOneHand, fillBeforeRecord};
+        return {header, contents, csrf, hasOneHand, fillBeforeRecord};
     },
 }
 </script>

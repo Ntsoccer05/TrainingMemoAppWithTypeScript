@@ -10,20 +10,35 @@ const routes = [
     component: Home
   },
   {
-    path: '/selectMenu',
+    // ?：NULL許容
+    path: '/selectMenu/:day?',
     name: 'selectMenu',
     component: SelectMenu
   },
   {
-    path: '/record',
+    path: '/record/:day?',
     name: 'record',
-    component: Record
+    component: Record,
+    props: true
+  },
+  //指定のないURLの場合ホームにリダイレクト
+  {
+    path: '/:paths(.*)*',
+    name: 'nothing',
+    redirect: '/'
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition){
+    if (savedPosition && to.path === '/selectMenu' && from.path === '/record') {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 });
 
 export default router;

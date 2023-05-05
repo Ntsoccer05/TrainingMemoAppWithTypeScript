@@ -1,5 +1,5 @@
 <template>
-    <div class="calendar container md:w-11/12 ml:h-50vh">
+    <div class="calendar container md:w-11/12 ml:h-50vh mx-auto">
         <v-calendar ref="calendar" locale="ja-jp" :attributes="attrs">
         <!-- Calendarの中に以下でもタイトル名変更可能
         :masks = masks -->
@@ -15,7 +15,7 @@
                     tabindex="-1"
                     :aria-label="props.day.ariaLabel"
                     role="button"
-                    class="vc-day-content vc-focusable"
+                    class="vc-day-content vc-focusable mx-auto"
                     @click="toInputPage(props.day)"
                 >
                     <!-- templateタグにはkeyは設定できないのでその中のtemplate以外の要素にkeyを指定 -->
@@ -32,91 +32,61 @@
     </div>
 </template>
 <script>
+import { onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 export default {
-    data() {
-        return {
-            // 祝日の情報を取得
-            url: "https://holidays-jp.github.io/api/v1/date.json",
-            options: {
-                method: "get",
-            },
-            // 当日をハイライト
-            attrs: [
-                {
-                key: "today",
-                highlight: true,
-                dates: new Date(),
-                },
-                // イベントはcustomDataに
-                // {
-                //   key: 1,
-                //   customData: {
-                //     title: "test",
-                //     class: "bg-orange-500 text-white",
-                //   },
-                //   dates: new Date("2022-09-20"),
-                // },
-                // {
-                //   key: 2,
-                //   customData: {
-                //     title: "テスト",
-                //     class: "bg-orange-500 text-white",
-                //   },
-                //   dates: new Date("2022-09-25"),
-                // },
-            ],
-            events: [
-                {
-                name: "test",
-                start: new Date("2022-09-01T11:00:00"),
-                end: new Date("2022-09-01T15:00:00"),
-                },
-                {
-                name: "テスト",
-                start: new Date("2022-09-07"),
-                end: new Date("2022-09-09"),
-                },
-            ],
-            holidays: [],
-            data: [],
-            calendar: "",
-            // タイトル変更をv-slotで行うためコメントアウト
-            // masks: {
-            //   title: "YYYY年 M月",
-            // },
-            calContent: "",
-        };
-    },
-    async mounted() {
-        // カレンダーコンポーネントの情報を取得(refはmount後にしか取得できない)
-        this.calendar = this.$refs.calendar;
-        // this.calContent = this.$refs.calContent;
-
+    setup(){
+        const router = useRouter();
         // 祝日の情報を取得
-        await fetch(this.url, this.options).then((response) => {
-            this.data = response.json();
-            this.data.then((val) => {
-                for (const days in val) {
-                    this.holidays.push(days);
-                }
+        const url = "https://holidays-jp.github.io/api/v1/date.json";
+        const options = {method: "get"};
+        // 当日をハイライト
+        const attrs = reactive([
+            {key: "today", highlight: true, dates: new Date()}
+        ]);
+        // イベントをハイライト
+        const events = reactive([
+            {
+            name: "test",
+            start: new Date("2022-09-01T11:00:00"),
+            end: new Date("2022-09-01T15:00:00"),
+            },
+            {
+            name: "テスト",
+            start: new Date("2022-09-07"),
+            end: new Date("2022-09-09"),
+            },
+        ]);
+        const holidays = ref([]);
+        const data = ref([]);
+
+         // ページ遷移
+        const toInputPage = (val) => {
+            router.push({ name: "selectMenu", params: { day: val.id } });
+        };
+
+        const getHolidays = async ()=> {
+            // 祝日の情報を取得
+            await fetch(url, options).then((response) => {
+                data.value = response.json();
+                data.value.then((val) => {
+                    for (const days in val) {
+                        holidays.value.push(days);
+                    }
+                });
             });
+        };
+
+        onMounted(() => {
+            getHolidays();
         });
-    },
-    computed: {},
-    methods: {
-        // ページ遷移
-        toInputPage(val) {
-            // オブジェクトの場合JSON形式で渡す必要あり
-            this.$router.push({ name: "CalendarInput", params: { day: JSON.stringify(val) } });
-        },
+
+        return { attrs, events, holidays, toInputPage}
     },
 };
 </script>
 
 <style scoped>
-.calendar {
-    margin: 0 auto;
-}
 
 .vc-container {
     width: 100%;
@@ -145,11 +115,6 @@ export default {
 .vc-weekday:nth-child(1),
 .holiday {
     color: red;
-}
-
-/* 日付を真ん中に */
-.vc-day-content {
-    margin: 0 auto;
 }
 
 /* 祝日を赤色に */
