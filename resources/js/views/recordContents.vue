@@ -20,6 +20,7 @@
                     <td>
                         <form action="" method="post">
                             <input type="hidden" name="_token" :value="csrf"><div class="bg-gray-200 border indent-1">
+                            <input class="border w-full" type="text" placeholder="体重(kg)">
                             {{ index + 1 }}セット目
                             </div>
                             <div :class="hasOneHand ? 'hidden' : 'block'">
@@ -38,6 +39,7 @@
                         </form>
                     </td>
                     <td>
+                        <input class="border w-full" type="text" placeholder="体重(kg)" ref= "beforeBodyWeight" readonly>
                         <div class="bg-gray-200 border indent-1">
                             {{ index + 1 }}セット目
                         </div>
@@ -77,21 +79,21 @@ export default{
                 rest: '休憩時間'
             };
         
-        const contents = [
+        const contents = ref([
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60},
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60},
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60},
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60},
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60},
-        ];
+        ]);
 
-        const beforeContents = [
+        const beforeContents = ref([
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60, recorded_at: "2023/03/22"},
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60, recorded_at: "2023/03/22"},
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60, recorded_at: "2023/03/22"},
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60, recorded_at: "2023/03/22"},
             {set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60, recorded_at: "2023/03/22"},
-        ];
+        ]);
 
         const fillBeforeRecord = ()=>{
             console.log(beforeLeftReps[0].value)

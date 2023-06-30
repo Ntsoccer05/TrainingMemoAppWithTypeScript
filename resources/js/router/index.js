@@ -1,9 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import Login from '../views/LoginPage.vue';
+import Register from '../views/registerPage.vue';
 import Home from '../views/home.vue';
-import SelectMenu from '../views/selectMenu.vue'
-import Record from '../views/recordContents.vue'
+import SelectMenu from '../views/selectMenu.vue';
+import Record from '../views/recordContents.vue';
 
 const routes = [
+  {
+    path: '/login',
+    name: 'login',
+    component: Login
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: Register
+  },
   {
     path: '/',
     name: 'home',
