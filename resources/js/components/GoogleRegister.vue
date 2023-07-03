@@ -24,27 +24,12 @@
         id="email"
         placeholder="メールアドレス"
         v-model="email"
+        readonly
       />
       <label
         for="email"
         class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
         >メールアドレス
-      </label>
-    </div>
-
-    <!-- Password input -->
-    <div class="relative mb-6" data-te-input-wrapper-init>
-      <input
-        type="password"
-        class="peer block min-h-[auto] w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
-        id="password"
-        placeholder="パスワード"
-        v-model="password"
-      />
-      <label
-        for="password"
-        class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
-        >パスワード
       </label>
     </div>
 
@@ -65,13 +50,16 @@
 
 <script>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 export default {
   setup(props) {
+    const route = useRoute();
     const router = useRouter();
+    const store = useStore();
+
     const name = ref("");
-    const email = ref("");
-    const password = ref("");
+    const email = route.query.email;
 
     const register = async () => {
       await axios
@@ -79,14 +67,16 @@ export default {
         .get("/sanctum/csrf-cookie")
         .then((res) => {
           axios
-            .post("/api/register", {
+            .post("/api/register/google", {
               name: name.value,
-              email: email.value,
-              password: password.value,
+              email,
+              // GoogleのURIを用いて登録する場合tokenが必須
+              token: route.query.token,
             })
             .then((res) => {
               if (res.data.status_code === 200) {
-                router.push("/login");
+                router.push("/");
+                store.dispatch("loginState");
               }
             })
             .catch((err) => {
@@ -98,7 +88,7 @@ export default {
         });
     };
 
-    return { name, email, password, register };
+    return { name, email, register };
   },
 };
 </script>

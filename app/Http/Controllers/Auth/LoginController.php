@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -31,7 +32,10 @@ class LoginController extends Controller
         // フォーム入力内容のユーザ取得
         $user = User::where('name', $request->name)->first();
         if(!$user){
-            return response()->json(['status_code' => 401,'message' => 'ユーザー登録されていません']);
+            return response()->json([
+                'status_code' => 401,
+                'message' => 'ユーザー登録されていません'
+            ]);
         }
 
         if(Auth::attempt($credentials)){
@@ -47,6 +51,39 @@ class LoginController extends Controller
     {
         Auth::guard('web')->logout();
 
-        return response()->json(['status_code' => 200,'message' => 'ログアウトしました'], 200);
+        return response()->json([
+            'status_code' => 200,
+            'message' => 'ログアウトしました'
+        ], 200);
+    }
+
+    // ソーシャルログイン処理
+    public function getProviderOAuthURL(string $provider)
+    {
+        $redirectUrl = Socialite::driver($provider)->redirect()->getTargetUrl();
+
+        return response()->json([
+            'redirectUrl' => $redirectUrl
+        ]);
+    }
+
+    public function handleProviderCallback(Request $request, string $provider)
+    {
+        $providerUser = Socialite::driver($provider)->stateless()->user();
+
+        $user = User::where('email', $providerUser->getEmail())->first();
+
+        if ($user) {
+            Auth::guard()->login($user, true);
+            return response()->json([
+                'user' => $user
+            ]);
+        }else{
+            return response()->json([
+                'provider' => $provider,
+                'email' => $providerUser->getEmail(),
+                'token' => $providerUser->token,
+            ]);
+        }
     }
 }

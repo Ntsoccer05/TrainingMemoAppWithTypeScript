@@ -14,8 +14,10 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
+        // ルーティングはフロントのVueで行うため削除
         if (! $request->expectsJson()) {
-            return route('login');
+            // return route('login');
+            return;
         }
     }
 }

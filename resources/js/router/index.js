@@ -1,15 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/LoginPage.vue';
 import Register from '../views/registerPage.vue';
+import RedirectAuthGoogle from '../components/RedirectAuthGoogle.vue'
+import googleRegister from '../views/googleRegister.vue'
 import Home from '../views/home.vue';
 import SelectMenu from '../views/selectMenu.vue';
 import Record from '../views/recordContents.vue';
 
 const routes = [
   {
+    path: '/',
+    name: 'home',
+    component: Home
+  },
+  {
     path: '/login',
     name: 'login',
     component: Login
+  },
+  {
+    path: '/login/google/callback',
+    name: 'RedirectAuthGoogle',
+    component: RedirectAuthGoogle
   },
   {
     path: '/register',
@@ -17,9 +29,9 @@ const routes = [
     component: Register
   },
   {
-    path: '/',
-    name: 'home',
-    component: Home
+    path: '/api/register/:provider',
+    name: 'googleRegister',
+    component: googleRegister
   },
   {
     // ?：NULL許容

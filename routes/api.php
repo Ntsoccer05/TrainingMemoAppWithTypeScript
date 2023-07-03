@@ -22,9 +22,20 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/logout',[LoginController::class, 'logout']);
 });
 
+// ログイン済みのみ
 Route::middleware('auth:sanctum')->get('users', function(Request $request){
     return $request->user();
 });
 
 Route::post('/login',[LoginController::class, 'login']);
 Route::post('/register',[RegisterController::class, 'register']);
+
+// ソーシャルログイン
+Route::prefix('login')->group(function () {
+    Route::get('/{provider}', [LoginController::class, 'getProviderOAuthURL']);
+    Route::post('/{provider}/callback', [LoginController::class, 'handleProviderCallback']);
+});
+
+Route::prefix('register')->group(function () {
+    Route::post('/{provider}', [RegisterController::class, 'registerProviderUser']);
+});
