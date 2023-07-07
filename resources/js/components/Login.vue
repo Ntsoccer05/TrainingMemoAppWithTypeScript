@@ -8,6 +8,7 @@
         id="name"
         v-model="name"
         placeholder="ユーザ名"
+        required
       />
       <label
         for="name"
@@ -64,7 +65,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 export default {
@@ -75,9 +76,13 @@ export default {
     const email = ref("");
     const password = ref("");
     const getUserMessage = ref("");
+    const error = reactive({
+      message: "",
+    });
 
     // ログイン処理
     const login = async () => {
+      debugger;
       axios
         // CSRF保護
         .get("/sanctum/csrf-cookie")
@@ -89,10 +94,15 @@ export default {
               password: password.value,
             })
             .then((res) => {
+              debugger;
               if (res.data.status_code == "200") {
                 router.push("/");
                 // ログイン状態を変更するためVuexより呼び出し
                 store.dispatch("loginState");
+              } else if (res.data.status_code == "401") {
+                debugger;
+                getUserMessage.value = "ログインに失敗しました。";
+                error.message = res.data.message;
               }
               getUserMessage.value = "ログインに失敗しました。";
             })
@@ -102,6 +112,7 @@ export default {
             });
         })
         .catch((err) => {
+          debugger;
           getUserMessage.value = "ログインに失敗しました。";
           console.log(err);
         });

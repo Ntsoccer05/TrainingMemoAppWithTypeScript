@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use App\Http\Requests\Auth\LoginRequest;
 
 class LoginController extends Controller
 {
@@ -20,17 +21,20 @@ class LoginController extends Controller
      public $isLogined = false;
 
     // ログイン処理
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
+        $message = null;
+        $status = 200;
         // フォーム入力情報のエラーチェック
-        $credentials = $request->validate([
-            'name' => 'required',
-            'email' => 'nullable|email',
-            'password' => 'nullable'
-        ]);
+        // $credentials = $request->validate([
+        //     'name' => 'required',
+        //     'email' => 'nullable|email|users:unique',
+        //     'password' => 'nullable'
+        // ]);
+        $credentials = $request->only('name');
 
         // フォーム入力内容のユーザ取得
-        $user = User::where('name', $request->name)->first();
+        $user = User::where('name', $request->name)->get();
         if(!$user){
             return response()->json([
                 'status_code' => 401,
@@ -40,9 +44,10 @@ class LoginController extends Controller
 
         if(Auth::attempt($credentials)){
             $request->session()->regenerate();
-            return response()->json(['status_code' => 200,'message' => 'ログインしました'],200);
+            return response()->json(['status_code' => $status,'message' => 'ログインしました'], 200);
         } else {
-            return response()->json(['status_code' => 500,'message' => '正しく入力してください'],200);
+            $status = 500;
+            return response()->json(['status_code' => $status,'message' => $message], 401);
         }
     }
 
