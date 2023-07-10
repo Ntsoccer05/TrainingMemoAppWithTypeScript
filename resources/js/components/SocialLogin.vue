@@ -18,7 +18,7 @@
 <script>
 import { useRouter } from "vue-router";
 export default {
-  setup(_, { emit }) {
+  setup() {
     const router = useRouter();
 
     // Googleログインページに遷移

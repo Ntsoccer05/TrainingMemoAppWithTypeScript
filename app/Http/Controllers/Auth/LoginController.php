@@ -28,26 +28,41 @@ class LoginController extends Controller
         // フォーム入力情報のエラーチェック
         // $credentials = $request->validate([
         //     'name' => 'required',
-        //     'email' => 'nullable|email|users:unique',
+        //     'email' => 'nullable|email',
         //     'password' => 'nullable'
         // ]);
-        $credentials = $request->only('name');
+
+        $credentials = $request->all();
 
         // フォーム入力内容のユーザ取得
-        $user = User::where('name', $request->name)->get();
-        if(!$user){
-            return response()->json([
-                'status_code' => 401,
-                'message' => 'ユーザー登録されていません'
-            ]);
-        }
+        // $user = User::where('name', $request->name)->get();
+        // $email = User::where('email', $request->email)->get();
+        // if(!$user){
+        //     throw new HttpResponseException(
+        //         response()->json([
+        //             'status_code' => 401,
+        //             'message' => 'ユーザー名が異なっています'
+        //         ])
+        //     );
+        // }
+        // if(!$email){
+        //     throw new HttpResponseException(
+        //         response()->json([
+        //             'status_code' => 401,
+        //             'message' => 'メールアドレスが異なっています'
+        //         ])
+        //     );
+        // }
+        
 
         if(Auth::attempt($credentials)){
             $request->session()->regenerate();
             return response()->json(['status_code' => $status,'message' => 'ログインしました'], 200);
-        } else {
-            $status = 500;
-            return response()->json(['status_code' => $status,'message' => $message], 401);
+        // } else {
+        //     $status = 401;
+        //     throw new HttpResponseException(
+        //         response()->json(['status_code' => $status,'message' => $credentials->errors()], 401)
+        //     );
         }
     }
 

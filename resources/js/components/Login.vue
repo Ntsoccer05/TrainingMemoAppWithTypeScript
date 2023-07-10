@@ -36,7 +36,7 @@
     <!-- Password input -->
     <div class="relative mb-6" data-te-input-wrapper-init>
       <input
-        type="password"
+        :type="inputType"
         class="peer block min-h-[auto] w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
         id="password"
         v-model="password"
@@ -47,6 +47,11 @@
         class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
         >パスワード
       </label>
+      <div class="absolute top-3 text-right w-11/12 pointer-events-none">
+        <span class="pointer-events-auto"
+          ><i :class="iconType" @click="toggleDisplayPass"></i
+        ></span>
+      </div>
     </div>
 
     <!--Submit button-->
@@ -65,25 +70,32 @@
 </template>
 
 <script>
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 export default {
-  setup(_, { emit }) {
+  setup() {
     const router = useRouter();
     const store = useStore();
     const name = ref("");
     const email = ref("");
     const password = ref("");
     const getUserMessage = ref("");
-    const error = reactive({
-      message: "",
+    const errors = ref([]);
+    const displayPass = ref(false);
+
+    const inputType = computed(() => {
+      return displayPass.value ? "text" : "password";
+    });
+
+    const iconType = computed(() => {
+      return displayPass.value ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
     });
 
     // ログイン処理
     const login = async () => {
       debugger;
-      axios
+      await axios
         // CSRF保護
         .get("/sanctum/csrf-cookie")
         .then((res) => {
@@ -99,15 +111,18 @@ export default {
                 router.push("/");
                 // ログイン状態を変更するためVuexより呼び出し
                 store.dispatch("loginState");
-              } else if (res.data.status_code == "401") {
-                debugger;
-                getUserMessage.value = "ログインに失敗しました。";
-                error.message = res.data.message;
+                // } else if (res.data.status_code == "401") {
+                //   debugger;
+                //   getUserMessage.value = "ログインに失敗しました。";
+                //   error.message = res.data.message;
+                // } else if (res.data.message) {
+                //   console.log(res.data.message);
               }
               getUserMessage.value = "ログインに失敗しました。";
             })
             .catch((err) => {
-              console.log(err);
+              debugger;
+              console.log(err.response.data);
               getUserMessage.value = "ログインに失敗しました。";
             });
         })
@@ -119,7 +134,20 @@ export default {
     };
     // 学習のため後にfetchを使って実装
 
-    return { name, email, password, login };
+    const toggleDisplayPass = () => {
+      displayPass.value = !displayPass.value;
+    };
+
+    return {
+      name,
+      email,
+      password,
+      displayPass,
+      login,
+      toggleDisplayPass,
+      inputType,
+      iconType,
+    };
   },
 };
 </script>

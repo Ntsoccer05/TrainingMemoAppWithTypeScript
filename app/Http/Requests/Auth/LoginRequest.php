@@ -26,9 +26,9 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required',
-            'email' => 'nullable|email',
-            'password' => 'nullable'
+            'name' => 'required|exists:users',
+            'email' => 'nullable|email|exists:users',
+            'password' => 'nullable|exists:users'
         ];
     }
 
@@ -36,7 +36,10 @@ class LoginRequest extends FormRequest
     {
         return [
             'name.required' => ':attributeは必須項目です。',
+            'name.exists' => '入力された:attributeは登録されていません。',
             'email.email' => '正しいメールアドレスを指定してください。',
+            'email.exists' => '入力された:attributeは登録されていません。',
+            'password.exists' => ':attributeは正しくありません。',
         ];
     }
 
@@ -54,7 +57,7 @@ class LoginRequest extends FormRequest
         $response['statusText'] = 'Failed validation.';
         $response['errors']  = $validator->errors();
         throw new HttpResponseException(
-            response()->json( $response, 200 )
+            response()->json( $response, 401 )
         );
     }
 }
