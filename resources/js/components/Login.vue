@@ -15,6 +15,7 @@
         class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
         >ユーザ名
       </label>
+      <p :class="dispNameErrMsg">{{ errors.name[0] }}</p>
     </div>
 
     <!-- Email input -->
@@ -31,6 +32,7 @@
         class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
         >メールアドレス
       </label>
+      <p :class="dispEmailErrMsg">{{ errors.email[0] }}</p>
     </div>
 
     <!-- Password input -->
@@ -52,6 +54,7 @@
           ><i :class="iconType" @click="toggleDisplayPass"></i
         ></span>
       </div>
+      <p :class="dispPassErrMsg">{{ errors.password }}</p>
     </div>
 
     <!--Submit button-->
@@ -73,6 +76,8 @@
 import { ref, reactive, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import useValidationMsg from "../composables/useValidationMsg.js";
+import dispValidationMsg from "../composables/useDispValidationMsg";
 export default {
   setup() {
     const router = useRouter();
@@ -81,20 +86,33 @@ export default {
     const email = ref("");
     const password = ref("");
     const getUserMessage = ref("");
-    const errors = ref([]);
+    const errors = reactive({
+      name: [],
+      email: [],
+      password: [],
+    });
+    const dispErrorMsg = reactive({
+      name: false,
+      email: false,
+      password: false,
+    });
     const displayPass = ref(false);
 
+    // パスワードの表示／非表示
     const inputType = computed(() => {
       return displayPass.value ? "text" : "password";
     });
-
     const iconType = computed(() => {
       return displayPass.value ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
     });
 
+    //バリデーションエラーメッセージのレイアウト
+    const { dispNameErrMsg, dispEmailErrMsg, dispPassErrMsg } = dispValidationMsg(
+      dispErrorMsg
+    );
+
     // ログイン処理
     const login = async () => {
-      debugger;
       await axios
         // CSRF保護
         .get("/sanctum/csrf-cookie")
@@ -106,30 +124,23 @@ export default {
               password: password.value,
             })
             .then((res) => {
-              debugger;
               if (res.data.status_code == "200") {
                 router.push("/");
                 // ログイン状態を変更するためVuexより呼び出し
                 store.dispatch("loginState");
-                // } else if (res.data.status_code == "401") {
-                //   debugger;
-                //   getUserMessage.value = "ログインに失敗しました。";
-                //   error.message = res.data.message;
-                // } else if (res.data.message) {
-                //   console.log(res.data.message);
               }
               getUserMessage.value = "ログインに失敗しました。";
             })
             .catch((err) => {
-              debugger;
-              console.log(err.response.data);
+              // POST時のバリデーションエラー
+              const errorMsgs = err.response.data.errors;
+              useValidationMsg(errorMsgs, errors, dispErrorMsg);
+
               getUserMessage.value = "ログインに失敗しました。";
             });
         })
         .catch((err) => {
-          debugger;
           getUserMessage.value = "ログインに失敗しました。";
-          console.log(err);
         });
     };
     // 学習のため後にfetchを使って実装
@@ -142,11 +153,15 @@ export default {
       name,
       email,
       password,
+      errors,
       displayPass,
       login,
       toggleDisplayPass,
       inputType,
       iconType,
+      dispNameErrMsg,
+      dispEmailErrMsg,
+      dispPassErrMsg,
     };
   },
 };

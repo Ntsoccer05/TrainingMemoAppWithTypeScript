@@ -97,7 +97,7 @@ export default {
           if ((res.data.status_code = 200)) {
             router.push("/");
             // ログイン状態を変更するためVuexより呼び出し
-            store.dispatch("loginState");
+            store.commit("LogoutState");
           }
         })
         .catch((err) => {

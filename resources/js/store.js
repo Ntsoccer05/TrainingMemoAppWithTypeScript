@@ -7,8 +7,16 @@ export default createStore({
         user:[],
         isLogined: false
     },
-    mutations:[
-    ],
+    mutations:{
+      LoginState(state){
+        // ログイン状態
+        state.isLogined = true;
+      },
+      LogoutState(state){
+        // ログアウト状態
+        state.isLogined = false;
+      }
+    },
     actions:{
         async loginState({state}) {
           await axios.get("/api/users")

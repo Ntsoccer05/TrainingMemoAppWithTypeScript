@@ -28,7 +28,7 @@ class LoginRequest extends FormRequest
         return [
             'name' => 'required|exists:users',
             'email' => 'nullable|email|exists:users',
-            'password' => 'nullable|exists:users'
+            'password' => 'nullable'
         ];
     }
 

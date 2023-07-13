@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -23,47 +24,21 @@ class LoginController extends Controller
     // ログイン処理
     public function login(LoginRequest $request)
     {
-        $message = null;
         $status = 200;
-        // フォーム入力情報のエラーチェック
-        // $credentials = $request->validate([
-        //     'name' => 'required',
-        //     'email' => 'nullable|email',
-        //     'password' => 'nullable'
-        // ]);
+        $credentials = $request->validated();
 
-        $credentials = $request->all();
+        $user = User::where('name', $request->name)->first();
+        // 登録されているハッシュ化されたパスワードと入力したパスワードが一致しているかチェック
+        $check_password = Hash::check($request->password, $user->password);
+        if(!$check_password){
+            $msg = ['password'=>'パスワードが間違っています'];
+            return response()->json(['status_code' => $status,'errors' => $msg], 401);
+        }
 
-        // フォーム入力内容のユーザ取得
-        // $user = User::where('name', $request->name)->get();
-        // $email = User::where('email', $request->email)->get();
-        // if(!$user){
-        //     throw new HttpResponseException(
-        //         response()->json([
-        //             'status_code' => 401,
-        //             'message' => 'ユーザー名が異なっています'
-        //         ])
-        //     );
-        // }
-        // if(!$email){
-        //     throw new HttpResponseException(
-        //         response()->json([
-        //             'status_code' => 401,
-        //             'message' => 'メールアドレスが異なっています'
-        //         ])
-        //     );
-        // }
-        
-
-        if(Auth::attempt($credentials)){
+        if(Auth::guard('web')->attempt($credentials)){
             $request->session()->regenerate();
             return response()->json(['status_code' => $status,'message' => 'ログインしました'], 200);
-        // } else {
-        //     $status = 401;
-        //     throw new HttpResponseException(
-        //         response()->json(['status_code' => $status,'message' => $credentials->errors()], 401)
-        //     );
-        }
+        };
     }
 
     // ログアウト処理
