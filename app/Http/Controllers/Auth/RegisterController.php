@@ -3,27 +3,19 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Dotenv\Validator;
-use Faker\Guesser\Name;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
+use App\Http\Requests\Auth\RegisterRequest;
 
 class RegisterController extends Controller
 {
 
     //ユーザ登録処理
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        // フォーム入力情報のエラーチェック
-        $request->validate([
-            'name' => ['required','unique:users'],
-            'email' => ['nullable', 'email', 'unique:users'],
-            'password' => 'nullable'
-        ]);
-
         $user = User::Create([
             'name' => $request['name'],
             'email' => $request['email'],

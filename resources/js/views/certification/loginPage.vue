@@ -5,9 +5,9 @@
         class="g-6 flex h-full flex-wrap items-center justify-center lg:justify-between"
       >
         <!-- Left column container with background-->
-        <div class="mb-12 md:mb-0 md:w-8/12 lg:w-6/12">
+        <div class="mb-12 md:mb-0 md:w-8/12 lg:w-6/12 hidden lg:block">
           <img
-            src="https://tecdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg"
+            src="../../../images/charles-gaudreault-xXofYCc3hqc-unsplash.jpg"
             class="w-full"
             alt="Phone image"
           />
@@ -15,16 +15,27 @@
 
         <!-- Right column container with form -->
         <div class="md:w-8/12 lg:ml-6 lg:w-5/12">
-          <GoogleRegister />
+          <Login />
+          <!--Forgot password link-->
+          <a href="#!">パスワードを忘れた方はこちら</a>
 
-          <!--Login button-->
-          <div class="pb-6 mt-12">
+          <!-- Divider -->
+          <div
+            class="my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300"
+          >
+            <p class="mx-4 mb-0 text-center font-semibold dark:text-neutral-200">OR</p>
+          </div>
+
+          <SocialLogin />
+
+          <!--Register button-->
+          <div class="pb-6 mt-6 md:mt-12">
             <!-- Divider -->
             <div
               class="my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300"
             >
               <p class="mx-4 mb-0 text-center font-semibold dark:text-neutral-200">
-                登録済みの方は
+                アカウントがない方は
               </p>
             </div>
             <button
@@ -32,8 +43,9 @@
               class="inline-block w-full mx-auto rounded border-2 border-red-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-red-500 transition duration-150 ease-in-out hover:border-red-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-red-600 focus:border-red-600 focus:text-red-600 focus:outline-none focus:ring-0 active:border-red-700 active:text-red-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
               data-te-ripple-init
               data-te-ripple-color="light"
+              @click="toRegister"
             >
-              <router-link to="/login">ログイン画面へ</router-link>
+              新規登録画面へ
             </button>
           </div>
         </div>
@@ -43,12 +55,22 @@
 </template>
 
 <script>
-import GoogleRegister from "../components/GoogleRegister.vue";
+import Login from "../../components/certification/Login.vue";
+import SocialLogin from "../../components/certification/SocialLogin.vue";
+import { useRouter } from "vue-router";
 export default {
   components: {
-    GoogleRegister,
+    Login,
+    SocialLogin,
   },
-  setup() {},
+  setup() {
+    const router = useRouter();
+    const toRegister = () => {
+      router.push("/register");
+    };
+
+    return { toRegister };
+  },
 };
 </script>
 

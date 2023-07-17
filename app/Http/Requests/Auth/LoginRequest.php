@@ -39,7 +39,6 @@ class LoginRequest extends FormRequest
             'name.exists' => '入力された:attributeは登録されていません。',
             'email.email' => '正しいメールアドレスを指定してください。',
             'email.exists' => '入力された:attributeは登録されていません。',
-            'password.exists' => ':attributeは正しくありません。',
         ];
     }
 
@@ -52,10 +51,12 @@ class LoginRequest extends FormRequest
         ];
     }
 
-    protected function failedValidation(Validator $validator) {
+    // 関数名はリクエスト毎でユニークにする
+    protected function failedLoginValidation(Validator $validator) {
         $response['status_code']  = 401;
         $response['statusText'] = 'Failed validation.';
-        $response['errors']  = $validator->errors();
+        $response['errors']  = $validator->errors()->toArray();
+
         throw new HttpResponseException(
             response()->json( $response, 401 )
         );

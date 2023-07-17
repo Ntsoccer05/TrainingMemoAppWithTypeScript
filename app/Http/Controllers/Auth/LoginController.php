@@ -24,6 +24,9 @@ class LoginController extends Controller
     // ログイン処理
     public function login(LoginRequest $request)
     {
+
+        // まずLoginRequest.php内でバリデーションされて以下のコードが走る
+
         $status = 200;
         $credentials = $request->validated();
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Models\User;
 use Illuminate\Support\Facades\Redis;
+use App\Http\Controllers\RecordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,8 +19,13 @@ use Illuminate\Support\Facades\Redis;
 |
 */
 
+// ログイン済みのみ
 Route::middleware('auth:sanctum')->group(function(){
     Route::post('/logout',[LoginController::class, 'logout']);
+    Route::post('/record', [RecordController::class, 'create']);
+    Route::post('/record', [RecordController::class, 'update']);
+    Route::post('/record', [RecordController::class, 'edit']);
+    Route::post('/record', [RecordController::class, 'destroy']);
 });
 
 // ログイン済みのみ

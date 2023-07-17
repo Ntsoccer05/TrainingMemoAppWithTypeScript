@@ -7,7 +7,7 @@
         <!-- Left column container with background-->
         <div class="mb-12 md:mb-0 md:w-8/12 hidden lg:w-6/12 lg:block">
           <img
-            src="../../images/charles-gaudreault-xXofYCc3hqc-unsplash.jpg"
+            src="../../../images/charles-gaudreault-xXofYCc3hqc-unsplash.jpg"
             class="w-full"
             alt="Phone image"
           />
@@ -41,8 +41,9 @@
               class="inline-block w-full mx-auto rounded border-2 border-red-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-red-500 transition duration-150 ease-in-out hover:border-red-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-red-600 focus:border-red-600 focus:text-red-600 focus:outline-none focus:ring-0 active:border-red-700 active:text-red-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
               data-te-ripple-init
               data-te-ripple-color="light"
+              @click="toLogin"
             >
-              <router-link to="/login">ログイン画面へ</router-link>
+              ログイン画面へ
             </button>
           </div>
         </div>
@@ -52,14 +53,20 @@
 </template>
 
 <script>
-import Register from "../components/Register.vue";
-import SocialLogin from "../components/SocialLogin.vue";
+import Register from "../../components/certification/Register.vue";
+import SocialLogin from "../../components/certification/SocialLogin.vue";
+import { useRouter } from "vue-router";
 export default {
   components: {
     Register,
     SocialLogin,
   },
-  setup() {},
+  setup() {
+    const router = useRouter();
+    const toLogin = () => router.push("/login");
+
+    return { toLogin };
+  },
 };
 </script>
 

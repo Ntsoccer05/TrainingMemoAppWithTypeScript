@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Header from "./components/Header.vue";
+import Header from "./components/menuList/Header.vue";
 export default {
   components: {
     Header,
@@ -19,7 +19,7 @@ export default {
 input:-webkit-autofill,
 textarea:-webkit-autofill,
 select:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  box-shadow: 0 0 0 1000px white inset !important;
   -webkit-text-fill-color: black !important;
 }
 </style>

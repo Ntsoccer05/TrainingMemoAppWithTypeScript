@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '../views/LoginPage.vue';
-import Register from '../views/registerPage.vue';
-import RedirectAuthGoogle from '../components/RedirectAuthGoogle.vue'
-import googleRegister from '../views/googleRegister.vue'
+import Login from '../views/certification/loginPage.vue';
+import Register from '../views/certification/registerPage.vue';
+import RedirectAuthGoogle from '../components/certification/RedirectAuthGoogle.vue'
+import googleRegister from '../views/certification/googleRegister.vue'
 import Home from '../views/home.vue';
 import SelectMenu from '../views/selectMenu.vue';
 import Record from '../views/recordContents.vue';

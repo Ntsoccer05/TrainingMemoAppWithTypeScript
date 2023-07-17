@@ -7,6 +7,9 @@ export default createStore({
         user:[],
         isLogined: false
     },
+    getters:{
+      getLoginUser:state => state.user
+    },
     mutations:{
       LoginState(state){
         // ログイン状態

@@ -5,9 +5,9 @@
         class="g-6 flex h-full flex-wrap items-center justify-center lg:justify-between"
       >
         <!-- Left column container with background-->
-        <div class="mb-12 md:mb-0 md:w-8/12 lg:w-6/12 hidden lg:block">
+        <div class="mb-12 md:mb-0 md:w-8/12 lg:w-6/12">
           <img
-            src="../../images/charles-gaudreault-xXofYCc3hqc-unsplash.jpg"
+            src="https://tecdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg"
             class="w-full"
             alt="Phone image"
           />
@@ -15,27 +15,16 @@
 
         <!-- Right column container with form -->
         <div class="md:w-8/12 lg:ml-6 lg:w-5/12">
-          <Login />
-          <!--Forgot password link-->
-          <a href="#!">パスワードを忘れた方はこちら</a>
+          <GoogleRegister />
 
-          <!-- Divider -->
-          <div
-            class="my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300"
-          >
-            <p class="mx-4 mb-0 text-center font-semibold dark:text-neutral-200">OR</p>
-          </div>
-
-          <SocialLogin />
-
-          <!--Register button-->
-          <div class="pb-6 mt-6 md:mt-12">
+          <!--Login button-->
+          <div class="pb-6 mt-12">
             <!-- Divider -->
             <div
               class="my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300"
             >
               <p class="mx-4 mb-0 text-center font-semibold dark:text-neutral-200">
-                アカウントがない方は
+                登録済みの方は
               </p>
             </div>
             <button
@@ -44,7 +33,7 @@
               data-te-ripple-init
               data-te-ripple-color="light"
             >
-              <router-link to="/register">新規登録画面へ</router-link>
+              <router-link to="/login">ログイン画面へ</router-link>
             </button>
           </div>
         </div>
@@ -54,13 +43,12 @@
 </template>
 
 <script>
-import Login from "../components/Login.vue";
-import SocialLogin from "../components/SocialLogin.vue";
+import GoogleRegister from "../../components/certification/GoogleRegister.vue";
 export default {
   components: {
-    Login,
-    SocialLogin,
+    GoogleRegister,
   },
+  setup() {},
 };
 </script>
 
