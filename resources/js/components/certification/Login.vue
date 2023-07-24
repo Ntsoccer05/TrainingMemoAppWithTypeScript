@@ -49,6 +49,9 @@
         class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
         >パスワード
       </label>
+      <label
+        ><input type="checkbox" v-model="displayPass" class="mr-1" />パスワードを表示する
+      </label>
       <div class="absolute top-3 text-right w-11/12 pointer-events-none">
         <span class="pointer-events-auto"
           ><i :class="iconType" @click="toggleDisplayPass"></i
@@ -124,7 +127,6 @@ export default {
               password: password.value,
             })
             .then((res) => {
-              debugger;
               if (res.data.status_code == "200") {
                 router.push("/");
                 // ログイン状態を変更するためVuexより呼び出し

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Record;
+use Carbon\Carbon;
 
 class RecordController extends Controller
 {
@@ -11,9 +13,34 @@ class RecordController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $recorded_at = Carbon::parse($request->recording_day);
+        // $hasRecord = Record::where('user_id', $request->user_id)->where('recorded_at', $recorded_at)->get();
+        Record::create([
+            'user_id' => $request->user_id,
+            'recorded_at' => $recorded_at
+        ]);
+        return response()->json(["status_code" => 200, "message" => "記録開始しました"]);
+        // if($hasRecord){
+        //     return;
+        // }else{
+        //     Record::create([
+        //         'user_id' => $request->user_id,
+        //         'recorded_at' => $request->recording_day
+        //     ]);
+        //     return response()->json(["status_code" => 200, "message" => "記録開始しました"]);
+        // }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function createSelectDay(Request $request)
+    {
+        
     }
 
     /**
@@ -45,18 +72,6 @@ class RecordController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
     {
         //
     }

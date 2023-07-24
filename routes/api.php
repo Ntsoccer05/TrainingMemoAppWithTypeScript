@@ -22,9 +22,9 @@ use App\Http\Controllers\RecordController;
 // ログイン済みのみ
 Route::middleware('auth:sanctum')->group(function(){
     Route::post('/logout',[LoginController::class, 'logout']);
-    Route::post('/record', [RecordController::class, 'create']);
-    Route::post('/record', [RecordController::class, 'update']);
-    Route::post('/record', [RecordController::class, 'edit']);
+    Route::post('/record/create', [RecordController::class, 'create']);
+    Route::get('/record/edit', [RecordController::class, 'edit']);
+    Route::post('/record/edit', [RecordController::class, 'update']);
     Route::post('/record', [RecordController::class, 'destroy']);
 });
 

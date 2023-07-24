@@ -5,10 +5,13 @@ import {createStore, storeKey} from 'vuex';
 export default createStore({
     state:{
         user:[],
-        isLogined: false
+        isLogined: false,
+        day: ""
     },
     getters:{
-      getLoginUser:state => state.user
+      isLogined:state => state.isLogined,
+      loginUser:state => state.user,
+      selectedDay:state => state.day
     },
     mutations:{
       LoginState(state){
@@ -18,20 +21,33 @@ export default createStore({
       LogoutState(state){
         // ログアウト状態
         state.isLogined = false;
+      },
+      selectedDay(state, day){
+        state.day = day
       }
     },
     actions:{
         async loginState({state}) {
           await axios.get("/api/users")
           .then((res) => {
-            // ログインしているユーザー情報取得
-            state.user = res.data
             // ログイン状態取得
             state.isLogined = true;
           })
           .catch((err) => {
             // ログイン状態取得
             state.isLogined = false;
-          })}
+          })
+        },
+
+        async getLoginUser({state}) {
+          await axios.get("/api/users")
+          .then((res) => {
+            // ログインしているユーザー情報取得
+            state.user = res.data;
+          })
+          .catch((err) => {
+            // ログインしていない状態だとホーム画面へリダイレクト
+          })
+        }
     }
 })

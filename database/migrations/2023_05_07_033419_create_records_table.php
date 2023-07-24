@@ -15,15 +15,18 @@ return new class extends Migration
     {
         Schema::create('records', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('users');
-            $table->foreignId('category_id')->references('id')->on('categories');
-            $table->integer('bodyWeight')
-            $table->integer('weight')
+            //外部キーに紐づくテーブルはreferences->onかconstrained
+            $table->foreignId('user_id')->constrained('users');
+            //外部キーのnull許容はforeignIdの直後
+            $table->foreignId('category_id')->nullable()->references('id')->on('categories');
+            $table->integer('bodyWeight')->nullable();
+            $table->integer('weight')->nullable();
             $table->integer('right-weight')->nullable();
             $table->integer('left-weight')->nullable();
-            $table->integer('set')
-            $table->integer('rep')
-            $table->string('memo')
+            $table->integer('set')->nullable();
+            $table->integer('rep')->nullable();
+            $table->string('memo')->nullable();
+            $table->date('recorded_at');
             $table->timestamps();
         });
     }
