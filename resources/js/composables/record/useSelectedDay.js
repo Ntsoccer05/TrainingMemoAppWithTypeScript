@@ -12,5 +12,9 @@ export default function useSelected(day){
         return store.getters.selectedDay;
     })
 
-    return {selectedDay, recordingDay};
+    const date = new Date(day);
+    // padStart(何桁表示するか, 文字埋めする文字)
+    const postDay = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+
+    return {selectedDay, recordingDay, postDay};
 }

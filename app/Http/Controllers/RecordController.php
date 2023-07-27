@@ -16,21 +16,18 @@ class RecordController extends Controller
     public function create(Request $request)
     {
         $recorded_at = Carbon::parse($request->recording_day);
-        // $hasRecord = Record::where('user_id', $request->user_id)->where('recorded_at', $recorded_at)->get();
-        Record::create([
-            'user_id' => $request->user_id,
-            'recorded_at' => $recorded_at
-        ]);
-        return response()->json(["status_code" => 200, "message" => "記録開始しました"]);
-        // if($hasRecord){
-        //     return;
-        // }else{
-        //     Record::create([
-        //         'user_id' => $request->user_id,
-        //         'recorded_at' => $request->recording_day
-        //     ]);
-        //     return response()->json(["status_code" => 200, "message" => "記録開始しました"]);
-        // }
+        $recording_day =$recorded_at->toDateString();
+        $hasRecord = Record::where('user_id', $request->user_id)->whereDate('recorded_at', $recording_day)->get();
+        
+        if(count($hasRecord) !== 0){
+            return response()->json(["status_code" => 200, "hasrecord" => $hasRecord,"recorded_at"=>$recorded_at, "request"=>$request->recording_day,"record" => $recording_day]);;
+        }else{
+            Record::create([
+                'user_id' => $request->user_id,
+                'recorded_at' => $recording_day
+            ]);
+            return response()->json(["status_code" => 200, "message" => "記録開始しました"]);
+        }
     }
 
     /**

@@ -2,7 +2,7 @@
   <div class="calendar container md:w-11/12 ml:h-50vh mx-auto">
     <v-calendar ref="calendar" locale="ja-jp" :attributes="attrs">
       <!-- Calendarの中に以下でもタイトル名変更可能
-        :masks = masks -->
+          :masks = masks -->
       <!-- タイトル変更：header-titleのslot-scopeの中のpropを利用 (#はv-slotの省略記法) -->
       <template #header-title="props">
         {{ props.yearLabel }}年 {{ props.monthLabel }}
@@ -12,11 +12,12 @@
       <template #day-content="props">
         <template v-if="props.day.inMonth">
           <span
+            type="submit"
             tabindex="-1"
             :aria-label="props.day.ariaLabel"
             role="button"
             class="vc-day-content vc-focusable mx-auto"
-            @click="toInputPage(props.day)"
+            @click="selectedDay(props.day)"
           >
             <!-- templateタグにはkeyは設定できないのでその中のtemplate以外の要素にkeyを指定 -->
             <template v-for="holiday in holidays">
@@ -24,7 +25,7 @@
                 <span class="isHoliday" :key="holiday"></span>
               </template>
             </template>
-            <span>{{ props.day.day }}</span>
+            <span role="button" type="submit">{{ props.day.day }}</span>
           </span>
         </template>
       </template>
@@ -32,8 +33,11 @@
   </div>
 </template>
 <script>
+// https://v2.vcalendar.io/attributes.html#_2-scoped-slot
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
+import useSelectedDay from "../../composables/record/useSelectedDay";
 export default {
   setup() {
     const router = useRouter();
@@ -60,13 +64,35 @@ export default {
         dates: [new Date("2023-05-07"), new Date("2023-05-09")],
       },
     ]);
+    const selected_at = ref("");
 
     const holidays = ref([]);
     const data = ref([]);
 
-    // ページ遷移
-    const toInputPage = (val) => {
-      router.push({ name: "selectMenu", params: { day: val.id } });
+    const { getLoginUser, loginUser } = useGetLoginUser();
+
+    getLoginUser();
+
+    const selectedDayRecord = async (day) => {
+      debugger;
+      await axios
+        .post("/api/record/create", {
+          user_id: loginUser.value.id,
+          recording_day: day,
+        })
+        .then((res) => {
+          router.push({ name: "selectMenu", params: { day: day.id } });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+
+    const selectedDay = (day) => {
+      selected_at.value = day.id;
+      const { postDay } = useSelectedDay(selected_at.value);
+      // 日付クリック時にPOST送信する
+      selectedDayRecord(postDay);
     };
 
     const getHolidays = async () => {
@@ -85,7 +111,7 @@ export default {
       getHolidays();
     });
 
-    return { attrs, holidays, toInputPage };
+    return { attrs, holidays, selectedDay, selectedDayRecord };
   },
 };
 </script>

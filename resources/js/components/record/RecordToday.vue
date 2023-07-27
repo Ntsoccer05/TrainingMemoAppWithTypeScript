@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
@@ -19,33 +18,28 @@ export default {
     const date = new Date();
     const router = useRouter();
 
-    const today = `${date.getFullYear()}-${(date.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-
-    const time = `${date
-      .getHours()
-      .toString()
-      .padStart(2, "0")}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
+    // 現在時刻を取得する場合
+    // const time = `${date
+    //   .getHours()
+    //   .toString()
+    //   .padStart(2, "0")}:${date
+    //   .getMinutes()
+    //   .toString()
+    //   .padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
 
     const { getLoginUser, loginUser } = useGetLoginUser();
 
     getLoginUser();
-    const { selectedDay, recordingDay } = useSelectedDay(today);
+    const { selectedDay, recordingDay, postDay } = useSelectedDay(date);
 
     selectedDay();
 
     const record = async () => {
-      // getLoginUser();
-      // selectedDay();
       debugger;
       await axios
         .post("/api/record/create", {
           user_id: loginUser.value.id,
-          recorded_at: `${recordingDay.value} ${time}`,
+          recording_day: postDay,
         })
         .then((res) => {
           router.push("/selectMenu");
