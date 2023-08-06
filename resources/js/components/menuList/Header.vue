@@ -72,6 +72,7 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import useHoldLoginState from "../../composables/certification/useHoldLoginState";
 export default {
   setup() {
     const router = useRouter();
@@ -104,7 +105,6 @@ export default {
           console.log(err);
         });
     };
-
     return { isOpen, isLogined, user, toggleNav, toHome, logout };
   },
 };

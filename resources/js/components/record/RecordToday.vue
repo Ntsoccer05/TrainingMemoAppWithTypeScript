@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
@@ -17,6 +18,7 @@ export default {
   setup() {
     const date = new Date();
     const router = useRouter();
+    const authUser = ref([]);
 
     // 現在時刻を取得する場合
     // const time = `${date
@@ -28,8 +30,18 @@ export default {
     //   .padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
 
     const { getLoginUser, loginUser } = useGetLoginUser();
-
     getLoginUser();
+    //ログインしているかの判別をする場合DOMが生成されていない状態だとログイン状態を判別できないため
+    //getLoginUser はApp.vueで行う
+    // onMounted(async () => {
+    onMounted(() => {
+      // await getLoginUser();
+      // 画面生成後のタイミングでしかユーザ情報取得できないため
+      window.onload = () => {
+        authUser.value = loginUser;
+      };
+    });
+
     const { selectedDay, recordingDay, postDay } = useSelectedDay(date);
 
     selectedDay();
@@ -53,7 +65,7 @@ export default {
       // トレーニング記録画面へ遷移
       router.push("/selectMenu");
     };
-    return { toSelectMenu, recordingDay, today, loginUser, record };
+    return { toSelectMenu, recordingDay, loginUser, record };
   },
 };
 </script>

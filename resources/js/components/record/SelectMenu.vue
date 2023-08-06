@@ -3,6 +3,7 @@
     <h3 class="text-lg text-center font-bold mt-4">鍛える部位を選択してください</h3>
     <button
       class="block w-50 bg-blue-500 hover:bg-blue-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 ml-auto rounded-full"
+      @click="toAddMenu()"
     >
       部位・種目を追加する
     </button>
@@ -70,6 +71,14 @@ export default {
       },
     ];
 
+    //トレーニングメニュー追加画面に遷移
+    const toAddMenu = () => {
+      router.push({
+        name: "menu",
+        params: route.params,
+      });
+    };
+
     //トレーニング記録画面に遷移
     const toRecordContents = (categoryId, menu) => {
       router.push({
@@ -79,7 +88,7 @@ export default {
       });
     };
 
-    return { categories, toRecordContents };
+    return { categories, toRecordContents, toAddMenu };
   },
 };
 </script>

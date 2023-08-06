@@ -28,10 +28,12 @@ export default createStore({
     },
     actions:{
         async loginState({state}) {
-          await axios.get("/api/users")
+        await axios.get("/api/users")
           .then((res) => {
             // ログイン状態取得
             state.isLogined = true;
+            // ログインしているユーザー情報取得
+            state.user = res.data;
           })
           .catch((err) => {
             // ログイン状態取得

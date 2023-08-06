@@ -6,6 +6,7 @@ import googleRegister from '../views/certification/googleRegister.vue'
 import Home from '../views/home.vue';
 import SelectMenu from '../views/selectMenu.vue';
 import Record from '../views/recordContents.vue';
+import trainingMenuList from '../views/trainingMenuList.vue';
 
 const routes = [
   {
@@ -43,6 +44,12 @@ const routes = [
     path: '/record/:day?',
     name: 'record',
     component: Record,
+    props: true
+  },
+  {
+    path: '/menu/:user_id?',
+    name: 'menu',
+    component: trainingMenuList,
     props: true
   },
   //指定のないURLの場合ホームにリダイレクト

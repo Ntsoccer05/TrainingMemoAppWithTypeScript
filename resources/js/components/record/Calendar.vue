@@ -1,5 +1,5 @@
 <template>
-  <div class="calendar container md:w-11/12 ml:h-50vh mx-auto">
+  <div class="calendar container md:w-11/12 ml:h-2/3 mx-auto">
     <v-calendar ref="calendar" locale="ja-jp" :attributes="attrs">
       <!-- Calendarの中に以下でもタイトル名変更可能
           :masks = masks -->
@@ -41,6 +41,7 @@ import useSelectedDay from "../../composables/record/useSelectedDay";
 export default {
   setup() {
     const router = useRouter();
+    const authUser = ref([]);
     // 祝日の情報を取得
     const url = "https://holidays-jp.github.io/api/v1/date.json";
     const options = { method: "get" };
@@ -71,10 +72,17 @@ export default {
 
     const { getLoginUser, loginUser } = useGetLoginUser();
 
-    getLoginUser();
+    //ログインしているかの判別をする場合DOMが生成されていない状態だとログイン状態を判別できないため
+    //getLoginUser はApp.vueで行う
+    onMounted(async () => {
+      //   await getLoginUser();
+      // 画面生成後のタイミングでしかユーザ情報取得できないため
+      window.onload = () => {
+        authUser.value = loginUser;
+      };
+    });
 
     const selectedDayRecord = async (day) => {
-      debugger;
       await axios
         .post("/api/record/create", {
           user_id: loginUser.value.id,

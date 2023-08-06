@@ -6,10 +6,29 @@
 </template>
 
 <script>
+import { onMounted } from "vue";
 import Header from "./components/menuList/Header.vue";
+import useHoldLoginState from "./composables/certification/useHoldLoginState";
+import useGetLoginUser from "./composables/certification/useGetLoginUser.js";
+
 export default {
   components: {
     Header,
+  },
+  setup() {
+    //ログイン状態をリロードしても維持するため
+    const { holdLoginState } = useHoldLoginState();
+
+    const { getLoginUser, loginUser } = useGetLoginUser();
+
+    // async await を使わないとユーザ情報取得する前にMountedサイクルが終了してしまう
+    onMounted(async () => {
+      //   // setup内だと早すぎてユーザ情報を取得できない
+      holdLoginState();
+      await getLoginUser();
+    });
+
+    return { holdLoginState };
   },
 };
 </script>
