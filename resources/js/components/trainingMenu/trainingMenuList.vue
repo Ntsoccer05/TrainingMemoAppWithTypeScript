@@ -1,7 +1,7 @@
 <template>
-  <div class="md:flex">
+  <div class="md:flex items-baseline mt-8">
     <table
-      class="border border-collapse table-fixed mx-auto mt-3 md:w-5/12 w-11/12"
+      class="border border-collapse table-fixed mx-auto md:w-5/12 w-11/12"
       v-for="category in categories"
       :key="category.id"
     >
@@ -11,7 +11,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="menu in menus" :key="menu.id">
+        <tr v-for="menu in categoryMenus(category.id)" :key="menu.id">
           <td class="border hover:bg-gray-200">{{ menu.content }}</td>
         </tr>
       </tbody>
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { reactive, ref } from "vue";
+import { reactive, ref, computed, onMounted } from "vue";
 export default {
   setup() {
     const categories = ref([
@@ -42,12 +42,29 @@ export default {
       },
       {
         id: 2,
+        category_id: 2,
+        content: "iii",
+      },
+      {
+        id: 2,
+        category_id: 1,
+        content: "iii",
+      },
+      {
+        id: 2,
         category_id: 1,
         content: "iii",
       },
     ]);
 
-    return { categories, menus };
+    // 絞り込みの際は必ずreturnが必要
+    const categoryMenus = (categoryId) => {
+      return menus.value.filter((menu) => {
+        return menu.category_id === categoryId;
+      });
+    };
+
+    return { categories, menus, categoryMenus };
   },
 };
 </script>
