@@ -1,21 +1,27 @@
 <template>
-  <div class="md:flex items-baseline mt-8">
-    <table
-      class="border border-collapse table-fixed mx-auto md:w-5/12 w-11/12"
-      v-for="category in categories"
-      :key="category.id"
-    >
-      <thead>
-        <tr>
-          <th class="border">{{ category.content }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="menu in categoryMenus(category.id)" :key="menu.id">
-          <td class="border hover:bg-gray-200">{{ menu.content }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <div>
+    <div class="text-right mr-2"><i class="fa-solid fa-pen"></i><span>：編集</span></div>
+    <div class="text-right mr-2">
+      <i class="fa-solid fa-trash"></i><span>：削除</span>
+    </div>
+    <div class="md:flex items-baseline mt-8">
+      <table
+        class="border border-collapse table-fixed mx-auto md:w-5/12 w-11/12"
+        v-for="category in categories"
+        :key="category.id"
+      >
+        <thead>
+          <tr>
+            <th class="border">{{ category.content }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="menu in categoryMenus(category.id)" :key="menu.id">
+            <td class="border hover:bg-gray-200">{{ menu.content }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 

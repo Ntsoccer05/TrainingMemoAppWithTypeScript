@@ -1,15 +1,38 @@
 <template>
   <div>
-    <h3 class="text-lg text-center font-bold mt-4">鍛える部位を選択してください</h3>
+    <template v-if="!editable">
+      <h3 class="text-lg text-center font-bold mt-4">鍛える部位を選択してください</h3>
+    </template>
+    <template v-else>
+      <h3 class="text-lg text-center font-bold mt-4">編集する種目を選択してください</h3>
+    </template>
     <button
-      class="block w-50 bg-blue-500 hover:bg-blue-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 ml-auto rounded-full"
+      class="block w-50 bg-blue-500 hover:bg-blue-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 ml-auto rounded-full mr-5"
       @click="toAddMenu()"
     >
       部位・種目を追加する
     </button>
-    <div class="text-right mr-2"><i class="fa-solid fa-pen"></i><span>：編集</span></div>
-    <div class="text-right mr-2">
-      <i class="fa-solid fa-trash"></i><span>：削除</span>
+    <button
+      :class="[
+        'w-50 bg-red-500 hover:bg-red-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 ml-auto rounded-full mr-5',
+        editable ? 'hidden' : 'block',
+      ]"
+      @click="editMenu()"
+    >
+      種目を編集／削除する
+    </button>
+    <button
+      :class="[
+        'w-50 bg-red-500 hover:bg-red-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 ml-auto rounded-full mr-5',
+        editable ? 'block' : 'hidden',
+      ]"
+      @click="compEditMenu()"
+    >
+      編集／削除を終える
+    </button>
+    <div :class="['text-right mr-5 md:mr-10', editable ? 'block' : 'hidden']">
+      <!---div><i class="fa-solid fa-pen"></i><span>：編集</span></div>--->
+      <div><i class="fa-solid fa-trash"></i><span class="font-bold">：削除</span></div>
     </div>
     <div class="md:flex">
       <table
@@ -23,15 +46,53 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="menu in categories[index].menus" :key="menu.id">
+          <tr class="relative" v-for="menu in categories[index].menus" :key="menu.id">
             <td
-              class="border hover:bg-gray-200"
+              :class="['border', editable ? '' : 'hover:bg-gray-200']"
               @click="toRecordContents(category.id, menu)"
             >
-              <span class="flex items-center"
-                >{{ menu.content }}<i class="fa-solid fa-pen ml-auto"></i
-                ><i class="fa-solid fa-trash ml-1 mr-1"></i
-              ></span>
+              <span :class="[editable ? 'hidden' : 'block']">{{ menu.content }} </span>
+              <div :class="['grid grid-cols-12 gap-2', editable ? 'block' : 'hidden']">
+                <!--- @blurでPOSTする -->
+                <input type="text" v-model="menu.content" class="border-2 col-span-11" />
+                <!---
+                <i
+                  class="fa-solid fa-pen ml-auto"
+                >
+                </i>
+                --->
+                <button class="mr-1" @click="deleteMenu(menu.id, category.id)">
+                  <i class="fa-solid fa-trash mt-2"></i>
+                </button>
+              </div>
+              <div
+                class="hidden"
+                ref="deleteFunc"
+                :menu_id="menu.id"
+                :category_id="category.id"
+              >
+                <div class="absolute top-0 bg-gray-400 w-full h-full opacity-80"></div>
+                <div
+                  class="absolute grid top-0 grid-cols-12 justify-center align-center w-full h-full"
+                >
+                  <div class="md:col-span-1 xl:col-span-3"></div>
+                  <p
+                    class="text-sm xl:text-base col-start-1 col-span-6 md:col-span-5 mt-1 md:mt-1.5 xl:mt-1 text-white font-bold"
+                  >
+                    種目を削除しますか？
+                  </p>
+                  <button
+                    class="text-sm xl:text-base col-span-3 md:col-span-3 xl:col-span-2 rounded-2xl font-bold bg-white mt-0.5 md:mt-1.5 xl:mt-1 ml-1 mr-1 sm:mr-2 h-5 xl:h-6 text-red-600"
+                  >
+                    削除する
+                  </button>
+                  <button
+                    class="text-sm xl:text-base col-span-3 md:col-span-3 xl:col-span-2 ml-1 sm:ml-2 sm:mr-2 rounded-2xl font-bold bg-white mt-0.5 md:mt-1.5 xl:mt-1 h-5 xl:h-6 text-black"
+                  >
+                    キャンセル
+                  </button>
+                </div>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -41,11 +102,16 @@
 </template>
 
 <script>
+import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
+
+    const editable = ref(false);
+    // DOM取得のため
+    const deleteFunc = ref(null);
 
     //TODO データベースから取得
     const categories = [
@@ -79,16 +145,68 @@ export default {
       });
     };
 
-    //トレーニング記録画面に遷移
-    const toRecordContents = (categoryId, menu) => {
-      router.push({
-        name: "record",
-        params: route.params,
-        query: { category_id: categoryId, menu_id: menu.id },
-      });
+    const editMenu = () => {
+      editable.value = true;
     };
 
-    return { categories, toRecordContents, toAddMenu };
+    const compEditMenu = () => {
+      editable.value = false;
+    };
+
+    //トレーニング記録画面に遷移
+    const toRecordContents = (categoryId, menu) => {
+      if (!editable.value) {
+        router.push({
+          name: "record",
+          params: route.params,
+          query: { category_id: categoryId, menu_id: menu.id },
+        });
+      } else {
+        return;
+      }
+    };
+
+    const deleteMenu = (menuId, categoryId) => {
+      const menu_id = menuId;
+      const category_id = categoryId;
+      for (const menu of deleteFunc.value) {
+        if (
+          menu_id == menu.attributes.menu_id.value &&
+          category_id == menu.attributes.category_id.value
+        ) {
+          menu.className = "block";
+        } else {
+          menu.className = "hidden";
+        }
+      }
+    };
+
+    onMounted(() => {
+      // DOM取得のため
+      const deleteFuncDom = deleteFunc.value;
+
+      const getMenus = async () => {
+        await axios
+          .get("/api/menu")
+          .then((res) => {})
+          .catch((err) => {
+            console.log(err);
+          });
+      };
+    });
+
+    return {
+      categories,
+      editable,
+      // DOM取得のため
+      deleteFunc,
+      // メソッド
+      toRecordContents,
+      toAddMenu,
+      editMenu,
+      compEditMenu,
+      deleteMenu,
+    };
   },
 };
 </script>

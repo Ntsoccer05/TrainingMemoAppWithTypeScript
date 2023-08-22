@@ -47,7 +47,6 @@ export default {
     selectedDay();
 
     const record = async () => {
-      debugger;
       await axios
         .post("/api/record/create", {
           user_id: loginUser.value.id,

@@ -17,8 +17,9 @@ return new class extends Migration
             $table->id();
             //外部キーに紐づくテーブルはreferences->onかconstrained
             $table->foreignId('user_id')->constrained('users');
-            //外部キーのnull許容はforeignIdの直後
+            //外部キーの制約（null許容）はforeignIdの直後
             $table->foreignId('category_id')->nullable()->references('id')->on('categories');
+            $table->foreignId('menu_id')->nullable()->constrained();
             $table->integer('bodyWeight')->nullable();
             $table->integer('weight')->nullable();
             $table->integer('right-weight')->nullable();
