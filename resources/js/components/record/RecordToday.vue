@@ -30,12 +30,12 @@ export default {
     //   .padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
 
     const { getLoginUser, loginUser } = useGetLoginUser();
-    getLoginUser();
+    // getLoginUser();
     //ログインしているかの判別をする場合DOMが生成されていない状態だとログイン状態を判別できないため
     //getLoginUser はApp.vueで行う
-    // onMounted(async () => {
-    onMounted(() => {
-      // await getLoginUser();
+    onMounted(async () => {
+      // onMounted(() => {
+      await getLoginUser();
       // 画面生成後のタイミングでしかユーザ情報取得できないため
       window.onload = () => {
         authUser.value = loginUser;

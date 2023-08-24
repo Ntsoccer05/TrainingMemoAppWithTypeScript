@@ -24,6 +24,9 @@ export default createStore({
       },
       selectedDay(state, day){
         state.day = day
+      },
+      loginUser(state, user){
+        state.user = user
       }
     },
     actions:{

@@ -34,19 +34,19 @@
       <!---div><i class="fa-solid fa-pen"></i><span>：編集</span></div>--->
       <div><i class="fa-solid fa-trash"></i><span class="font-bold">：削除</span></div>
     </div>
-    <div class="md:flex">
+    <div class="md:flex md:items-start md:flex-wrap">
       <table
-        v-for="(category, index) in categories"
+        v-for="category in categories"
         :key="category.id"
         class="border border-collapse table-fixed mx-auto mt-3 md:w-5/12 w-11/12"
       >
         <thead>
           <tr>
-            <th class="border">{{ category.name }}</th>
+            <th class="border">{{ category.content }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr class="relative" v-for="menu in categories[index].menus" :key="menu.id">
+          <tr class="relative" v-for="menu in category.menus" :key="menu.id">
             <td
               :class="['border', editable ? '' : 'hover:bg-gray-200']"
               @click="toRecordContents(category.id, menu)"
@@ -104,6 +104,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 export default {
   setup() {
     const router = useRouter();
@@ -113,29 +114,31 @@ export default {
     // DOM取得のため
     const deleteFunc = ref(null);
 
-    //TODO データベースから取得
-    const categories = [
-      {
-        id: 1,
-        name: "胸",
-        menus: [
-          { id: 1, category_id: 1, category: "胸", content: "ベンチプレス", oneSide: 0 },
-        ],
-      },
-      {
-        id: 2,
-        name: "背中",
-        menus: [
-          {
-            id: 1,
-            category_id: 2,
-            category: "背中",
-            content: "ワンハンドローイング",
-            oneSide: 1,
-          },
-        ],
-      },
-    ];
+    //以下の形でデータが入っている。
+    const categories = ref([]);
+    // const categories = [
+    //   {
+    //     id: 1,
+    //     name: "胸",
+    //     menus: [
+    //       { id: 1, category_id: 1, category: "胸", content: "ベンチプレス", oneSide: 0 },
+    //     ],
+    //   },
+    //   {
+    //     id: 2,
+    //     name: "背中",
+    //     menus: [
+    //       {
+    //         id: 1,
+    //         category_id: 2,
+    //         category: "背中",
+    //         content: "ワンハンドローイング",
+    //         oneSide: 1,
+    //       },
+    //     ],
+    //   },
+    // ];
+    const { getLoginUser, loginUser } = useGetLoginUser();
 
     //トレーニングメニュー追加画面に遷移
     const toAddMenu = () => {
@@ -181,18 +184,28 @@ export default {
       }
     };
 
-    onMounted(() => {
+    onMounted(async () => {
       // DOM取得のため
       const deleteFuncDom = deleteFunc.value;
-
+      await getLoginUser();
       const getMenus = async () => {
         await axios
-          .get("/api/menu")
-          .then((res) => {})
+          .get("/api/menus", {
+            // get時にパラメータを渡す際はparamsで指定が必要
+            params: {
+              user_id: loginUser.value.id,
+            },
+          })
+          .then((res) => {
+            categories.value = res.data.categorylist;
+            console.log(categories.value);
+          })
           .catch((err) => {
             console.log(err);
+            debugger;
           });
       };
+      getMenus();
     });
 
     return {

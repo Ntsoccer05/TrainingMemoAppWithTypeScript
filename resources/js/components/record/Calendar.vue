@@ -75,7 +75,7 @@ export default {
     //ログインしているかの判別をする場合DOMが生成されていない状態だとログイン状態を判別できないため
     //getLoginUser はApp.vueで行う
     onMounted(async () => {
-      //   await getLoginUser();
+      await getLoginUser();
       // 画面生成後のタイミングでしかユーザ情報取得できないため
       window.onload = () => {
         authUser.value = loginUser;

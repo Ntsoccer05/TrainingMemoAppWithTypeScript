@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Menu;
+use App\Models\Record;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\Break_;
 
 class MenuController extends Controller
 {
@@ -11,9 +16,35 @@ class MenuController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $menulist = Menu::where('user_id', $request->user_id)->get();
+        $categorylist = Category::where('user_id', $request->user_id)->get();
+        foreach($menulist as $menu){
+            //Modelで設定したのはメソッドだが呼び出す際はプロパティ(category()category)
+            //Modelで設定したメソッドが入れ子となりmenulist2に格納される
+            //menu:{
+            //     category:{
+            //     }
+            // }
+            $categories[] = $menu->category;
+            // 重複削除
+            $categories = array_unique($categories);
+        }
+
+        foreach($categorylist as $cagtegory){
+            //Modelで設定したのはメソッドだが呼び出す際はプロパティ(menus()→menu)
+            //Modelで設定したメソッドが入れ子となりmenulist2に格納される
+            //category:{
+            //     menus:{
+            //     }
+            // }
+            $menulist2[] = $cagtegory->menus;
+            // 重複削除
+            $menulist2 = array_unique($menulist2);
+        }
+
+        return response()->json(['status' => 200, "menulist"=>$menulist, "categories"=>$categories, "categorylist" => $categorylist, "munulist2" => $menulist2]);
     }
 
     /**
