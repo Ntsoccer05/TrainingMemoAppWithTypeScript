@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref,nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
@@ -11,10 +11,13 @@ export default function useHoldLoginState(){
     const holdLoginState = async () => {
         // 非同期処理呼び出しのため async await
         await store.dispatch("loginState");
-        isLogined.value = store.getters.isLogined;
-        if(!isLogined.value){
-            router.push("/")
-        }
+
+        nextTick(()=>{
+            isLogined.value = store.getters.isLogined;
+            if(!isLogined.value){
+                router.push("/")
+            }
+        })
     };
 
     return {holdLoginState, isLogined};

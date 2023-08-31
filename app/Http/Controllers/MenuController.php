@@ -97,9 +97,22 @@ class MenuController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    // 元々３つの引数だが、Vueからはrequestしかないため３つ引数だとエラーが生じる
+    public function update(Request $request)
     {
-        //
+        $user_id = $request->user_id;
+        $category_id = $request->category_id;
+        $menu_id = $request ->menu_id;
+        $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
+            $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
+        })->get();
+        If(count($menulist) !== 0){
+            $menulist[0]->content = $request->content;
+            $menulist[0]->save();
+            return response()->json(["status_code" => 200, "message" => "メニューを更新しました"]);
+        }else{
+            return response()->json(["status_code" => 200,"message"=>"データが存在していません", "user_id" => $user_id,"category_id"=>$category_id, "menu_id"=>$menu_id]);
+        }
     }
 
     /**

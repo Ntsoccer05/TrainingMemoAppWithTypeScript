@@ -1,4 +1,4 @@
-import { ref,computed } from "vue";
+import { ref,computed,nextTick } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
@@ -19,7 +19,10 @@ export default function useGetLoginUser(){
         // }
         await store.dispatch("getLoginUser");
         // ログインしているユーザ情報取得
-        loginUser.value = store.getters.loginUser;
+        // nextTickは非同期処理完了後に呼び出されるのでloginUserを取得できる
+        nextTick(()=>{
+            loginUser.value = store.getters.loginUser;
+        })
     }
 
     // const loginUser = computed(()=>{

@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
@@ -36,10 +36,19 @@ export default {
     onMounted(async () => {
       // onMounted(() => {
       await getLoginUser();
+
       // 画面生成後のタイミングでしかユーザ情報取得できないため
-      window.onload = () => {
-        authUser.value = loginUser;
-      };
+      // window.onload = () => {
+      //   authUser.value = loginUser;
+      // };
+
+      // nextTickはonMounted内の処理完了後に呼び出されるのでloginUserを取得できる
+      // nextTick(() => {
+      //   authUser.value = loginUser;
+      // });
+
+      // getLoginUser()内でnextTickを実行
+      authUser.value = loginUser;
     });
 
     const { selectedDay, recordingDay, postDay } = useSelectedDay(date);

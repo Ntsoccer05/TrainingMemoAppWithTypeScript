@@ -54,7 +54,12 @@
               <span :class="[editable ? 'hidden' : 'block']">{{ menu.content }} </span>
               <div :class="['grid grid-cols-12 gap-2', editable ? 'block' : 'hidden']">
                 <!--- @blurでPOSTする -->
-                <input type="text" v-model="menu.content" class="border-2 col-span-11" />
+                <input
+                  @blur="postEditMenu(category, menu)"
+                  type="text"
+                  v-model="menu.content"
+                  class="border-2 col-span-11"
+                />
                 <!---
                 <i
                   class="fa-solid fa-pen ml-auto"
@@ -102,7 +107,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 export default {
@@ -184,6 +189,24 @@ export default {
       }
     };
 
+    const postEditMenu = async (category, menu) => {
+      if (category !== undefined && menu !== undefined) {
+        await axios
+          .post("/api/menus/update", {
+            user_id: loginUser.value.id,
+            category_id: category.id,
+            menu_id: menu.id,
+            content: menu.content,
+          })
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    };
+
     onMounted(async () => {
       // DOM取得のため
       const deleteFuncDom = deleteFunc.value;
@@ -198,14 +221,17 @@ export default {
           })
           .then((res) => {
             categories.value = res.data.categorylist;
-            console.log(categories.value);
+            // console.log(categories.value);
           })
           .catch((err) => {
             console.log(err);
-            debugger;
           });
       };
       getMenus();
+      //動的に要素を追加したものに対する処理にはnextTickを用いる
+      nextTick(() => {
+        postEditMenu();
+      });
     });
 
     return {
@@ -219,6 +245,7 @@ export default {
       editMenu,
       compEditMenu,
       deleteMenu,
+      postEditMenu,
     };
   },
 };

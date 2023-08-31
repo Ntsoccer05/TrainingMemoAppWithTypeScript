@@ -19,13 +19,9 @@ export default {
     //ログイン状態をリロードしても維持するため
     const { holdLoginState } = useHoldLoginState();
 
-    const { getLoginUser, loginUser } = useGetLoginUser();
-
     // async await を使わないとユーザ情報取得する前にMountedサイクルが終了してしまう
     onMounted(async () => {
-      //   // setup内だと早すぎてユーザ情報を取得できない
-      holdLoginState();
-      await getLoginUser();
+      await holdLoginState();
     });
 
     return { holdLoginState };

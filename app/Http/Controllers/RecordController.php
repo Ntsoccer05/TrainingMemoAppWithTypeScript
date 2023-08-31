@@ -16,9 +16,11 @@ class RecordController extends Controller
      */
     public function create(Request $request)
     {
+        return response()->json(["status_code" => 200, "hasrecord" => $request]);
         $recorded_at = Carbon::parse($request->recording_day);
         $recording_day =$recorded_at->toDateString();
         $hasRecord = Record::where('user_id', $request->user_id)->whereDate('recorded_at', $recording_day)->get();
+        return response()->json(["status_code" => 200, "hasrecord" => $hasRecord,"recorded_at"=>$recorded_at, "request"=>$request->recording_day,"record" => $recording_day]);
         
         if(count($hasRecord) !== 0){
             return response()->json(["status_code" => 200, "hasrecord" => $hasRecord,"recorded_at"=>$recorded_at, "request"=>$request->recording_day,"record" => $recording_day]);
