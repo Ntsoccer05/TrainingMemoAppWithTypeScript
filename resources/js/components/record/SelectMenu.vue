@@ -87,11 +87,13 @@
                     種目を削除しますか？
                   </p>
                   <button
+                    @click="deleteMenuContent(category, menu)"
                     class="text-sm xl:text-base col-span-3 md:col-span-3 xl:col-span-2 rounded-2xl font-bold bg-white mt-0.5 md:mt-1.5 xl:mt-1 ml-1 mr-1 sm:mr-2 h-5 xl:h-6 text-red-600"
                   >
                     削除する
                   </button>
                   <button
+                    @click="cancelClick(category, menu)"
                     class="text-sm xl:text-base col-span-3 md:col-span-3 xl:col-span-2 ml-1 sm:ml-2 sm:mr-2 rounded-2xl font-bold bg-white mt-0.5 md:mt-1.5 xl:mt-1 h-5 xl:h-6 text-black"
                   >
                     キャンセル
@@ -174,6 +176,25 @@ export default {
       }
     };
 
+    //メニュー内容を取得
+    const getMenus = async () => {
+      await axios
+        .get("/api/menus", {
+          // get時にパラメータを渡す際はparamsで指定が必要
+          params: {
+            user_id: loginUser.value.id,
+          },
+        })
+        .then((res) => {
+          categories.value = res.data.categorylist;
+          // console.log(categories.value);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+
+    //「本当に削除しますか？」ダイアログを表示/非表示
     const deleteMenu = (menuId, categoryId) => {
       const menu_id = menuId;
       const category_id = categoryId;
@@ -189,6 +210,43 @@ export default {
       }
     };
 
+    // メニュー内容を削除
+    const deleteMenuContent = async (category, menu) => {
+      if (category !== undefined && menu !== undefined) {
+        await axios
+          .post("/api/menus/delete", {
+            user_id: loginUser.value.id,
+            category_id: category.id,
+            menu_id: menu.id,
+            content: menu.content,
+          })
+          .then((res) => {
+            for (const menu of deleteFunc.value) {
+              if (menu.className == "block") {
+                menu.className = "hidden";
+              }
+            }
+            getMenus();
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    };
+
+    // 削除するのをキャンセルする
+    const cancelClick = (category, menu) => {
+      if (category !== undefined && menu !== undefined) {
+        for (const menu of deleteFunc.value) {
+          if (menu.className == "block") {
+            debugger;
+            menu.className = "hidden";
+          }
+        }
+      }
+    };
+
+    //メニュー内容を編集する
     const postEditMenu = async (category, menu) => {
       if (category !== undefined && menu !== undefined) {
         await axios
@@ -211,26 +269,13 @@ export default {
       // DOM取得のため
       const deleteFuncDom = deleteFunc.value;
       await getLoginUser();
-      const getMenus = async () => {
-        await axios
-          .get("/api/menus", {
-            // get時にパラメータを渡す際はparamsで指定が必要
-            params: {
-              user_id: loginUser.value.id,
-            },
-          })
-          .then((res) => {
-            categories.value = res.data.categorylist;
-            // console.log(categories.value);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      };
+
       getMenus();
       //動的に要素を追加したものに対する処理にはnextTickを用いる
       nextTick(() => {
+        cancelClick();
         postEditMenu();
+        deleteMenuContent();
       });
     });
 
@@ -246,6 +291,8 @@ export default {
       compEditMenu,
       deleteMenu,
       postEditMenu,
+      deleteMenuContent,
+      cancelClick,
     };
   },
 };

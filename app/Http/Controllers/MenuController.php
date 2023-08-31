@@ -33,7 +33,7 @@ class MenuController extends Controller
         }
 
         foreach($categorylist as $cagtegory){
-            //Modelで設定したのはメソッドだが呼び出す際はプロパティ(menus()→menu)
+            //Modelで設定したのはメソッドだが呼び出す際はプロパティ(menus()→menus)
             //Modelで設定したメソッドが入れ子となりmenulist2に格納される
             //category:{
             //     menus:{
@@ -105,10 +105,10 @@ class MenuController extends Controller
         $menu_id = $request ->menu_id;
         $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
             $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
-        })->get();
+        })->first();
         If(count($menulist) !== 0){
-            $menulist[0]->content = $request->content;
-            $menulist[0]->save();
+            $menulist->content = $request->content;
+            $menulist->save();
             return response()->json(["status_code" => 200, "message" => "メニューを更新しました"]);
         }else{
             return response()->json(["status_code" => 200,"message"=>"データが存在していません", "user_id" => $user_id,"category_id"=>$category_id, "menu_id"=>$menu_id]);
@@ -121,8 +121,20 @@ class MenuController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function delete(Request $request)
     {
-        //
+        $user_id = $request->user_id;
+        $category_id = $request->category_id;
+        $menu_id = $request ->menu_id;
+        // firstだとstdClassを返すためdelete()メソッドが存在しない
+        $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
+            $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
+        })->get();
+        If(count($menulist) !== 0){
+            $menulist[0]->delete();
+            return response()->json(["status_code" => 200, "message" => "メニューを削除しました"]);
+        }else{
+            return response()->json(["status_code" => 200,"message"=>"データが存在していません", "user_id" => $user_id,"category_id"=>$category_id, "menu_id"=>$menu_id]);
+        }
     }
 }

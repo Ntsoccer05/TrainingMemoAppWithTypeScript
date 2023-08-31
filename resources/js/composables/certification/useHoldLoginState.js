@@ -12,6 +12,7 @@ export default function useHoldLoginState(){
         // 非同期処理呼び出しのため async await
         await store.dispatch("loginState");
 
+        // nextTickは非同期処理完了後に呼び出されるのでisLoginedを取得できる
         nextTick(()=>{
             isLogined.value = store.getters.isLogined;
             if(!isLogined.value){

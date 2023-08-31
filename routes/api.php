@@ -24,9 +24,10 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/record/create', [RecordController::class, 'create']);
     Route::get('/record/edit', [RecordController::class, 'edit']);
     Route::post('/record/edit', [RecordController::class, 'update']);
-    Route::post('/record', [RecordController::class, 'destroy']);
+    Route::post('/record/destroy', [RecordController::class, 'destroy']);
     Route::get('/menus', [MenuController::class, 'index']);
     Route::post('/menus/update', [MenuController::class, 'update']);
+    Route::post('/menus/delete', [MenuController::class, 'delete']);
 });
 
 // ログイン済みのみ
