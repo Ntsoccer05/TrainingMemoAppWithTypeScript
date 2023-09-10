@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/record/edit', [RecordController::class, 'update']);
     Route::post('/record/destroy', [RecordController::class, 'destroy']);
     Route::get('/menus', [MenuController::class, 'index']);
+    Route::post('/menus/store', [MenuController::class, 'store']);
     Route::post('/menus/update', [MenuController::class, 'update']);
     Route::post('/menus/delete', [MenuController::class, 'delete']);
 });

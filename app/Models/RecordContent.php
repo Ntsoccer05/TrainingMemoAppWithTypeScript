@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Category extends Model
+class RecordContent extends Model
 {
     use HasFactory;
 
@@ -16,13 +15,18 @@ class Category extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function menus():HasMany
+    public function category():BelongsTo
     {
-        return $this->hasMany(Menu::class);
+        return $this->belongsTo(category::class);
     }
 
-    public function recordContents():HasMany
+    public function menu():BelongsTo
     {
-        return $this->hasMany(RecordContent::class);
+        return $this->belongsTo(Menu::class);
+    }
+
+    public function date():BelongsTo
+    {
+        return $this->belongsTo(Menu::class);
     }
 }

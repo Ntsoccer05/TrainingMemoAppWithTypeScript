@@ -122,6 +122,7 @@ export default {
         .then((res) => {
           axios
             .post("/api/login", {
+              // バリデーションをLoginRequest.phpで行っているため、オブジェクト名を合わせる必要がある。
               name: name.value,
               email: email.value,
               password: password.value,

@@ -28,7 +28,7 @@
       ]"
       @click="compEditMenu()"
     >
-      編集／削除を終える
+      編集／削除を終了する
     </button>
     <div :class="['text-right mr-5 md:mr-10', editable ? 'block' : 'hidden']">
       <!---div><i class="fa-solid fa-pen"></i><span>：編集</span></div>--->
@@ -49,7 +49,7 @@
           <tr class="relative" v-for="menu in category.menus" :key="menu.id">
             <td
               :class="['border', editable ? '' : 'hover:bg-gray-200']"
-              @click="toRecordContents(category.id, menu)"
+              @click="toRecordContents(category, menu)"
             >
               <span :class="[editable ? 'hidden' : 'block']">{{ menu.content }} </span>
               <div :class="['grid grid-cols-12 gap-2', editable ? 'block' : 'hidden']">
@@ -150,8 +150,7 @@ export default {
     //トレーニングメニュー追加画面に遷移
     const toAddMenu = () => {
       router.push({
-        name: "menu",
-        params: route.params,
+        name: "addMenu",
       });
     };
 
@@ -164,12 +163,12 @@ export default {
     };
 
     //トレーニング記録画面に遷移
-    const toRecordContents = (categoryId, menu) => {
+    const toRecordContents = (category, menu) => {
       if (!editable.value) {
         router.push({
           name: "record",
           params: route.params,
-          query: { category_id: categoryId, menu_id: menu.id },
+          query: { category_id: category.id, menu_id: menu.id },
         });
       } else {
         return;
@@ -213,6 +212,7 @@ export default {
     // メニュー内容を削除
     const deleteMenuContent = async (category, menu) => {
       if (category !== undefined && menu !== undefined) {
+        debugger;
         await axios
           .post("/api/menus/delete", {
             user_id: loginUser.value.id,
@@ -239,7 +239,6 @@ export default {
       if (category !== undefined && menu !== undefined) {
         for (const menu of deleteFunc.value) {
           if (menu.className == "block") {
-            debugger;
             menu.className = "hidden";
           }
         }

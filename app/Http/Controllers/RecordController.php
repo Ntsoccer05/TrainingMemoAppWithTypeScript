@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Record;
+use App\Models\RecordContent;
+use App\Models\RecordState;
 use Carbon\Carbon;
+use Mockery\Undefined;
 
 class RecordController extends Controller
 {
@@ -16,16 +19,17 @@ class RecordController extends Controller
      */
     public function create(Request $request)
     {
-        return response()->json(["status_code" => 200, "hasrecord" => $request]);
         $recorded_at = Carbon::parse($request->recording_day);
         $recording_day =$recorded_at->toDateString();
-        $hasRecord = Record::where('user_id', $request->user_id)->whereDate('recorded_at', $recording_day)->get();
-        return response()->json(["status_code" => 200, "hasrecord" => $hasRecord,"recorded_at"=>$recorded_at, "request"=>$request->recording_day,"record" => $recording_day]);
+        $hasRecord = RecordState::where('user_id', $request->user_id)->whereDate('recorded_at', $recording_day)->first();
         
-        if(count($hasRecord) !== 0){
+        if(isset($hasRecord)){
+            $now = Carbon::now();
+            $hasRecord->updated_at = $now;
+            $hasRecord->save();
             return response()->json(["status_code" => 200, "hasrecord" => $hasRecord,"recorded_at"=>$recorded_at, "request"=>$request->recording_day,"record" => $recording_day]);
         }else{
-            Record::create([
+            RecordState::create([
                 'user_id' => $request->user_id,
                 'recorded_at' => $recording_day
             ]);
@@ -65,7 +69,7 @@ class RecordController extends Controller
     {
         $recorded_at = Carbon::parse($request->recording_day);
         $recording_day =$recorded_at->toDateString();
-        $hasRecord = Record::where('user_id', $request->user_id)->whereDate('recorded_at', $recording_day)->get();
+        $hasRecord = RecordState::where('user_id', $request->user_id)->whereDate('recorded_at', $recording_day)->get();
         $selectedCategory = Category::where('user_id', $request->user_id)->where('id', $request->category_id)->get();
         if(count($selectedCategory) !== 0){
             return response()->json(["status_code" => 200, "selectedCategory" => $selectedCategory,"recorded_at"=>$recorded_at, "request"=>$request->recording_day,"record" => $recording_day]);

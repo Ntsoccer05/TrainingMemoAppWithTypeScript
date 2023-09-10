@@ -1,0 +1,274 @@
+<template>
+  <div class="mt-10">
+    <template v-if="isInputMenu">
+      <div class="addPart grid grid-cols-2">
+        <label for="addPart" class="text-bold mt-3 justify-self-end"
+          >追加する部位を記入してください：</label
+        >
+        <div class="addPart grid grid-cols-3">
+          <input
+            class="bg-slate-100 border-black border-x border-y mt-3 justify-self-start self-start"
+            id="addPart"
+            type="text"
+            v-model="addCategory"
+            required
+          />
+          <p :class="dispCategoryErrMsg">{{ errors.category_content[0] }}</p>
+          <!-- <div class="addPart w-24 justify-self-start ml-3">
+            <button
+              class="bg-blue-500 text-white w-24 rounded-md ml-2 mb-1"
+              @click="addPartContent"
+            >
+              追加する
+            </button>
+            <button
+              class="bg-red-500 text-white w-24 rounded-md ml-2"
+              @click="cancelAddPart"
+            >
+              キャンセル
+            </button>
+          </div> -->
+        </div>
+      </div>
+    </template>
+    <template v-else>
+      <div class="addPart grid grid-cols-2">
+        <label for="addPart" class="bold justify-self-end"
+          >追加する部位を選択してください：</label
+        >
+        <select
+          id="addPart"
+          v-model="selectedCategory"
+          ref="addPart"
+          @change="toggleBtnInput"
+          class="bg-slate-200 border-black border-x border-y justify-self-start"
+          required
+        >
+          <option v-for="category in categories" :key="category.id" :value="category.id">
+            {{ category.content }}
+          </option>
+          <option ref="addPartBtn" class="block">
+            <button>新規追加する</button>
+          </option>
+          <!-- <option ref="addPartInput" class="hidden">
+            <input type="text" placeholder="追加する部位を入力してください" />
+          </option> -->
+        </select>
+      </div>
+      <div class="grid grid-cols-2 mt-10">
+        <label for="exercise" class="text-bold justify-self-end"
+          >追加する種目を記入してください：</label
+        >
+        <input
+          class="bg-slate-100 border-black border-x border-y justify-self-start"
+          id="exercise"
+          type="text"
+          v-model="addMenu"
+          required
+        />
+        <p :class="dispMenuErrMsg">{{ errors.menu[0] }}</p>
+      </div>
+    </template>
+    <div class="addPart grid grid-cols-2 mt-10 w-full">
+      <button
+        class="bg-blue-500 text-white w-24 h-8 rounded-md mr-5 mb-1 justify-self-end"
+        @click="addMenuContent"
+      >
+        追加する
+      </button>
+      <button
+        class="bg-red-500 text-white w-24 rounded-md ml-5 justify-self-start"
+        @click="cancelAddMenu"
+      >
+        キャンセル
+      </button>
+    </div>
+    <p>{{ selectedCategory }}</p>
+  </div>
+</template>
+
+<script>
+import { ref, reactive, onMounted, nextTick } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import useValidationMsg from "../../composables/menu/useValidationMsg";
+import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
+import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
+export default {
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+
+    const editable = ref(false);
+
+    const errors = reactive({
+      category_content: [],
+      menu: [],
+      password: [],
+    });
+    const dispErrorMsg = reactive({
+      category_content: false,
+      menu: false,
+      password: false,
+    });
+
+    //以下の形でデータが入っている。
+    const categories = ref([]);
+
+    const selectedCategory = ref("");
+    const addCategory = ref("");
+    const addMenu = ref("");
+
+    const isInputMenu = ref(false);
+
+    // DOM取得(Returnに追記しないとDOM取得できない)
+    const addPart = ref(null);
+    const addPartBtn = ref(null);
+    // const addPartInput = ref(null);
+
+    //バリデーションエラーメッセージのレイアウト
+    const { dispCategoryErrMsg, dispMenuErrMsg, dispPassErrMsg } = dispValidationMsg(
+      dispErrorMsg
+    );
+
+    const toggleBtnInput = () => {
+      if (selectedCategory.value == "新規追加する") {
+        isInputMenu.value = true;
+        // addPart.value.replaceWith(datalist);
+        // addPart.value.size = addPart.value.length - 1;
+        // addPartBtn.value.className = "hidden";
+        // addPartInput.value.className = "block";
+      }
+    };
+
+    // START 今回使用しない
+    // const addPartContent = async () => {
+    //   await axios
+    //     .post("/api/menus/store", {
+    //       user_id: loginUser.id,
+    //       category: selectedCategory,
+    //     })
+    //     .then((res) => {
+    //       console.log(res);
+    //       if (selectedCategory.value == "新規追加する") {
+    //         isInputMenu.value = false;
+    //         // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
+    //         selectedCategory.value = "";
+    //       }
+    //     })
+    //     .catch((err) => {
+    //       console.log(err);
+    //     });
+    // };
+    // const cancelAddPart = () => {
+    //   if (selectedCategory.value == "新規追加する") {
+    //     isInputMenu.value = false;
+    //     // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
+    //     selectedCategory.value = "";
+    //   }
+    // };
+    // END 今回使用しない
+
+    // 追加するボタン押下時
+    const addMenuContent = async () => {
+      await axios
+        .post("/api/menus/store", {
+          user_id: loginUser.value.id,
+          category_content: addCategory.value,
+          category_id: selectedCategory.value,
+          menu: addMenu.value,
+        })
+        .then((res) => {
+          console.log(res);
+          if (selectedCategory.value == "新規追加する") {
+            isInputMenu.value = false;
+            // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
+            selectedCategory.value = "";
+            addCategory.value = "";
+            getMenus();
+          }
+          if (addMenu.value !== "") {
+            addMenu.value = "";
+          }
+        })
+        .catch((err) => {
+          // POST時のバリデーションエラー
+          const errorMsgs = err.response.data.errors;
+          debugger;
+          useValidationMsg(errorMsgs, errors, dispErrorMsg);
+          console.log(err);
+        });
+    };
+
+    // キャンセルボタン押下時
+    const cancelAddMenu = () => {
+      if (selectedCategory.value == "新規追加する") {
+        isInputMenu.value = false;
+        // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
+        selectedCategory.value = "";
+      } else {
+        addMenu.value = "";
+        router.push({ name: "selectMenu" });
+      }
+    };
+
+    const { getLoginUser, loginUser } = useGetLoginUser();
+
+    //メニュー内容を取得
+    const getMenus = async () => {
+      await axios
+        .get("/api/menus", {
+          // get時にパラメータを渡す際はparamsで指定が必要
+          params: {
+            user_id: loginUser.value.id,
+          },
+        })
+        .then((res) => {
+          categories.value = res.data.categorylist;
+          // console.log(categories.value);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+
+    onMounted(async () => {
+      // DOM取得のため
+      const addPartDom = addPart.value;
+
+      await getLoginUser();
+
+      getMenus();
+      //動的に要素を追加したものに対する処理にはnextTickを用いる
+      nextTick(() => {
+        const addPartBtnDom = addPartBtn.value;
+        // const addPartInputDom = addPartInput.value;
+        toggleBtnInput();
+        // addPartContent();
+        // cancelAddPart();
+      });
+    });
+
+    return {
+      categories,
+      selectedCategory,
+      errors,
+      addMenu,
+      addCategory,
+      addPart,
+      addPartBtn,
+      // addPartInput,
+      isInputMenu,
+      dispCategoryErrMsg,
+      dispMenuErrMsg,
+      dispPassErrMsg,
+      toggleBtnInput,
+      // addPartContent,
+      // cancelAddPart,
+      cancelAddMenu,
+      addMenuContent,
+    };
+  },
+};
+</script>
+
+<style></style>

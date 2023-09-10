@@ -62,6 +62,7 @@ export default {
           recording_day: postDay,
         })
         .then((res) => {
+          console.log(res);
           router.push("/selectMenu");
         })
         .catch((err) => {

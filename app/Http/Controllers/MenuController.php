@@ -4,10 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Menu;
-use App\Models\Record;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\Break_;
 
 class MenuController extends Controller
 {
@@ -63,9 +60,44 @@ class MenuController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Category $category, Menu $menu)
     {
-        //
+        // 引数にModel名を渡すことでCategoryではなく$categoryから取得できる(Newでインスタンス化しなくていい)
+
+        //Vueで「""」の値を渡した場合、PHPではNULLの値となる。issetはNULL出ない場合TRUE
+        if(isset($request->category_content)){
+            $menulists = $category->where("user_id", $request->user_id)->get();
+            foreach($menulists as $menulist){
+                if($menulist->content === $request->category_content){
+                    return response()->json(['status' => 400, "errors"=>"入力された部位は既に登録されています","menulist"=>$menulist->content,"category"=>$request->category_content]);
+                }
+            }
+            $category->user_id = $request->user_id;
+            $category->content = $request->category_content;
+            $category->save();
+            return response()->json(['status' => 200, "message"=>"部位を登録しました。"]);
+        };
+
+
+        if((isset($request->menu)) && (isset($request->category_id))){
+            $menulists = $menu->where("user_id", $request->user_id)->where("category_id", $request->category_id)->get();
+            foreach($menulists as $menulist){
+                if($menulist->content === $request->menu){
+                    return response()->json(['status' => 400, "errors"=>"入力された種目は既に登録されています"]);
+                }
+            }
+            $menu->user_id = $request->user_id;
+            $menu->category_id = $request->category_id;
+            $menu->content = $request->menu;
+            $menu->save();
+            return response()->json(['status' => 200, "message"=>"種目を登録しました。"]); 
+        }else{
+            if(!isset($request->category_id)){
+                return response()->json(['status' => 400, "errors"=>"部位を選択してください。"]);
+            }elseif(!isset($request->menu)){
+                return response()->json(['status' => 400, "errors"=>"種目を記入してください。"]);
+            }
+        }
     }
 
     /**
@@ -121,17 +153,22 @@ class MenuController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function delete(Request $request)
+    public function delete(Request $request, Menu $menu)
     {
         $user_id = $request->user_id;
         $category_id = $request->category_id;
         $menu_id = $request ->menu_id;
-        // firstだとstdClassを返すためdelete()メソッドが存在しない
-        $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
+        // firstだとstdClassを返すためdelete()メソッドが存在しない←インスタンス化が必要
+        // $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
+        //     $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
+        // })->get();
+
+        // Menu $menuを引数とすることでMenuテーブルに依存関係が生まれるため、インスタンス化(New Menu)をしなくていい
+        $menulist= $menu->where(function($query) use($user_id, $category_id, $menu_id){
             $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
-        })->get();
-        If(count($menulist) !== 0){
-            $menulist[0]->delete();
+        })->first();
+        If($menulist){
+            $menulist->delete();
             return response()->json(["status_code" => 200, "message" => "メニューを削除しました"]);
         }else{
             return response()->json(["status_code" => 200,"message"=>"データが存在していません", "user_id" => $user_id,"category_id"=>$category_id, "menu_id"=>$menu_id]);

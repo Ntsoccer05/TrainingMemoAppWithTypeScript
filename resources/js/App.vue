@@ -7,9 +7,8 @@
 
 <script>
 import { onMounted } from "vue";
-import Header from "./components/menuList/Header.vue";
+import Header from "./components/headerMenu/Header.vue";
 import useHoldLoginState from "./composables/certification/useHoldLoginState";
-import useGetLoginUser from "./composables/certification/useGetLoginUser.js";
 
 export default {
   components: {

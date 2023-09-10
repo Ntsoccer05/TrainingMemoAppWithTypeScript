@@ -4,9 +4,10 @@ import Register from '../views/certification/registerPage.vue';
 import RedirectAuthGoogle from '../components/certification/RedirectAuthGoogle.vue'
 import googleRegister from '../views/certification/googleRegister.vue'
 import Home from '../views/home.vue';
-import SelectMenu from '../views/selectMenu.vue';
-import Record from '../views/recordContents.vue';
+import SelectMenu from '../views/record/selectMenu.vue';
+import Record from '../views/record/recordContents.vue';
 import trainingMenuList from '../views/trainingMenuList.vue';
+import AddMenu from '../views/menu/addMenu.vue'
 
 const routes = [
   {
@@ -41,7 +42,7 @@ const routes = [
     component: SelectMenu
   },
   {
-    path: '/record/:day?',
+    path: '/record/:categoryId?/:menuId?',
     name: 'record',
     component: Record,
     props: true
@@ -51,6 +52,11 @@ const routes = [
     name: 'menu',
     component: trainingMenuList,
     props: true
+  },
+  {
+    path: '/addMenu/',
+    name: 'addMenu',
+    component: AddMenu,
   },
   //指定のないURLの場合ホームにリダイレクト
   {
