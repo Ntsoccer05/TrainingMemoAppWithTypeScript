@@ -13,7 +13,6 @@
             v-model="addCategory"
             required
           />
-          <p :class="dispCategoryErrMsg">{{ errors.category_content[0] }}</p>
           <!-- <div class="addPart w-24 justify-self-start ml-3">
             <button
               class="bg-blue-500 text-white w-24 rounded-md ml-2 mb-1"
@@ -29,6 +28,7 @@
             </button>
           </div> -->
         </div>
+        <p :class="dispCategoryErrMsg">{{ errors.category_content }}</p>
       </div>
     </template>
     <template v-else>
@@ -54,6 +54,7 @@
             <input type="text" placeholder="追加する部位を入力してください" />
           </option> -->
         </select>
+        <p :class="dispCategoryErrMsg">{{ errors.category_content }}</p>
       </div>
       <div class="grid grid-cols-2 mt-10">
         <label for="exercise" class="text-bold justify-self-end"
@@ -66,7 +67,7 @@
           v-model="addMenu"
           required
         />
-        <p :class="dispMenuErrMsg">{{ errors.menu[0] }}</p>
+        <p :class="dispMenuErrMsg">{{ errors.menu }}</p>
       </div>
     </template>
     <div class="addPart grid grid-cols-2 mt-10 w-full">
@@ -83,7 +84,6 @@
         キャンセル
       </button>
     </div>
-    <p>{{ selectedCategory }}</p>
   </div>
 </template>
 
@@ -92,7 +92,7 @@ import { ref, reactive, onMounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useValidationMsg from "../../composables/menu/useValidationMsg";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
-import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
+import dispValidationMsg from "../../composables/menu/useDispValidationMsg";
 export default {
   setup() {
     const router = useRouter();
@@ -108,8 +108,9 @@ export default {
     const dispErrorMsg = reactive({
       category_content: false,
       menu: false,
-      password: false,
     });
+
+    const post = reactive({});
 
     //以下の形でデータが入っている。
     const categories = ref([]);
@@ -126,13 +127,18 @@ export default {
     // const addPartInput = ref(null);
 
     //バリデーションエラーメッセージのレイアウト
-    const { dispCategoryErrMsg, dispMenuErrMsg, dispPassErrMsg } = dispValidationMsg(
-      dispErrorMsg
-    );
+    const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
 
     const toggleBtnInput = () => {
       if (selectedCategory.value == "新規追加する") {
         isInputMenu.value = true;
+
+        //バリデーションメッセージを初期化
+        dispErrorMsg.category_content = false;
+        dispErrorMsg.menu = false;
+        //バリデーションエラーメッセージのレイアウト
+        const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
+        return { dispCategoryErrMsg, dispMenuErrMsg };
         // addPart.value.replaceWith(datalist);
         // addPart.value.size = addPart.value.length - 1;
         // addPartBtn.value.className = "hidden";
@@ -170,32 +176,49 @@ export default {
 
     // 追加するボタン押下時
     const addMenuContent = async () => {
+      if (isInputMenu.value === true) {
+        post.user_id = loginUser.value.id;
+        if (addCategory.value === "") {
+          post.category_content = false;
+        } else {
+          post.category_content = addCategory.value;
+        }
+      } else {
+        post.user_id = loginUser.value.id;
+        post.category_content = "";
+        post.category_id = selectedCategory.value;
+        post.menu = addMenu.value;
+      }
       await axios
-        .post("/api/menus/store", {
-          user_id: loginUser.value.id,
-          category_content: addCategory.value,
-          category_id: selectedCategory.value,
-          menu: addMenu.value,
-        })
+        .post("/api/menus/store", post)
         .then((res) => {
-          console.log(res);
+          if (res.data.status === 400) {
+            // POST時のバリデーションエラー
+            const errorMsgs = res.data.errors;
+            useValidationMsg(errorMsgs, errors, dispErrorMsg);
+            //バリデーションエラーメッセージのレイアウト
+            const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(
+              dispErrorMsg
+            );
+            return { dispCategoryErrMsg, dispMenuErrMsg };
+          }
           if (selectedCategory.value == "新規追加する") {
             isInputMenu.value = false;
             // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
             selectedCategory.value = "";
             addCategory.value = "";
             getMenus();
+            return;
           }
           if (addMenu.value !== "") {
             addMenu.value = "";
           }
+          router.push({ name: "selectMenu" });
         })
         .catch((err) => {
           // POST時のバリデーションエラー
           const errorMsgs = err.response.data.errors;
-          debugger;
           useValidationMsg(errorMsgs, errors, dispErrorMsg);
-          console.log(err);
         });
     };
 
@@ -205,6 +228,13 @@ export default {
         isInputMenu.value = false;
         // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
         selectedCategory.value = "";
+
+        //バリデーションメッセージを初期化
+        dispErrorMsg.category_content = false;
+        dispErrorMsg.menu = false;
+        //バリデーションエラーメッセージのレイアウト
+        const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
+        return { dispCategoryErrMsg, dispMenuErrMsg };
       } else {
         addMenu.value = "";
         router.push({ name: "selectMenu" });
@@ -260,7 +290,6 @@ export default {
       isInputMenu,
       dispCategoryErrMsg,
       dispMenuErrMsg,
-      dispPassErrMsg,
       toggleBtnInput,
       // addPartContent,
       // cancelAddPart,

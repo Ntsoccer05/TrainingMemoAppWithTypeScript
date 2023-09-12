@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Menu;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 
 class MenuController extends Controller
@@ -64,26 +65,29 @@ class MenuController extends Controller
     {
         // 引数にModel名を渡すことでCategoryではなく$categoryから取得できる(Newでインスタンス化しなくていい)
 
-        //Vueで「""」の値を渡した場合、PHPではNULLの値となる。issetはNULL出ない場合TRUE
+        //Vueで「""」の値を渡した場合、PHPではNULLの値となる。issetはNULLでない場合TRUE
         if(isset($request->category_content)){
+            if($request->category_content === false){
+                return response()->json(['status' => 400, "errors"=>["category_content" => "部位を入力してください"]]);
+            }
             $menulists = $category->where("user_id", $request->user_id)->get();
             foreach($menulists as $menulist){
                 if($menulist->content === $request->category_content){
-                    return response()->json(['status' => 400, "errors"=>"入力された部位は既に登録されています","menulist"=>$menulist->content,"category"=>$request->category_content]);
+                    return response()->json(['status' => 400, "errors"=>["category_content" => "入力された部位は既に登録されています"],"menulist"=>$menulist->content,"category"=>$request->category_content]);
                 }
             }
             $category->user_id = $request->user_id;
             $category->content = $request->category_content;
             $category->save();
             return response()->json(['status' => 200, "message"=>"部位を登録しました。"]);
-        };
+        }
 
 
         if((isset($request->menu)) && (isset($request->category_id))){
             $menulists = $menu->where("user_id", $request->user_id)->where("category_id", $request->category_id)->get();
             foreach($menulists as $menulist){
                 if($menulist->content === $request->menu){
-                    return response()->json(['status' => 400, "errors"=>"入力された種目は既に登録されています"]);
+                    return response()->json(['status' => 400, "errors"=>["menu" => "入力された種目は既に登録されています"]]);
                 }
             }
             $menu->user_id = $request->user_id;
@@ -92,11 +96,14 @@ class MenuController extends Controller
             $menu->save();
             return response()->json(['status' => 200, "message"=>"種目を登録しました。"]); 
         }else{
+            $errors = [];
             if(!isset($request->category_id)){
-                return response()->json(['status' => 400, "errors"=>"部位を選択してください。"]);
-            }elseif(!isset($request->menu)){
-                return response()->json(['status' => 400, "errors"=>"種目を記入してください。"]);
+                $errors["category_content"] = "部位を選択してください。";
             }
+            if(!isset($request->menu)){
+                $errors["menu"] = "種目を記入してください。";
+            }
+            return response()->json(['status' => 400, "errors"=>$errors, "menu"=> $request->menu]);
         }
     }
 

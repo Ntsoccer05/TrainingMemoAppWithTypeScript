@@ -212,7 +212,6 @@ export default {
     // メニュー内容を削除
     const deleteMenuContent = async (category, menu) => {
       if (category !== undefined && menu !== undefined) {
-        debugger;
         await axios
           .post("/api/menus/delete", {
             user_id: loginUser.value.id,

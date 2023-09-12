@@ -38,6 +38,7 @@ import { onMounted, reactive, ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
+import useHoldLoginState from "../../composables/certification/useHoldLoginState";
 export default {
   setup() {
     const router = useRouter();
@@ -70,12 +71,16 @@ export default {
     const holidays = ref([]);
     const data = ref([]);
 
+    //ログイン状態をリロードしても維持するため
+    const { holdLoginState, isLogined } = useHoldLoginState();
+
     const { getLoginUser, loginUser } = useGetLoginUser();
 
     //ログインしているかの判別をする場合DOMが生成されていない状態だとログイン状態を判別できないため
     //getLoginUser はApp.vueで行う
     onMounted(async () => {
       await getLoginUser();
+      await holdLoginState();
 
       // 画面生成後のタイミングでしかユーザ情報取得できないため
       // window.onload = () => {
@@ -106,6 +111,10 @@ export default {
     };
 
     const selectedDay = (day) => {
+      //ログインしていなかったらメッセージを表示
+      if (isLogined.value === false) {
+        alert("ログインしてください");
+      }
       selected_at.value = day.id;
       const { postDay } = useSelectedDay(selected_at.value);
       // 日付クリック時にPOST送信する

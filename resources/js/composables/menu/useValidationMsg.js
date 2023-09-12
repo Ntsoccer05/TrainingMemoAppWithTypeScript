@@ -5,28 +5,20 @@
 // category_content：エラーメッセージの格納場所
 // menu：エラーメッセージを表示させるかどうか
 export default function useValidationMsg(msgs, data, hasMsg){
-    // ユーザ名のバリデーションエラー
-    if (msgs.hasOwnProperty('user_id')) {
-        data.name = msgs.name
-        hasMsg.name = true;
-    } else {
-        data.name = [];
-        hasMsg.name = false;
-    }
-    // メールアドレスのバリデーションエラー
-    if (msgs.hasOwnProperty('category_content')) {
-        data.email = msgs.email;
-        hasMsg.email = true;
-    } else {
-        data.email = [];
-        hasMsg.email = false;
-    }
-    // パスワードのバリデーションエラー
+    // 部位のバリデーションエラー
     if (msgs.hasOwnProperty('menu')) {
-        data.password = msgs.password;
-        hasMsg.password = true;
+        data.menu = msgs.menu
+        hasMsg.menu = true;
     } else {
-        data.password = [];
-        hasMsg.password = false;
+        data.menu = "";
+        hasMsg.menu = false;
+    }
+    // 種目のバリデーションエラー
+    if (msgs.hasOwnProperty('category_content')) {
+        data.category_content = msgs.category_content;
+        hasMsg.category_content = true;
+    } else {
+        data.category_content = "";
+        hasMsg.category_content = false;
     }
 }
