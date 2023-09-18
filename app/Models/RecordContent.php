@@ -25,8 +25,8 @@ class RecordContent extends Model
         return $this->belongsTo(Menu::class);
     }
 
-    public function date():BelongsTo
+    public function recordState():BelongsTo
     {
-        return $this->belongsTo(Menu::class);
+        return $this->belongsTo(RecordState::class);
     }
 }

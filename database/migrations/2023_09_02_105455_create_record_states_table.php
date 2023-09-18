@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('record_states', function (Blueprint $table) {
             $table->id();
             //外部キーに紐づくテーブルはreferences->onかconstrained
-            $table->foreignId('user_id')->constrained('users');
+            // cascadeOnDelete()は親のテーブルのレコードが削除された場合に一緒に削除
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             //外部キーの制約（null許容）はforeignIdの直後
             $table->integer('bodyWeight')->nullable();
             $table->date('recorded_at');

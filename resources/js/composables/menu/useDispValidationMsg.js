@@ -7,12 +7,12 @@ import { computed } from "vue";// エラーメッセージのレイアウト
 export default function useDispValidationMsg(hasMsg){
     // 部位のバリデーションエラー
     const dispCategoryErrMsg = computed(() => {
-        return hasMsg.category_content ? "col-start-2 justify-self-start text-red-500 font-bold text-sm italic mt-1 mb-2" : "hidden";
+        return hasMsg.category_content ? "col-start-2 justify-self-start text-red-500 font-bold text-sm italic mt-1" : "hidden";
     });
     
     // 種目のバリデーションエラー
     const dispMenuErrMsg = computed(() => {
-        return hasMsg.menu ? "col-start-2 justify-self-start text-red-500 font-bold text-sm italic mt-1 mb-2" : "hidden";
+        return hasMsg.menu ? "col-start-2 justify-self-start text-red-500 font-bold text-sm italic mt-1" : "hidden";
     });
 
     return {dispCategoryErrMsg, dispMenuErrMsg};

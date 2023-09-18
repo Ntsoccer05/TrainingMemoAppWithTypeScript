@@ -1,7 +1,7 @@
 <template>
   <div class="mt-10">
     <template v-if="isInputMenu">
-      <div class="addPart grid grid-cols-2">
+      <div class="addPart text-center md:grid grid-cols-2">
         <label for="addPart" class="text-bold mt-3 justify-self-end"
           >追加する部位を記入してください：</label
         >
@@ -32,7 +32,7 @@
       </div>
     </template>
     <template v-else>
-      <div class="addPart grid grid-cols-2">
+      <div class="addPart text-center md:grid grid-cols-2">
         <label for="addPart" class="bold justify-self-end"
           >追加する部位を選択してください：</label
         >
@@ -56,7 +56,7 @@
         </select>
         <p :class="dispCategoryErrMsg">{{ errors.category_content }}</p>
       </div>
-      <div class="grid grid-cols-2 mt-10">
+      <div class="md:grid text-center grid-cols-2 mt-10">
         <label for="exercise" class="text-bold justify-self-end"
           >追加する種目を記入してください：</label
         >
@@ -68,6 +68,15 @@
           required
         />
         <p :class="dispMenuErrMsg">{{ errors.menu }}</p>
+      </div>
+      <div class="md:grid text-center grid-cols-9 mt-5">
+        <input
+          class="bg-slate-100 border-black border-x border-y col-start-4 mr-2 justify-self-end"
+          id="separate"
+          type="checkbox"
+          v-model="sepereteRecord"
+        />
+        <label for="separate" class="text-bold">左右別々で記録する</label>
       </div>
     </template>
     <div class="addPart grid grid-cols-2 mt-10 w-full">
@@ -103,7 +112,6 @@ export default {
     const errors = reactive({
       category_content: [],
       menu: [],
-      password: [],
     });
     const dispErrorMsg = reactive({
       category_content: false,
@@ -118,6 +126,7 @@ export default {
     const selectedCategory = ref("");
     const addCategory = ref("");
     const addMenu = ref("");
+    const sepereteRecord = ref(false);
 
     const isInputMenu = ref(false);
 
@@ -188,6 +197,7 @@ export default {
         post.category_content = "";
         post.category_id = selectedCategory.value;
         post.menu = addMenu.value;
+        post.oneSide = sepereteRecord.value;
       }
       await axios
         .post("/api/menus/store", post)
@@ -213,6 +223,8 @@ export default {
           if (addMenu.value !== "") {
             addMenu.value = "";
           }
+          //前の画面へ戻りたいため
+          history.back();
           router.push({ name: "selectMenu" });
         })
         .catch((err) => {
@@ -237,7 +249,9 @@ export default {
         return { dispCategoryErrMsg, dispMenuErrMsg };
       } else {
         addMenu.value = "";
-        router.push({ name: "selectMenu" });
+        //前の画面へ戻りたいため
+        history.back();
+        // router.push({ name: "selectMenu" });
       }
     };
 
@@ -283,6 +297,7 @@ export default {
       selectedCategory,
       errors,
       addMenu,
+      sepereteRecord,
       addCategory,
       addPart,
       addPartBtn,

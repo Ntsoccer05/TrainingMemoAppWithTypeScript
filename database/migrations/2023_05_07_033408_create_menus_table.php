@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('category_id')->constrained();
+            // cascadeOnDelete()は親のテーブルのレコードが削除された場合に一緒に削除
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->string('content');
             $table->boolean('oneSide')->default(false);
             $table->timestamps();

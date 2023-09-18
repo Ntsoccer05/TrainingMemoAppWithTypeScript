@@ -112,6 +112,7 @@
 import { ref, onMounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
+import useGetRecordState from "../../composables/record/useGetRecordState";
 export default {
   setup() {
     const router = useRouter();
@@ -147,6 +148,8 @@ export default {
     // ];
     const { getLoginUser, loginUser } = useGetLoginUser();
 
+    const { getLatestRecordState, latestRecord } = useGetRecordState();
+
     //トレーニングメニュー追加画面に遷移
     const toAddMenu = () => {
       router.push({
@@ -165,11 +168,28 @@ export default {
     //トレーニング記録画面に遷移
     const toRecordContents = (category, menu) => {
       if (!editable.value) {
-        router.push({
-          name: "record",
-          params: route.params,
-          query: { category_id: category.id, menu_id: menu.id },
-        });
+        debugger;
+        axios
+          .post("/api/recordContent/create", {
+            user_id: loginUser.value.id,
+            category_id: category.id,
+            menu_id: menu.id,
+            record_states_id: latestRecord.value.id,
+          })
+          .then((res) => {
+            router.push({
+              name: "record",
+              params: route.params,
+              query: {
+                categoryId: category.id,
+                menuId: menu.id,
+                recordId: latestRecord.value.id,
+              },
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       } else {
         return;
       }
@@ -267,6 +287,7 @@ export default {
       // DOM取得のため
       const deleteFuncDom = deleteFunc.value;
       await getLoginUser();
+      await getLatestRecordState();
 
       getMenus();
       //動的に要素を追加したものに対する処理にはnextTickを用いる

@@ -42,7 +42,8 @@ const routes = [
     component: SelectMenu
   },
   {
-    path: '/record/:categoryId?/:menuId?',
+    // ?：NULL許容
+    path: '/record/:categoryId?/:menuId?/:recordId?',
     name: 'record',
     component: Record,
     props: true

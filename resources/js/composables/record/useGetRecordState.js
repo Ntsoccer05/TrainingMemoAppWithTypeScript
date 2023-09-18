@@ -1,0 +1,21 @@
+import { ref,nextTick } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+
+export default function useGetLoginUser(){
+    const router = useRouter();
+    const store = useStore();
+    const latestRecord = ref("");
+
+    // async await を使わないとDOM生成後のonMountedのタイミングでも早すぎてユーザ情報を取得できない
+    const getLatestRecordState = async ()=>{
+        await store.dispatch("getLatestRecordState");
+        // 選択したレコードの日付、ID情報取得
+        // nextTickは非同期処理完了後に呼び出されるのでlatestRecordを取得できる
+        nextTick(()=>{
+            latestRecord.value = store.getters.latestRecord;
+        })
+    }
+
+    return {latestRecord, getLatestRecordState};
+}

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\RecordContentController;
 use App\Http\Controllers\RecordController;
 
 /*
@@ -21,6 +22,7 @@ use App\Http\Controllers\RecordController;
 // ログイン済みのみ
 Route::middleware('auth:sanctum')->group(function(){
     Route::post('/logout',[LoginController::class, 'logout']);
+    Route::get('/record', [RecordController::class, 'index']);
     Route::post('/record/create', [RecordController::class, 'create']);
     Route::get('/record/edit', [RecordController::class, 'edit']);
     Route::post('/record/edit', [RecordController::class, 'update']);
@@ -29,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/menus/store', [MenuController::class, 'store']);
     Route::post('/menus/update', [MenuController::class, 'update']);
     Route::post('/menus/delete', [MenuController::class, 'delete']);
+    Route::post('/recordContent/create', [RecordContentController::class, 'create']);
 });
 
 // ログイン済みのみ

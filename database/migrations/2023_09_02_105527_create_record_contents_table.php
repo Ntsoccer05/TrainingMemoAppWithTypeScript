@@ -16,14 +16,16 @@ return new class extends Migration
         Schema::create('record_contents', function (Blueprint $table) {
             $table->id();
             //外部キーに紐づくテーブルはreferences->onかconstrained
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             //外部キーの制約（null許容）はforeignIdの直後
-            $table->foreignId('category_id')->nullable()->references('id')->on('categories');
-            $table->foreignId('menu_id')->nullable()->constrained();
-            $table->foreignId('record_states_id')->nullable()->constrained();
+            $table->foreignId('category_id')->nullable()->references('id')->on('categories')->cascadeOnDelete();
+            $table->foreignId('menu_id')->nullable()->constrained()->cascadeOnDelete();
+            // cascadeOnDelete()は親のテーブルのレコードが削除された場合に一緒に削除
+            // 紐づける際に相手のテーブル名は単数形
+            $table->foreignId('record_state_id')->nullable()->constrained()->cascadeOnDelete();
             $table->integer('weight')->nullable();
-            $table->integer('right-weight')->nullable();
-            $table->integer('left-weight')->nullable();
+            $table->integer('right_weight')->nullable();
+            $table->integer('left_weight')->nullable();
             $table->integer('set')->nullable();
             $table->integer('rep')->nullable();
             $table->string('memo')->nullable();

@@ -93,6 +93,7 @@ class MenuController extends Controller
             $menu->user_id = $request->user_id;
             $menu->category_id = $request->category_id;
             $menu->content = $request->menu;
+            $menu->oneSide = $request->oneSide;
             $menu->save();
             return response()->json(['status' => 200, "message"=>"種目を登録しました。"]); 
         }else{

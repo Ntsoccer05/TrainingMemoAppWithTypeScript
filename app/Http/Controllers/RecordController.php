@@ -8,6 +8,7 @@ use App\Models\Record;
 use App\Models\RecordContent;
 use App\Models\RecordState;
 use Carbon\Carbon;
+use DateTime;
 use Mockery\Undefined;
 
 class RecordController extends Controller
@@ -17,6 +18,24 @@ class RecordController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function index(RecordState $recordState){
+        $latestRecord = NULL;
+
+        // 最新のデータを取得
+        $latestUpdated = $recordState->latest('updated_at')->first();
+        $latestCreated = $recordState->latest('created_at')->first();
+
+        $updatedDateTime = new DateTime($latestUpdated->updated_at);
+        $createdDateTime = new DateTime($latestCreated->created_at);
+
+        if($createdDateTime < $updatedDateTime){
+            $latestRecord = $latestUpdated;
+        }else{
+            $latestRecord = $latestCreated;
+        }
+        return response()->json(["status_code" => 200, "latestRecord" => $latestRecord]);
+    }
+
     public function create(Request $request)
     {
         $recorded_at = Carbon::parse($request->recording_day);

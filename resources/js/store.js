@@ -6,12 +6,14 @@ export default createStore({
     state:{
         user:[],
         isLogined: false,
-        day: ""
+        day: "",
+        latestRecordState:""
     },
     getters:{
       isLogined:state => state.isLogined,
       loginUser:state => state.user,
-      selectedDay:state => state.day
+      selectedDay:state => state.day,
+      latestRecord:state=>state.latestRecordState
     },
     mutations:{
       LoginState(state){
@@ -27,6 +29,9 @@ export default createStore({
       },
       loginUser(state, user){
         state.user = user
+      },
+      latestRecordState(state,latestRecordState){
+        state.latestRecordState = latestRecordState
       }
     },
     actions:{
@@ -52,6 +57,16 @@ export default createStore({
           })
           .catch((err) => {
             // ログインしていない状態だとホーム画面へリダイレクト
+          })
+        },
+
+        async getLatestRecordState({state}) {
+          await axios.get("/api/record")
+          .then(res =>{
+            state.latestRecordState = res.data.latestRecord
+          })
+          .catch((err) => {
+            console.log(err)
           })
         }
     }
