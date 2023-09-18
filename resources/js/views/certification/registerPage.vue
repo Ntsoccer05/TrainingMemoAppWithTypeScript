@@ -14,7 +14,7 @@
         </div>
 
         <!-- Right column container with form -->
-        <div class="md:w-8/12 lg:ml-6 lg:w-5/12">
+        <div class="h-screen md:w-8/12 lg:ml-6 lg:w-5/12">
           <Register />
           <!-- Divider -->
           <div

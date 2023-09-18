@@ -2,7 +2,7 @@
   <div class="bg-gray-500 h-12 md:h-16">
     <header class="container mx-auto text-white relative z-10">
       <div
-        class="flex justify-between items-center fixed w-full bg-gray-500 px-2 h-12 md:h-16"
+        class="flex justify-between items-center fixed w-full bg-gray-500 px-2 h-16 md:h-16"
       >
         <h1 class="text-2xl font-semibold md:text-4xl" @click="toHome">HR</h1>
         <div>
@@ -23,31 +23,38 @@
         <div :class="isOpen ? 'show-toggleMenu' : 'hidden-toggleMenu'">
           <ul
             class="md:flex md:justify-between md:items-center md:mr-1 md: m-auto lg:mr-0"
+            @click="closeHumbuger"
           >
-            <li class="border-b md:mr-auto md:border-none">
+            <li class="border-b border-t top- md:mr-auto md:border-none">
               <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
                 >HRとは</router-link
               >
             </li>
-            <li v-if="isLogined" class="border-b md:border-none">
-              <a
-                class="block px-8 py-2 my-4 hover:bg-gray-600 rounded cursor-pointer"
-                @click.native="logout"
-                >ログアウト</a
-              >
-            </li>
-            <li v-else class="border-b md:border-none">
-              <router-link
-                to="/login"
-                class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
-                >ログイン</router-link
-              >
-            </li>
-            <li class="border-b md:border-none">
-              <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
-                >料金プラン</router-link
-              >
-            </li>
+            <template v-if="isLogined">
+              <li class="border-b md:border-none">
+                <a
+                  class="block px-8 py-2 my-4 hover:bg-gray-600 rounded cursor-pointer"
+                  @click.native="logout"
+                  >ログアウト</a
+                >
+              </li>
+            </template>
+            <template v-else-if="!isLogined">
+              <li class="border-b md:border-none">
+                <router-link
+                  to="/login"
+                  class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
+                  >ログイン</router-link
+                >
+              </li>
+              <li class="border-b md:border-none">
+                <router-link
+                  to="/register"
+                  class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
+                  >新規登録</router-link
+                >
+              </li>
+            </template>
             <li class="border-b md:border-none">
               <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
                 >お知らせ</router-link
@@ -90,6 +97,12 @@ export default {
     // ホーム画面へ遷移
     const toHome = () => router.push("/");
 
+    const closeHumbuger = () => {
+      if (isOpen) {
+        isOpen.value = false;
+      }
+    };
+
     // ログアウト処理
     const logout = async () => {
       await axios
@@ -105,7 +118,7 @@ export default {
           console.log(err);
         });
     };
-    return { isOpen, isLogined, user, toggleNav, toHome, logout };
+    return { isOpen, isLogined, user, toggleNav, toHome, logout, closeHumbuger };
   },
 };
 </script>

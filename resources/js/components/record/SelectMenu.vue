@@ -1,11 +1,6 @@
 <template>
   <div>
-    <template v-if="!editable">
-      <h3 class="text-lg text-center font-bold mt-4">鍛える部位を選択してください</h3>
-    </template>
-    <template v-else>
-      <h3 class="text-lg text-center font-bold mt-4">編集する種目を選択してください</h3>
-    </template>
+    <h3 class="text-lg text-center font-bold mt-4">{{ dispHeadText }}</h3>
     <button
       class="block w-50 bg-blue-500 hover:bg-blue-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 ml-auto rounded-full mr-5"
       @click="toAddMenu()"
@@ -118,10 +113,13 @@ export default {
     const router = useRouter();
     const route = useRoute();
 
+    const dispHeadText = ref("");
+
     const editable = ref(false);
     // DOM取得のため
     const deleteFunc = ref(null);
 
+    const menus = ref([]);
     //以下の形でデータが入っている。
     const categories = ref([]);
     // const categories = [
@@ -159,22 +157,23 @@ export default {
 
     const editMenu = () => {
       editable.value = true;
+      dispHeadText.value = "編集する種目を選択してください";
     };
 
     const compEditMenu = () => {
       editable.value = false;
+      dispHeadText.value = "鍛える部位を選択してください";
     };
 
     //トレーニング記録画面に遷移
     const toRecordContents = (category, menu) => {
       if (!editable.value) {
-        debugger;
         axios
           .post("/api/recordContent/create", {
             user_id: loginUser.value.id,
             category_id: category.id,
             menu_id: menu.id,
-            record_states_id: latestRecord.value.id,
+            record_state_id: latestRecord.value.id,
           })
           .then((res) => {
             router.push({
@@ -205,6 +204,11 @@ export default {
           },
         })
         .then((res) => {
+          if (res.data.categories.length === 0) {
+            dispHeadText.value = "部位・種目を追加してください";
+          } else if (res.data.munulist2.length === 0) {
+            dispHeadText.value = "種目を追加してください";
+          }
           categories.value = res.data.categorylist;
           // console.log(categories.value);
         })
@@ -299,6 +303,7 @@ export default {
     });
 
     return {
+      dispHeadText,
       categories,
       editable,
       // DOM取得のため

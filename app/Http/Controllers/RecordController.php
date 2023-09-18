@@ -52,7 +52,7 @@ class RecordController extends Controller
                 'user_id' => $request->user_id,
                 'recorded_at' => $recording_day
             ]);
-            return response()->json(["status_code" => 200, "message" => "トレーニング日を記録しました"]);
+            return response()->json(["status_code" => 200, "message" => "トレーニング日を記録しました", "session" => $request->session()->all()]);
         }
     }
 

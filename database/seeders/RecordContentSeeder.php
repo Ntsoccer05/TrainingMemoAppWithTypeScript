@@ -22,9 +22,9 @@ class RecordContentSeeder extends Seeder
                 'category_id' => 1,
                 'menu_id' => 1,
                 'record_state_id' =>rand(1, 10),
-                'weight' => rand(20,100),
+                // 'weight' => rand(20,100),
                 // バッチ処理テスト用
-                // 'weight' => null,
+                'weight' => null,
                 'right_weight' => null,
                 'left_weight' => null,
                 'set' => rand(1, 4),

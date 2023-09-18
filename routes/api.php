@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function(){
 
 // ログイン済みのみ
 Route::middleware('auth:sanctum')->get('users', function(Request $request){
+    // コントローラーでも$request->user();でログインしているユーザ情報を取得できる
     return $request->user();
 });
 

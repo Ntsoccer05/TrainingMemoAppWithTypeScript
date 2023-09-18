@@ -69,9 +69,9 @@
         />
         <p :class="dispMenuErrMsg">{{ errors.menu }}</p>
       </div>
-      <div class="md:grid text-center grid-cols-9 mt-5">
+      <div class="md:grid text-center md:grid-cols-6 xl:grid-cols-9 mt-5">
         <input
-          class="bg-slate-100 border-black border-x border-y col-start-4 mr-2 justify-self-end"
+          class="bg-slate-100 border-black border-x border-y md:col-start-3 xl:col-start-4 md:mr-0 xl:mr-2 mr-2 justify-self-end"
           id="separate"
           type="checkbox"
           v-model="sepereteRecord"
@@ -218,17 +218,18 @@ export default {
             selectedCategory.value = "";
             addCategory.value = "";
             getMenus();
-            return;
+          } else {
+            if (addMenu.value !== "") {
+              addMenu.value = "";
+            }
+            //前の画面へ戻りたいため
+            history.back();
+            router.push({ name: "selectMenu" });
           }
-          if (addMenu.value !== "") {
-            addMenu.value = "";
-          }
-          //前の画面へ戻りたいため
-          history.back();
-          router.push({ name: "selectMenu" });
         })
         .catch((err) => {
           // POST時のバリデーションエラー
+          console.log(err);
           const errorMsgs = err.response.data.errors;
           useValidationMsg(errorMsgs, errors, dispErrorMsg);
         });

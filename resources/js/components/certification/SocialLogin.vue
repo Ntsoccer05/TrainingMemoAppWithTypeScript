@@ -10,16 +10,26 @@
     >
       <!-- Google -->
       <i class="fa-brands fa-google mr-2"></i>
-      グーグルで登録する
+      {{ dispType }}
     </a>
   </div>
 </template>
 
 <script>
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { ref } from "vue";
 export default {
   setup() {
     const router = useRouter();
+    const route = useRoute();
+
+    const dispType = ref("");
+
+    if (route.name === "login") {
+      dispType.value = "グーグルでログインする";
+    } else if (route.name === "register") {
+      dispType.value = "グーグルで登録する";
+    }
 
     // Googleログインページに遷移
     const toGoogleLoginPage = () => {
@@ -31,11 +41,15 @@ export default {
           window.location.href = res.data.redirectUrl;
         })
         .catch((err) => {
-          router.push("/login");
+          if (route.name === "login") {
+            router.push("/login");
+          } else if (route.name === "register") {
+            router.push("/register");
+          }
         });
     };
 
-    return { toGoogleLoginPage };
+    return { dispType, toGoogleLoginPage };
   },
 };
 </script>
