@@ -2,7 +2,7 @@ import { ref,nextTick } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
-export default function useGetLoginUser(){
+export default function useGetRecordState(){
     const router = useRouter();
     const store = useStore();
     const latestRecord = ref("");

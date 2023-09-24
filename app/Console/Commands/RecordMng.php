@@ -31,7 +31,7 @@ class RecordMng extends Command
      *
      * @return int
      */
-    public function handle(RecordState $recordState, RecordContent $recordContent)
+    public function handle(RecordState $recordState)
     {
         $now = Carbon::now();
         $delete_flg = 0;

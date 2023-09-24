@@ -2,7 +2,7 @@
   <div class="mt-10">
     <template v-if="isInputMenu">
       <div class="addPart text-center md:grid grid-cols-2">
-        <label for="addPart" class="text-bold mt-3 justify-self-end"
+        <label for="addPart" class="text-bold mt-3 justify-self-end block sm:inline"
           >追加する部位を記入してください：</label
         >
         <div class="addPart grid grid-cols-3">
@@ -33,7 +33,7 @@
     </template>
     <template v-else>
       <div class="addPart text-center md:grid grid-cols-2">
-        <label for="addPart" class="bold justify-self-end"
+        <label for="addPart" class="bold justify-self-end block sm:inline"
           >追加する部位を選択してください：</label
         >
         <select
@@ -57,7 +57,7 @@
         <p :class="dispCategoryErrMsg">{{ errors.category_content }}</p>
       </div>
       <div class="md:grid text-center grid-cols-2 mt-10">
-        <label for="exercise" class="text-bold justify-self-end"
+        <label for="exercise" class="text-bold justify-self-end block sm:inline"
           >追加する種目を記入してください：</label
         >
         <input
@@ -69,7 +69,7 @@
         />
         <p :class="dispMenuErrMsg">{{ errors.menu }}</p>
       </div>
-      <div class="md:grid text-center md:grid-cols-6 xl:grid-cols-9 mt-5">
+      <div class="lg:grid text-center lg:grid-cols-6 xl:grid-cols-9 mt-5">
         <input
           class="bg-slate-100 border-black border-x border-y md:col-start-3 xl:col-start-4 md:mr-0 xl:mr-2 mr-2 justify-self-end"
           id="separate"
@@ -105,7 +105,7 @@ import dispValidationMsg from "../../composables/menu/useDispValidationMsg";
 export default {
   setup() {
     const router = useRouter();
-    const route = useRoute();
+    // const route = useRoute();
 
     const editable = ref(false);
 
@@ -127,7 +127,6 @@ export default {
     const addCategory = ref("");
     const addMenu = ref("");
     const sepereteRecord = ref(false);
-
     const isInputMenu = ref(false);
 
     // DOM取得(Returnに追記しないとDOM取得できない)

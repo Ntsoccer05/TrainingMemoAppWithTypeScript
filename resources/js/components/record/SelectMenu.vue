@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 class="text-lg text-center font-bold mt-4">{{ dispHeadText }}</h3>
+    <h3 class="text-lg text-center font-bold mt-6">{{ dispHeadText }}</h3>
     <button
       class="block w-50 bg-blue-500 hover:bg-blue-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 ml-auto rounded-full mr-5"
       @click="toAddMenu()"
@@ -28,6 +28,17 @@
     <div :class="['text-right mr-5 md:mr-10', editable ? 'block' : 'hidden']">
       <!---div><i class="fa-solid fa-pen"></i><span>：編集</span></div>--->
       <div><i class="fa-solid fa-trash"></i><span class="font-bold">：削除</span></div>
+    </div>
+    <div class="mx-auto w-11/12 mt-5 mb-5">
+      <label for="weight block sm:inline"> 今日の体重： </label>
+      <input
+        class="border border-black text-right w-28"
+        name="weight"
+        type="text"
+        placeholder="kg"
+        v-model="weight"
+        @blur="postWeight"
+      />
     </div>
     <div class="md:flex md:items-start md:flex-wrap">
       <table
@@ -104,7 +115,7 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick } from "vue";
+import { ref, reactive, onMounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetRecordState from "../../composables/record/useGetRecordState";
@@ -114,6 +125,8 @@ export default {
     const route = useRoute();
 
     const dispHeadText = ref("");
+
+    const weight = ref("");
 
     const editable = ref(false);
     // DOM取得のため
@@ -208,6 +221,8 @@ export default {
             dispHeadText.value = "部位・種目を追加してください";
           } else if (res.data.munulist2.length === 0) {
             dispHeadText.value = "種目を追加してください";
+          } else {
+            dispHeadText.value = "鍛える部位を選択してください";
           }
           categories.value = res.data.categorylist;
           // console.log(categories.value);
@@ -268,6 +283,23 @@ export default {
       }
     };
 
+    //体重を記録する
+    const postWeight = async () => {
+      debugger;
+      await axios
+        .post("/api/record/edit", {
+          user_id: loginUser.value.id,
+          recording_day: latestRecord.value.recorded_at,
+          weight: weight.value,
+        })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+
     //メニュー内容を編集する
     const postEditMenu = async (category, menu) => {
       if (category !== undefined && menu !== undefined) {
@@ -306,6 +338,7 @@ export default {
       dispHeadText,
       categories,
       editable,
+      weight,
       // DOM取得のため
       deleteFunc,
       // メソッド
@@ -317,6 +350,7 @@ export default {
       postEditMenu,
       deleteMenuContent,
       cancelClick,
+      postWeight,
     };
   },
 };
