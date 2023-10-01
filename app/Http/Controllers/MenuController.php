@@ -14,41 +14,47 @@ class MenuController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, Menu $menu)
     {
-        $menulist = Menu::where('user_id', $request->user_id)->get();
-        $categorylist = Category::where('user_id', $request->user_id)->get();
-        $categories = [];
-        $menulist2 = [];
-        if(isset($menulist)){
-            foreach($menulist as $menu){
-                //Modelで設定したのはメソッドだが呼び出す際はプロパティ(category()category)
-                //Modelで設定したメソッドが入れ子となりmenulist2に格納される
-                //menu:{
-                //     category:{
-                //     }
-                // }
-                $categories[] = $menu->category;
-                // 重複削除
-                $categories = array_unique($categories);
-            }
-        }
 
-        if(isset($categorylist)){
-            foreach($categorylist as $cagtegory){
-                //Modelで設定したのはメソッドだが呼び出す際はプロパティ(menus()→menus)
-                //Modelで設定したメソッドが入れ子となりmenulist2に格納される
-                //category:{
-                //     menus:{
-                //     }
-                // }
-                $menulist2[] = $cagtegory->menus;
-                // 重複削除
-                $menulist2 = array_unique($menulist2);
+        if($request->user_id && $request->category_id && $request->menu_id){
+            $getMenu = $menu->where('user_id', $request->user_id)->where('category_id', $request->category_id)->where('id', $request->menu_id)->first();
+            return response()->json(['status' => 200, "menu"=>$getMenu]);
+        }else{
+            $menulist = Menu::where('user_id', $request->user_id)->get();
+            $categorylist = Category::where('user_id', $request->user_id)->get();
+            $categories = [];
+            $menulist2 = [];
+            if(isset($menulist)){
+                foreach($menulist as $menu){
+                    //Modelで設定したのはメソッドだが呼び出す際はプロパティ(category()category)
+                    //Modelで設定したメソッドが入れ子となりmenulist2に格納される
+                    //menu:{
+                    //     category:{
+                    //     }
+                    // }
+                    $categories[] = $menu->category;
+                    // 重複削除
+                    $categories = array_unique($categories);
+                }
             }
+    
+            if(isset($categorylist)){
+                foreach($categorylist as $cagtegory){
+                    //Modelで設定したのはメソッドだが呼び出す際はプロパティ(menus()→menus)
+                    //Modelで設定したメソッドが入れ子となりmenulist2に格納される
+                    //category:{
+                    //     menus:{
+                    //     }
+                    // }
+                    $menulist2[] = $cagtegory->menus;
+                    // 重複削除
+                    $menulist2 = array_unique($menulist2);
+                }
+            }
+    
+            return response()->json(['status' => 200, "menulist"=>$menulist, "categories"=>$categories, "categorylist" => $categorylist, "munulist2" => $menulist2]);
         }
-
-        return response()->json(['status' => 200, "menulist"=>$menulist, "categories"=>$categories, "categorylist" => $categorylist, "munulist2" => $menulist2]);
     }
 
     /**
@@ -131,9 +137,20 @@ class MenuController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, Category $category)
     {
-        //
+        $user_id = $request->user_id;
+        $category_id = $request->category_id;
+        $categorylist = Category::where(function($query) use($user_id, $category_id){
+            $query->where([['user_id', $user_id],['id', $category_id]]);
+        })->first();
+        If($categorylist){
+            $categorylist->content = $request->content;
+            $categorylist->save();
+            return response()->json(["status_code" => 200, "message" => "カテゴリーを更新しました"]);
+        }else{
+            return response()->json(["status_code" => 200,"message"=>"データが存在していません", "user_id" => $user_id,"category_id"=>$category_id]);
+        }
     }
 
     /**
@@ -152,7 +169,7 @@ class MenuController extends Controller
         $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
             $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
         })->first();
-        If(count($menulist) !== 0){
+        If($menulist){
             $menulist->content = $request->content;
             $menulist->save();
             return response()->json(["status_code" => 200, "message" => "メニューを更新しました"]);
@@ -186,6 +203,33 @@ class MenuController extends Controller
             return response()->json(["status_code" => 200, "message" => "メニューを削除しました"]);
         }else{
             return response()->json(["status_code" => 200,"message"=>"データが存在していません", "user_id" => $user_id,"category_id"=>$category_id, "menu_id"=>$menu_id]);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request, Category $category)
+    {
+        $user_id = $request->user_id;
+        $category_id = $request->category_id;
+        // firstだとstdClassを返すためdelete()メソッドが存在しない←インスタンス化が必要
+        // $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
+        //     $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
+        // })->get();
+
+        // Menu $menuを引数とすることでMenuテーブルに依存関係が生まれるため、インスタンス化(New Menu)をしなくていい
+        $categorylist= $category->where(function($query) use($user_id, $category_id){
+            $query->where([['user_id', $user_id],['id', $category_id]]);
+        })->first();
+        If($categorylist){
+            $categorylist->delete();
+            return response()->json(["status_code" => 200, "message" => "カテゴリーを削除しました"]);
+        }else{
+            return response()->json(["status_code" => 200,"message"=>"データが存在していません", "user_id" => $user_id,"category_id"=>$category_id]);
         }
     }
 }

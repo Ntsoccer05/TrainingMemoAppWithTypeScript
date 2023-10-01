@@ -16,10 +16,11 @@ return new class extends Migration
         Schema::create('records', function (Blueprint $table) {
             $table->id();
             //外部キーに紐づくテーブルはreferences->onかconstrained
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            // cascadeOnDelete()は親のテーブルのレコードが削除された場合に一緒に削除
             //外部キーの制約（null許容）はforeignIdの直後
-            $table->foreignId('category_id')->nullable()->references('id')->on('categories');
-            $table->foreignId('menu_id')->nullable()->constrained();
+            $table->foreignId('category_id')->nullable()->references('id')->on('categories')->cascadeOnDelete();
+            $table->foreignId('menu_id')->nullable()->constrained()->cascadeOnDelete();
             $table->integer('bodyWeight')->nullable();
             $table->integer('weight')->nullable();
             $table->integer('right-weight')->nullable();
