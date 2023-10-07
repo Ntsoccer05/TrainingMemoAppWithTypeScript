@@ -24,7 +24,7 @@
                 </i>
                 --->
               <button class="mr-1" @click="deleteCategoryMenu(category.id)">
-                <i class="fa-solid fa-trash mt-2"></i>
+                <i class="fa-solid fa-trash mt-2 hover:text-red-600"></i>
               </button>
             </div>
             <div class="hidden" ref="deleteCategory" :category_id="category.id">
@@ -61,7 +61,9 @@
             :class="['border', editable ? '' : 'hover:bg-gray-200']"
             @click="toRecordContents(category, menu)"
           >
-            <span :class="[editable ? 'hidden' : 'block']">{{ menu.content }} </span>
+            <span :class="['ml-2', editable ? 'hidden' : 'block']"
+              >{{ menu.content }}
+            </span>
             <div :class="['grid grid-cols-12 gap-2', editable ? 'block' : 'hidden']">
               <!--- @blurでPOSTする -->
               <input
@@ -77,7 +79,7 @@
                 </i>
                 --->
               <button class="mr-1" @click="deleteMenu(menu.id, category.id)">
-                <i class="fa-solid fa-trash mt-2"></i>
+                <i class="fa-solid fa-trash mt-2" :class="hoverRed"></i>
               </button>
             </div>
             <div
@@ -114,6 +116,11 @@
         </tr>
       </tbody>
     </table>
+    <template v-if="isOdd">
+      <table
+        class="border border-collapse table-fixed mx-auto mt-3 md:w-5/12 w-11/12"
+      ></table>
+    </template>
   </div>
 </template>
 
@@ -135,9 +142,13 @@ export default {
     const editable = computed(() => props.editable);
     const dispHeadText = computed(() => props.dispHeadText);
 
+    const isOdd = ref(false);
+
     // DOM取得のため
     const deleteFunc = ref(null);
     const deleteCategory = ref(null);
+
+    const hoverRed = ref("hover:text-red-600");
 
     //以下の形でデータが入っている。
     const categories = ref([]);
@@ -217,6 +228,11 @@ export default {
             }
           }
           categories.value = res.data.categorylist;
+          if (categories.value.length % 2 === 1) {
+            isOdd.value = true;
+          } else {
+            isOdd.value = false;
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -285,22 +301,6 @@ export default {
           }
         }
       }
-    };
-
-    //体重を記録する
-    const postWeight = async () => {
-      await axios
-        .post("/api/record/edit", {
-          user_id: loginUser.value.id,
-          recording_day: latestRecord.value.recorded_at,
-          weight: weight.value,
-        })
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
     };
 
     //メニュー内容を編集する
@@ -395,9 +395,11 @@ export default {
     });
 
     return {
+      isOdd,
       categories,
       editable,
       dispHeadText,
+      hoverRed,
       // DOM取得のため
       deleteFunc,
       deleteCategory,
@@ -411,7 +413,6 @@ export default {
       postEditCategory,
       cancelClick,
       cancelEditCategoryClick,
-      postWeight,
     };
   },
 };

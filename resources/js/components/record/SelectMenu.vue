@@ -47,19 +47,19 @@
     </div>
 
     <!-- :子供のprops名：データ値 -->
-    <EditableTableMenu :dispHeadText="dispHeadText" :editable="editable" />
+    <EditableMenuTable :dispHeadText="dispHeadText" :editable="editable" />
   </div>
 </template>
 
 <script>
-import EditableTableMenu from "./EditableTableMenu.vue";
+import EditableMenuTable from "./EditableMenuTable.vue";
 import { ref, onMounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 export default {
   components: {
-    EditableTableMenu,
+    EditableMenuTable,
   },
   setup() {
     const router = useRouter();

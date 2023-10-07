@@ -79,20 +79,22 @@
         <label for="separate" class="text-bold">左右別々で記録する</label>
       </div>
     </template>
-    <div class="addPart grid grid-cols-2 mt-10 w-full">
+    <div class="addPart grid grid-cols-2 mt-10 w-full mb-10">
       <button
-        class="bg-blue-500 text-white w-24 h-8 rounded-md mr-5 mb-1 justify-self-end"
+        type="submit"
+        class="bg-blue-500 text-white w-28 h-8 rounded-md mr-5 mb-1 justify-self-end"
         @click="addMenuContent"
       >
         追加する
       </button>
       <button
-        class="bg-red-500 text-white w-24 rounded-md ml-5 justify-self-start"
+        class="bg-red-500 text-white w-28 rounded-md ml-5 justify-self-start"
         @click="cancelAddMenu"
       >
-        キャンセル
+        前ページへ戻る
       </button>
     </div>
+    <MenuTable :categories="categories" />
   </div>
 </template>
 
@@ -102,7 +104,11 @@ import { useRoute, useRouter } from "vue-router";
 import useValidationMsg from "../../composables/menu/useValidationMsg";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import dispValidationMsg from "../../composables/menu/useDispValidationMsg";
+import MenuTable from "../record/MenuTable.vue";
 export default {
+  components: {
+    MenuTable,
+  },
   setup() {
     const router = useRouter();
     // const route = useRoute();
@@ -136,6 +142,16 @@ export default {
 
     //バリデーションエラーメッセージのレイアウト
     const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
+
+    onMounted(async () => {
+      await getLoginUser();
+
+      getMenus();
+      //動的に要素を追加したものに対する処理にはnextTickを用いる
+      nextTick(() => {
+        getLoginUser();
+      });
+    });
 
     const toggleBtnInput = () => {
       if (selectedCategory.value == "新規追加する") {
@@ -220,10 +236,11 @@ export default {
           } else {
             if (addMenu.value !== "") {
               addMenu.value = "";
+              getMenus();
             }
             //前の画面へ戻りたいため
-            history.back();
-            router.push({ name: "selectMenu" });
+            // history.back();
+            // router.push({ name: "selectMenu" });
           }
         })
         .catch((err) => {

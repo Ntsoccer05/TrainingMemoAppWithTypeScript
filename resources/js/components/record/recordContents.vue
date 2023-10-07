@@ -1,134 +1,52 @@
 <template>
-  <table class="border border-collapse table-fixed mx-auto">
-    <!-- 入れ子で意識すべきことを追加 -->
-    <caption
-      class="p-5 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800"
-    >
-      <!-- <p class="text-lg" ref="menu">種目：{{ menu.content }}</p> -->
-      <button
-        class="block w-11/12 bg-blue-500 hover:bg-blue-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 mx-auto"
-        @click="fillBeforeRecord"
+  <div>
+    <table class="border border-collapse table-fixed mx-auto">
+      <caption
+        class="p-5 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800"
       >
-        前回の記録を埋める
-      </button>
-      <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
-        今日の体重：{{ bodyWeight }}
-      </p>
-      <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
-        今日のトータルセット数：１０セット
-      </p>
-    </caption>
-    <thead>
-      <tr>
-        <th class="text-left md:text-center indent-1 md:indent-0">
-          <div class="border" ref="todayRecordedAt">今回の記録</div>
-        </th>
-        <th class="text-left md:text-center indent-1 md:indent-0">
-          <div class="border" ref="beforeRecordedAt">前回の記録</div>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(content, index) in contents" :key="index">
-        <td>
-          <div class="bg-gray-200 border indent-1">{{ index + 1 }}セット目</div>
-          <div :class="hasOneHand ? 'hidden' : 'block'">
-            <input class="border w-full" type="text" placeholder="重さ(kg)" />
-            <input class="border w-full" type="text" placeholder="回数" />
-          </div>
-          <div :class="hasOneHand ? 'block' : 'hidden'">
-            <input class="border w-full" type="text" placeholder="重さ（右）(kg)" />
-            <input class="border w-full" type="text" placeholder="回数（右）" />
-            <input class="border w-full" type="text" placeholder="重さ（左）(kg)" />
-            <input class="border w-full" type="text" placeholder="回数（左）" />
-          </div>
-          <div class="border">
-            <textarea
-              class="w-full"
-              name=""
-              id=""
-              cols="20"
-              placeholder="メモ"
-            ></textarea>
-          </div>
-        </td>
-        <td>
-          <div class="bg-gray-200 border indent-1">{{ index + 1 }}セット目</div>
-          <div :class="hasOneHand ? 'hidden' : 'block'">
-            <input
-              class="border w-full"
-              type="text"
-              placeholder="重さ(kg)"
-              ref="beforeWeight"
-              readonly
-            />
-            <input
-              class="border w-full"
-              type="text"
-              placeholder="回数"
-              ref="beforeReps"
-              readonly
-            />
-          </div>
-          <div :class="hasOneHand ? 'block' : 'hidden'">
-            <input
-              class="border w-full"
-              type="text"
-              placeholder="重さ（右）(kg)"
-              ref="beforeRightWeight"
-              readonly
-            />
-            <input
-              class="border w-full"
-              type="text"
-              placeholder="回数（右）"
-              ref="beforeRightReps"
-              readonly
-            />
-            <input
-              class="border w-full"
-              type="text"
-              placeholder="重さ（左）(kg)"
-              ref="beforeLeftWeight"
-              readonly
-            />
-            <input
-              class="border w-full"
-              type="text"
-              placeholder="回数（左）"
-              ref="beforeLeftReps"
-              readonly
-            />
-          </div>
-          <div class="border">
-            <textarea
-              class="w-full"
-              name=""
-              id=""
-              cols="20"
-              placeholder="メモ"
-              readonly
-              ref="beforeMemo"
-            ></textarea>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-    <div>{{ menu }}</div>
-  </table>
+        <!-- <p class="text-lg" ref="menu">種目：{{ menu.content }}</p> -->
+        <button
+          class="block w-11/12 bg-blue-500 hover:bg-blue-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 mx-auto"
+          @click="fillBeforeRecord"
+        >
+          前回の記録を埋める
+        </button>
+        <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+          今日の体重：{{ bodyWeight }}
+        </p>
+        <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+          今日のトータルセット数：１０セット
+        </p>
+      </caption>
+      <RecordTable
+        :second_record="secondRecord"
+        :hasSecondRecord="hasSecondRecord"
+        :record_state_id="record_state_id"
+      />
+    </table>
+  </div>
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
+import { useRoute } from "vue-router";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
-import { useRoute } from "vue-router";
+import useGetSecondRecordContent from "../../composables/record/useGetSecondRecordContent";
+import RecordTable from "./RecordTable.vue";
 export default {
+  components: {
+    RecordTable,
+  },
   setup() {
     const route = useRoute();
     const hasOneHand = ref(false);
 
     const bodyWeight = ref("");
+
+    const category_id = route.query.categoryId;
+    const menu_id = route.query.menuId;
+    const record_state_id = route.query.recordId;
 
     // メニューはセレクトボックス、休憩時間はタイムピッカー
     const header = {
@@ -139,9 +57,17 @@ export default {
       rest: "休憩時間",
     };
 
+    // 最新のレコード状態を取得
     const { getLatestRecordState, latestRecord } = useGetRecordState();
 
     const { getLoginUser, loginUser } = useGetLoginUser();
+
+    //前回のデータを取得
+    const {
+      secondRecord,
+      hasSecondRecord,
+      getSecondRecord,
+    } = useGetSecondRecordContent();
 
     // 片方ずつ記録するかどうかmenusテーブルのoneSideカラムにて判断
     const getMenuContent = async () => {
@@ -149,8 +75,8 @@ export default {
         .get("api/menus", {
           params: {
             user_id: loginUser.value.id,
-            category_id: route.query.categoryId,
-            menu_id: route.query.menuId,
+            category_id: category_id,
+            menu_id: menu_id,
           },
         })
         .then((res) => {
@@ -214,8 +140,11 @@ export default {
       },
     ]);
 
-    const fillBeforeRecord = () => {
-      console.log(beforeLeftReps[0].value);
+    const fillBeforeRecord = async () => {
+      await getSecondRecord(loginUser.value.id, category_id, menu_id, record_state_id);
+      nextTick(() => {
+        return { secondRecord, hasSecondRecord };
+      });
     };
 
     onMounted(async () => {
@@ -228,12 +157,21 @@ export default {
       } else {
         bodyWeight.value = "記録されていません";
       }
-      // if(menu.oneSide = 1){
-      //     hasOneHand.value != hasOneHand.value;
-      // }
+      return { secondRecord, hasSecondRecord };
     });
 
-    return { header, contents, hasOneHand, bodyWeight, fillBeforeRecord };
+    return {
+      header,
+      contents,
+      hasOneHand,
+      bodyWeight,
+      category_id,
+      menu_id,
+      record_state_id,
+      secondRecord,
+      hasSecondRecord,
+      fillBeforeRecord,
+    };
   },
 };
 </script>

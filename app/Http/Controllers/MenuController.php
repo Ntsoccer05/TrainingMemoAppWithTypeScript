@@ -27,7 +27,7 @@ class MenuController extends Controller
             $menulist2 = [];
             if(isset($menulist)){
                 foreach($menulist as $menu){
-                    //Modelで設定したのはメソッドだが呼び出す際はプロパティ(category()category)
+                    //Modelで設定したのはメソッドだが呼び出す際はプロパティ(category)
                     //Modelで設定したメソッドが入れ子となりmenulist2に格納される
                     //menu:{
                     //     category:{

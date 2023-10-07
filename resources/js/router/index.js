@@ -37,7 +37,7 @@ const routes = [
   },
   {
     // ?：NULL許容
-    path: '/selectMenu/:day?',
+    path: '/selectMenu',
     name: 'selectMenu',
     component: SelectMenu
   },
