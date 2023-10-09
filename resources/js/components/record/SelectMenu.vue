@@ -37,11 +37,11 @@
       <input
         class="border border-black text-right w-28"
         name="weight"
-        type="number"
-        step="0.1"
+        type="text"
         placeholder="kg"
+        maxlength="6"
         :value="weight"
-        @input="validateWeight($event.target.value)"
+        @change="weight = validateWeight($event.target.value)"
         @blur="postWeight"
       />
     </div>
@@ -111,17 +111,36 @@ export default {
         });
     };
 
+    //全角→半角
+    const replaceFullToHalf = (str) => {
+      return str.replace(/[！-～]/g, function (s) {
+        return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
+      });
+    };
+
     // valはString
     const validateWeight = (val) => {
-      // replaceは型がStringのもののみ適用できる
-      val.replace(/\D/g, "");
+      debugger;
+      val = replaceFullToHalf(val);
+      // 小数点を含むか？
+      let oldVal = val;
+      const decPoint = oldVal.indexOf(".");
+      // replaceは型がStringのもののみ適用できる(replaceはそのものの値自体は変えないので代入する必要あり)
+      // 数字または小数点以外を無効とする
+      val = val.replace(/[^0-9|.]/g, "");
+      // val = val.replace(/\D/g, "");
+      if (decPoint !== -1) {
+        val = val / 10 ** (decPoint + 1);
+      }
       // parseFloatで整数型へ変換している
-      val = parseFloat(val);
-      // toFixedで小数第一位で四捨五入する
-      val = parseFloat(val.toFixed(1));
-      // matchは型がStringのもののみ適用できる
-      val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
-      weight.value = val;
+      if (val !== "") {
+        val = parseFloat(val);
+        // toFixedで小数第一位で四捨五入する
+        val = parseFloat(val.toFixed(1));
+        // matchは型がStringのもののみ適用できる
+        val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
+      }
+      return val;
     };
 
     onMounted(async () => {

@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\RecordContent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class RecordContent extends Model
+class RecordMenu extends Model
 {
     use HasFactory;
+    protected $fillable = ['user_id', 'menu_id', 'category_id', 'record_state_id'];
 
-    protected $fillable = ['record_menu_id', 'weight','right_weight','left_weight', 'set', 'rep', 'memo'];
+    // 初期データ入力時にupdated_atカラムへのデータ挿入させなくする
+    const UPDATED_AT = NULL;
 
     public function user():BelongsTo
     {
@@ -31,8 +35,8 @@ class RecordContent extends Model
     {
         return $this->belongsTo(RecordState::class);
     }
-    public function recordMenu():BelongsTo
+    public function recordContents():HasMany
     {
-        return $this->belongsTo(RecordState::class);
+        return $this->HasMany(RecordContent::class);
     }
 }

@@ -8,7 +8,7 @@ export default function useGetSecondRecordContent(user_id, category_id, menu_id,
 
     //２番目に新しい記録を取得する
     const getSecondRecord = async(user_id, category_id, menu_id, record_state_id)=>{
-        await axios.get("/api/recordContent", {
+        await axios.get("/api/recordMenu", {
             // get時にパラメータを渡す際はparamsで指定が必要
             params:{
                 // keyとvalueが同じためuser_id:user_idの「:user_id」を省略できる
@@ -18,9 +18,9 @@ export default function useGetSecondRecordContent(user_id, category_id, menu_id,
                 record_state_id,
             }
         }).then((res) =>{
-            debugger;
-            if(res.data.secondRecord){
-                secondRecord.value = res.data.secondRecord
+            console.log(res.data)
+            if(res.data.secondRecords){
+                secondRecord.value = res.data.secondRecords
                 hasSecondRecord.value = true
             }else{
                 hasSecondRecord.value = false

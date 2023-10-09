@@ -233,10 +233,12 @@ export default {
             selectedCategory.value = "";
             addCategory.value = "";
             getMenus();
+            alert("部位を追加しました。");
           } else {
             if (addMenu.value !== "") {
               addMenu.value = "";
               getMenus();
+              alert("種目を追加しました。");
             }
             //前の画面へ戻りたいため
             // history.back();

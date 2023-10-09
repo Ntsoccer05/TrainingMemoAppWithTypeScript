@@ -7,13 +7,15 @@ export default createStore({
         user:[],
         isLogined: false,
         day: "",
-        latestRecordState:""
+        latestRecordState:"",
+        latestRecordMenus:""
     },
     getters:{
       isLogined:state => state.isLogined,
       loginUser:state => state.user,
       selectedDay:state => state.day,
-      latestRecord:state=>state.latestRecordState
+      latestRecord:state=>state.latestRecordState,
+      latestMenus:state=>state.latestRecordMenus
     },
     mutations:{
       LoginState(state){
@@ -64,6 +66,7 @@ export default createStore({
           await axios.get("/api/record")
           .then(res =>{
             state.latestRecordState = res.data.latestRecord
+            state.Menus = res.data.latestRecord
           })
           .catch((err) => {
             console.log(err)

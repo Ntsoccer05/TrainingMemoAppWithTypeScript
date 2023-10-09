@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('record_contents', function (Blueprint $table) {
+        Schema::create('record_menus', function (Blueprint $table) {
             $table->id();
             //外部キーに紐づくテーブルはreferences->onかconstrained
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
@@ -23,12 +23,6 @@ return new class extends Migration
             // cascadeOnDelete()は親のテーブルのレコードが削除された場合に一緒に削除
             // 紐づける際に相手のテーブル名は単数形
             $table->foreignId('record_state_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->integer('weight')->nullable();
-            $table->integer('right_weight')->nullable();
-            $table->integer('left_weight')->nullable();
-            $table->integer('set')->nullable();
-            $table->integer('rep')->nullable();
-            $table->string('memo')->nullable();
             $table->timestamps();
         });
     }
@@ -40,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('record_contents');
+        Schema::dropIfExists('record_menus');
     }
 };

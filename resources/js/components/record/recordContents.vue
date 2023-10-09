@@ -11,24 +11,47 @@
         >
           前回の記録を埋める
         </button>
-        <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
-          今日の体重：{{ bodyWeight }}
-        </p>
-        <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
-          今日のトータルセット数：１０セット
-        </p>
+        <div class="grid grid-cols-2 w-full">
+          <div>
+            <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+              今回の体重：{{ bodyWeight }}
+            </p>
+            <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+              今回の合計セット数：{{ thisTotalSet }}
+            </p>
+          </div>
+          <template v-if="isBeforeData">
+            <div>
+              <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+                前回の体重：{{ beforeBodyWeight }}
+              </p>
+              <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+                前回の合計セット数：{{ beforeTotalSet }}
+              </p>
+            </div>
+          </template>
+          <template v-else>
+            <div>
+              <p>{{ msgNoBeforeData }}</p>
+            </div>
+          </template>
+        </div>
       </caption>
       <RecordTable
         :second_record="secondRecord"
         :hasSecondRecord="hasSecondRecord"
+        :category_id="category_id"
+        :menu_id="menu_id"
         :record_state_id="record_state_id"
+        @beforeTotalSet="fillBeforeTodalSet"
+        @totalSet="fillThisTodalSet"
       />
     </table>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, watch } from "vue";
 import { useRoute } from "vue-router";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
@@ -43,10 +66,19 @@ export default {
     const hasOneHand = ref(false);
 
     const bodyWeight = ref("");
+    const beforeBodyWeight = ref("");
 
     const category_id = route.query.categoryId;
     const menu_id = route.query.menuId;
     const record_state_id = route.query.recordId;
+
+    const thisTotalSet = ref("");
+    const beforeTotalSet = ref("");
+
+    const msgNoBeforeData = ref("");
+
+    //前回データが存在するか？
+    const isBeforeData = ref(false);
 
     // メニューはセレクトボックス、休憩時間はタイムピッカー
     const header = {
@@ -89,62 +121,23 @@ export default {
         .catch((err) => [console.log(err)]);
     };
 
-    const contents = ref([
-      { set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60 },
-      { set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60 },
-      { set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60 },
-      { set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60 },
-      { set: 1, menu: "ベンチプレス", weight: 100, rep: 10, rest: 60 },
-    ]);
-
-    const beforeContents = ref([
-      {
-        set: 1,
-        menu: "ベンチプレス",
-        weight: 100,
-        rep: 10,
-        rest: 60,
-        recorded_at: "2023/03/22",
-      },
-      {
-        set: 1,
-        menu: "ベンチプレス",
-        weight: 100,
-        rep: 10,
-        rest: 60,
-        recorded_at: "2023/03/22",
-      },
-      {
-        set: 1,
-        menu: "ベンチプレス",
-        weight: 100,
-        rep: 10,
-        rest: 60,
-        recorded_at: "2023/03/22",
-      },
-      {
-        set: 1,
-        menu: "ベンチプレス",
-        weight: 100,
-        rep: 10,
-        rest: 60,
-        recorded_at: "2023/03/22",
-      },
-      {
-        set: 1,
-        menu: "ベンチプレス",
-        weight: 100,
-        rep: 10,
-        rest: 60,
-        recorded_at: "2023/03/22",
-      },
-    ]);
-
     const fillBeforeRecord = async () => {
       await getSecondRecord(loginUser.value.id, category_id, menu_id, record_state_id);
-      nextTick(() => {
-        return { secondRecord, hasSecondRecord };
-      });
+      if (hasSecondRecord) {
+        isBeforeData.value = true;
+        beforeBodyWeight.value = secondRecord.bodyWeight;
+      } else {
+        msgNoBeforeData.value = "前回の記録はありません";
+      }
+    };
+
+    //第一引数に子供の値が入っている。
+    const fillThisTodalSet = (e) => {
+      thisTotalSet.value = e;
+    };
+
+    const fillBeforeTodalSet = (e) => {
+      beforeTotalSet.value = e;
     };
 
     onMounted(async () => {
@@ -155,22 +148,27 @@ export default {
       if (latestRecord.value.bodyWeight) {
         bodyWeight.value = `${latestRecord.value.bodyWeight} kg`;
       } else {
-        bodyWeight.value = "記録されていません";
+        // bodyWeight.value = "記録されていません";
       }
-      return { secondRecord, hasSecondRecord };
     });
 
     return {
       header,
-      contents,
+      thisTotalSet,
+      beforeTotalSet,
+      isBeforeData,
+      msgNoBeforeData,
       hasOneHand,
       bodyWeight,
+      beforeBodyWeight,
       category_id,
       menu_id,
       record_state_id,
       secondRecord,
       hasSecondRecord,
       fillBeforeRecord,
+      fillThisTodalSet,
+      fillBeforeTodalSet,
     };
   },
 };

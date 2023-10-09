@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Models\RecordMenu;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -46,6 +48,11 @@ class User extends Authenticatable
     public function categories():HasMany
     {
         return $this->hasMany(Category::class);
+    }
+
+    public function recordMenus():HasMany
+    {
+        return $this->hasMany(RecordMenu::class);
     }
 
     public function recordContents():HasMany

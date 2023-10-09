@@ -103,6 +103,7 @@ export default {
           recording_day: day,
         })
         .then((res) => {
+          console.log(res.data);
           router.push({ name: "selectMenu", params: { day: day.id } });
         })
         .catch((err) => {

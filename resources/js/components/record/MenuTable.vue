@@ -29,20 +29,29 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 export default {
   props: {
     categories: Object,
   },
   setup(props) {
-    // computedに入れることでpropsの値が変化したときにすぐに反映できる
-    const categories = computed(() => props.categories);
+    const categories = ref(computed(() => props.categories));
     const isOdd = ref(false);
-    if (categories.value.length % 2 === 1) {
-      isOdd.value = true;
-    } else {
-      isOdd.value = false;
-    }
+    // watchEffectを使用すると中で使っている定義の値が変わった時、また初回レンダリング時に実行される。
+    watchEffect(() => {
+      if (categories.value.length % 2 === 1) {
+        isOdd.value = true;
+      } else {
+        isOdd.value = false;
+      }
+    });
+    // watch(categories.value, () => {
+    //   if (categories.value.length % 2 === 1) {
+    //     isOdd.value = true;
+    //   } else {
+    //     isOdd.value = false;
+    //   }
+    // });
 
     //以下の形でデータが入っている。
     // const categories = ref([]);

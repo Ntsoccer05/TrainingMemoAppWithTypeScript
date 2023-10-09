@@ -125,7 +125,7 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick, computed } from "vue";
+import { ref, onMounted, nextTick, computed, toRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetRecordState from "../../composables/record/useGetRecordState";
@@ -182,7 +182,7 @@ export default {
     const toRecordContents = (category, menu) => {
       if (!editable.value) {
         axios
-          .post("/api/recordContent/create", {
+          .post("/api/recordMenu/create", {
             user_id: loginUser.value.id,
             category_id: category.id,
             menu_id: menu.id,

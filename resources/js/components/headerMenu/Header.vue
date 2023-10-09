@@ -4,7 +4,27 @@
       <div
         class="flex justify-between items-center fixed w-full bg-gray-500 px-2 h-16 md:h-16"
       >
-        <h1 class="text-2xl font-semibold md:text-4xl" @click="toHome">HR</h1>
+        <template v-if="paramName === 'selectMenu'">
+          <h3 class="md:mr-auto md:border-none">
+            <router-link to="/" class="text-xl font-semibold"
+              ><i class="fa-solid fa-arrow-left mr-2"></i>日付選択へ戻る</router-link
+            >
+          </h3>
+        </template>
+        <template v-else-if="paramName === 'record'">
+          <h3 class="md:mr-auto md:border-none">
+            <router-link to="/selectMenu" class="text-xl font-semibold"
+              ><i class="fa-solid fa-arrow-left mr-2"></i>メニュー選択へ戻る</router-link
+            >
+          </h3>
+        </template>
+        <template v-else>
+          <h3 class="md:mr-auto md:border-none">
+            <router-link to="/" class="text-2xl font-semibold md:text-4xl"
+              >HR</router-link
+            >
+          </h3>
+        </template>
         <div>
           <button @click="isOpen = !isOpen" class="focus:outline-none md:hidden">
             <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
@@ -25,11 +45,30 @@
             class="md:flex md:justify-between md:items-center md:mr-1 md: m-auto lg:mr-0"
             @click="closeHumbuger"
           >
-            <li class="border-b border-t top- md:mr-auto md:border-none">
-              <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
-                >HRとは</router-link
-              >
-            </li>
+            <template v-if="paramName === 'selectMenu'">
+              <li class="border-b border-t top- md:mr-auto md:border-none">
+                <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
+                  ><i class="fa-solid fa-arrow-left mr-2"></i>日付選択へ戻る</router-link
+                >
+              </li>
+            </template>
+            <template v-else-if="paramName === 'record'">
+              <li class="border-b border-t top- md:mr-auto md:border-none">
+                <router-link
+                  to="/selectMenu"
+                  class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
+                  ><i class="fa-solid fa-arrow-left mr-2"></i
+                  >メニュー選択へ戻る</router-link
+                >
+              </li>
+            </template>
+            <template v-else>
+              <li class="border-b border-t top- md:mr-auto md:border-none">
+                <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
+                  >HR</router-link
+                >
+              </li>
+            </template>
             <template v-if="isLogined">
               <li class="border-b md:border-none">
                 <a
@@ -76,14 +115,20 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, computed, watchEffect } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useHoldLoginState from "../../composables/certification/useHoldLoginState";
 export default {
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const store = useStore();
+
+    const paramName = ref("");
+    watchEffect(() => {
+      paramName.value = route.name;
+    });
 
     const isOpen = ref(false);
     const user = ref([]);
@@ -118,7 +163,16 @@ export default {
           console.log(err);
         });
     };
-    return { isOpen, isLogined, user, toggleNav, toHome, logout, closeHumbuger };
+    return {
+      paramName,
+      isOpen,
+      isLogined,
+      user,
+      toggleNav,
+      toHome,
+      logout,
+      closeHumbuger,
+    };
   },
 };
 </script>

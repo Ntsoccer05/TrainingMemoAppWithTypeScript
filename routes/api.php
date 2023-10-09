@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\RecordContentController;
 use App\Http\Controllers\RecordController;
+use App\Http\Controllers\RecordMenuController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/menus/update', [MenuController::class, 'update']);
     Route::post('/category/delete', [MenuController::class, 'destroy']);
     Route::post('/menus/delete', [MenuController::class, 'delete']);
+    Route::get('/recordMenu', [RecordMenuController::class, 'index']);
+    Route::post('/recordMenu/create', [RecordMenuController::class, 'create']);
     Route::get('/recordContent', [RecordContentController::class, 'index']);
     Route::post('/recordContent/create', [RecordContentController::class, 'create']);
 });
