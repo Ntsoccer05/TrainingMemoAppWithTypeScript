@@ -6,17 +6,58 @@ use App\Models\RecordMenu;
 use App\Models\RecordContent;
 use App\Models\RecordState;
 use Illuminate\Http\Request;
+use stdClass;
 
 class RecordContentController extends Controller
 {
-    public function index(Request $request, RecordMenu $recordMenu){
+    public function index(Request $request, RecordMenu $recordMenu, RecordState $recordState){
         $tgtRecords = Null;
 
         $user_id = $request->user_id;
         $category_id = $request->category_id;
         $menu_id = $request->menu_id;
         $record_state_id = $request->record_state_id;
+        $recordContents=[];
+        $recordContent=[];
+        $menu=[];
+        $category=[];
 
+        if(!$category_id){
+            //親テーブルがあると子供のデータ取得時に呼び出した親のデータも一緒に取得できる。
+            $records = $recordState->where('user_id', $user_id)->get();
+            //記録日の重複削除
+            $records = $records->unique('recorded_at');
+            // return response()->json(["status_code" => 200, "message" => "記録した全てのデータを取得", 'records'=>$records]);
+            foreach($records as $key=>$record){
+                $recordMenus = $record->recordMenus;
+                $recorded_at = [
+                    "record_id"=>$record->id,
+                    "recorded_at"=>$record->recorded_at
+                ];
+                $recordContent['recorded_at']=$recorded_at;
+                foreach($recordMenus as $i =>$recordMenu){
+                    $menuContent = $recordMenu->menu->content;
+                    $menuId = $recordMenu->menu_id;
+                    $categoryContent = $recordMenu->category->content;
+                    $categoryId = $recordMenu->category_id;
+                    $menu[] = [
+                        "menu_id"=>$menuId,
+                        "menu_content"=>$menuContent
+                    ];
+                    $category[] = [
+                        "category_id"=>$categoryId,
+                        "category_content"=>$categoryContent
+                    ];
+                    // array_unique：重複を削除
+                    $menu = array_unique($menu, SORT_REGULAR);
+                    $category = array_unique($category, SORT_REGULAR);
+                    $recordContent['menu']=$menu;
+                    $recordContent['category']=$category;
+                }
+                $recordContents[] = $recordContent;
+            }
+            return response()->json(["status_code" => 200, "message" => "記録した全てのデータを取得", 'records'=>$recordContents]);
+        }
         $tgtRecord=$recordMenu->where(function($query) use($user_id, $category_id, $menu_id,$record_state_id){
             $query->where([['user_id', $user_id], ['category_id', $category_id], ['menu_id', $menu_id],['record_state_id', $record_state_id]]);
         })->first();
@@ -40,6 +81,8 @@ class RecordContentController extends Controller
         })->first();
         $tgtRecordContent = $tgtRecordMenu->recordContents()->where('set',$request->set)->first();
         if($tgtRecordContent){
+            $tgtRecordContent->user_id=$request->user_id;
+            $tgtRecordContent->record_state_id=$request->record_state_id;
             $tgtRecordContent->record_menu_id=$tgtRecordMenu->id;
             $tgtRecordContent->weight = $request->weight;
             $tgtRecordContent->right_weight = $request->right_weight;
@@ -52,6 +95,8 @@ class RecordContentController extends Controller
             $tgtRecordContent->save();
             return response()->json(["status_code" => 200, "message" => "記録を更新しました。"]);
         }elseif($tgtRecordMenu){
+            $recordContent->user_id=$request->user_id;
+            $recordContent->record_state_id=$request->record_state_id;
             $recordContent->record_menu_id=$tgtRecordMenu->id;
             $recordContent->weight = $request->weight;
             $recordContent->right_weight = $request->right_weight;

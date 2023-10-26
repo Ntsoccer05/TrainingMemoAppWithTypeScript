@@ -15,8 +15,11 @@ return new class extends Migration
     {
         Schema::create('record_contents', function (Blueprint $table) {
             $table->id();
+            //外部キーに紐づくテーブルはreferences->onかconstrained
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             // cascadeOnDelete()は親のテーブルのレコードが削除された場合に一緒に削除
             // 紐づける際に相手のテーブル名は単数形
+            $table->foreignId('record_state_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('record_menu_id')->nullable()->constrained()->cascadeOnDelete();
             //小数点あり：float('カラム名', 小数点を含めた桁数, 小数点以下の桁数)
             $table->float('weight', 8,1)->nullable();

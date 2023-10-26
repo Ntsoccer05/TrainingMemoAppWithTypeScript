@@ -14,12 +14,16 @@
             </div> -->
       <div class="category-1 grid grid-cols-4 ml-10 md:ml-96 items-center mb-1">
         <div class="event-bar1 h-0.5 w-5 bg-red-600 col-start-3 ml-auto"></div>
-        <p class="text-sm col-start-4">：背筋</p>
+        <p class="text-sm col-start-4">：筋トレ日</p>
       </div>
-      <div class="category-2 grid grid-cols-4 ml-10 md:ml-96 items-center">
+      <!-- <div class="category-1 grid grid-cols-4 ml-10 md:ml-96 items-center mb-1">
+        <div class="event-bar1 h-0.5 w-5 bg-red-600 col-start-3 ml-auto"></div>
+        <p class="text-sm col-start-4">：背筋</p>
+      </div> -->
+      <!-- <div class="category-2 grid grid-cols-4 ml-10 md:ml-96 items-center">
         <div class="event-bar2 h-0.5 w-5 bg-blue-600 col-start-3 ml-auto"></div>
         <p class="text-sm col-start-4">：胸トレ</p>
-      </div>
+      </div> -->
     </div>
     <!-- カレンダーコンポーネント -->
     <Calendar />

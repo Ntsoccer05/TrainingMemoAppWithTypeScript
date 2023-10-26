@@ -46,7 +46,7 @@ class RecordController extends Controller
             $now = Carbon::now();
             $hasRecord->updated_at = $now;
             $hasRecord->save();
-            return response()->json(["status_code" => 200, "hasrecord" => $hasRecord,"recorded_at"=>$recorded_at, "request"=>$request->recording_day,"record" => $recording_day]);
+            return response()->json(["status_code" => 200,"message" => "トレーニング日を更新しました", "hasrecord" => $hasRecord,"recorded_at"=>$recorded_at, "request"=>$request->recording_day,"record" => $recording_day]);
         }else{
             RecordState::create([
                 'user_id' => $request->user_id,

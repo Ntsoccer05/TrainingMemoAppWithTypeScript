@@ -18,6 +18,8 @@ class RecordContentSeeder extends Seeder
         // 20件のデータを生成します
         for ($i = 1; $i <= 20; $i++) {
             $data = [
+                'user_id' => 1,
+                'record_state_id' =>rand(1, 10),
                 'record_menu_id' => rand(1, 20),
                 'weight' => rand(70, 80),
                 'right_weight' => null,
