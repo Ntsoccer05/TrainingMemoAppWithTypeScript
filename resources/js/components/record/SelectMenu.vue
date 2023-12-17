@@ -47,16 +47,22 @@
     </div>
 
     <!-- :子供のprops名：データ値 -->
-    <EditableMenuTable :dispHeadText="dispHeadText" :editable="editable" />
+    <EditableMenuTable
+      :dispHeadText="dispHeadText"
+      :editable="editable"
+      :records="records"
+      :dataMenu="dataMenu"
+    />
   </div>
 </template>
 
 <script>
 import EditableMenuTable from "./EditableMenuTable.vue";
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetRecordState from "../../composables/record/useGetRecordState";
+import useGetRecords from "../../composables/record/useGetRecords";
 export default {
   components: {
     EditableMenuTable,
@@ -67,16 +73,50 @@ export default {
 
     const dispHeadText = ref("鍛える部位を選択してください");
 
+    const recorded_day = route.params.recordId;
+
     const weight = ref(null);
+
+    let dataCategory = ref([]);
+    let dataMenu = ref([]);
 
     const editable = ref(false);
     // DOM取得のため
     const deleteFunc = ref(null);
     const deleteCategory = ref(null);
 
+    const recorded_at = ref("");
+
     const { getLoginUser, loginUser } = useGetLoginUser();
 
     const { getLatestRecordState, latestRecord } = useGetRecordState();
+
+    const { records, getRecords } = useGetRecords();
+
+    watch(records, () => {
+      records.value.forEach((record) => {
+        if (record.category) {
+          // スプレッド演算子は追加する変数のままだと追加する状態前のまま
+          // dataCategory = [...dataCategory.value, record.category[0].category_id];
+          dataCategory.value.push(record.category[0].category_id);
+        }
+        if (record.menu) {
+          // スプレッド演算子は追加する変数のままだと追加する状態前のまま
+          // dataMenu = [...dataMenu.value, record.menu[0].menu_id];
+          dataMenu.value.push(record.menu[0].menu_id);
+        }
+        if (record.recorded_at.recorded_at) {
+          let formatRecord = ref("");
+          formatRecord.value = record.recorded_at.recorded_at.split("-");
+          recorded_at.value =
+            formatRecord.value[0] &
+            "年" &
+            formatRecord.value[1] &
+            "月" &
+            formatRecord.value[2];
+        }
+      });
+    });
 
     //トレーニングメニュー追加画面に遷移
     const toAddMenu = () => {
@@ -153,12 +193,21 @@ export default {
       if (latestRecord.value.bodyWeight) {
         weight.value = latestRecord.value.bodyWeight;
       }
+      if (route.params.recordId) {
+        await getRecords(loginUser.value.id, recorded_day);
+      } else if (loginUser.value.id) {
+        await getRecords(loginUser.value.id);
+      }
     });
 
     return {
       dispHeadText,
       editable,
       weight,
+      records,
+      recorded_at,
+      dataMenu,
+      dataCategory,
       // DOM取得のため
       deleteFunc,
       deleteCategory,

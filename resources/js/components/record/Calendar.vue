@@ -21,26 +21,41 @@ const selected_at = ref("");
 const holidays = ref([]);
 const data = ref([]);
 
+// データ取得完了したかどうか
+const isLoaded = ref(false);
+
+// /データを送信したか
+const isSendData = ref(false);
+
 const dispMenu = ref([]);
 const dispCategory = ref([]);
 
 // script setup内だとDom取得はreturnしなくていい
 const calendar = ref(null);
 
+const selected_day = ref(null);
+
 //ログイン状態をリロードしても維持するため
 const { holdLoginState, isLogined } = useHoldLoginState();
 
 const { getLoginUser, loginUser } = useGetLoginUser();
 
-const { records, getRecords } = useGetRecords();
+const { records, compGetData, getRecords } = useGetRecords();
 
 watch(records, () => {
-  console.log(records.value);
+  let label = "";
+  debugger;
   records.value.forEach((record) => {
+    if (record.menu !== undefined) {
+      label = record.menu[0].menu_content;
+    } else {
+      label = "記録がありません";
+    }
     const event = {
       popover: {
-        label: record.menu[0].menu_content,
+        label: label,
         visibility: "click",
+        autoHide: false,
       },
       bar: {
         style: {
@@ -84,6 +99,7 @@ const changeDayFormat = (day) => {
   //     });
   //   }
   // });
+  selected_day.value = day;
   return day;
 };
 
@@ -96,6 +112,7 @@ onMounted(async () => {
   if (loginUser.value.id) {
     await getRecords(loginUser.value.id);
   }
+  isLoaded.value = true;
 
   // 画面生成後のタイミングでしかユーザ情報取得できないため
   // window.onload = () => {
@@ -109,6 +126,10 @@ onMounted(async () => {
 
   // getLoginUser()内でnextTickを実行
   authUser.value = loginUser;
+  nextTick(() => {
+    toDetailPage();
+    // selectedDay();
+  });
 });
 
 const selectedDayRecord = async (day) => {
@@ -118,7 +139,8 @@ const selectedDayRecord = async (day) => {
       recording_day: day,
     })
     .then((res) => {
-      router.push({ name: "selectMenu", params: { day: day.id } });
+      // isSendData.value = true;
+      router.push({ name: "selectMenu", params: { recordId: day } });
     })
     .catch((err) => {
       console.log(err);
@@ -134,22 +156,25 @@ const selectedDay = (day) => {
     // 年-月-日の形に修正
     day = day.ariaLabel.split("日");
     day = day[0].replace(/年|月/g, "-");
-    // day.selected = true;
     //ログインしていなかったらメッセージを表示
-    selected_at.value = day;
+    changeDayFormat(day);
     const isRecord = ref(false);
-    records.value.forEach((record) => {
-      if (record.recorded_at.recorded_at === day) {
+    for (let record of records.value) {
+      // records.value.forEach((record) => {
+      if (record.recorded_at.recorded_at === selected_day.value) {
         isRecord.value = true;
       }
-    });
+    }
     //レコードがあればPOST送信しない
     if (isRecord.value === true) {
       return;
     }
-    const { postDay } = useSelectedDay(selected_at.value);
-    // 日付クリック時にPOST送信する
-    selectedDayRecord(postDay);
+    const { postDay } = useSelectedDay(day);
+    if (!isSendData.value) {
+      isSendData.value = true;
+      // 日付クリック時にPOST送信する
+      selectedDayRecord(postDay);
+    }
   }
 };
 
@@ -164,106 +189,150 @@ const getHolidays = async () => {
     });
   });
 };
+
+const toDetailPage = async (day) => {
+  if (day) {
+    // 年-月-日の形に修正
+    day = day.ariaLabel.split("日");
+    day = day[0].replace(/年|月/g, "-");
+    const { postDay } = useSelectedDay(day);
+    await axios
+      .post("/api/record/create", {
+        user_id: loginUser.value.id,
+        recording_day: postDay,
+      })
+      .then((res) => {
+        console.log(res.data);
+        // isSendData.value = true;
+        router.push({ name: "selectMenu", params: { recordId: day } });
+      });
+  }
+};
 </script>
 
 <template>
   <div class="calendar container md:w-11/12 ml:h-2/3 mx-auto">
     <!-- $event.targetでクリックした要素を取得できる -->
-    <v-calendar
-      ref="calendar"
-      locale="ja-jp"
-      :attributes="attrs"
-      @click="selectedDay($event.target)"
-    >
-      <!-- Calendarの中に以下でもタイトル名変更可能
+    <template v-if="compGetData && isLoaded">
+      <v-calendar
+        ref="calendar"
+        locale="ja-jp"
+        :attributes="attrs"
+        @click="selectedDay($event.target)"
+      >
+        <!-- Calendarの中に以下でもタイトル名変更可能
           :masks = masks -->
-      <!-- タイトル変更：header-titleのslot-scopeの中のpropを利用 (#はv-slotの省略記法) -->
-      <template #header-title="props">
-        {{ props.yearLabel }}年 {{ props.monthLabel }}
-      </template>
-      <!-- day-contentのslot-scopeの中のpropの中にdayがある ← 分割代入 -->
-      <!-- <template #day-content="{ day }"> -->
-      <template #day-popover="{ day, format, masks }">
-        <div class="text-xs text-gray-300 font-semibold text-center">
-          {{ format(day.date, masks.L) }}
-        </div>
-        <div class="text-xs text-gray-300 font-semibold text-center">鍛えた部位</div>
-        <div class="text-xs text-gray-300 font-semibold text-center">
+        <!-- タイトル変更：header-titleのslot-scopeの中のpropを利用 (#はv-slotの省略記法) -->
+        <template #header-title="props">
+          {{ props.yearLabel }}年 {{ props.monthLabel }}
+        </template>
+        <!-- day-contentのslot-scopeの中のpropの中にdayがある ← 分割代入 -->
+        <!-- <template #day-content="{ day }"> -->
+        <template #day-popover="{ day, format, masks }" class="z-50">
+          <div class="text-xs text-gray-300 font-semibold text-center">
+            {{ format(day.date, masks.L) }}
+          </div>
+          <div class="text-xs text-gray-300 font-semibold text-center">鍛えた部位</div>
+          <div class="text-xs text-gray-300 font-semibold text-center">
+            <span v-for="record in records" :key="record.recorded_at.recorded_at">
+              <template
+                v-if="
+                  record.recorded_at.recorded_at ==
+                  changeDayFormat(format(day.date, masks.L))
+                "
+                ><span
+                  v-for="(category, index) in record.category"
+                  :key="category.category_id"
+                >
+                  <template v-if="category.category_content">
+                    <template
+                      v-if="
+                        index !=
+                        Object.keys(record.category)[
+                          Object.keys(record.category).length - 1
+                        ]
+                      "
+                    >
+                      {{ category.category_content }}、
+                    </template>
+                    <!-- 最後の値を表示 -->
+                    <template
+                      v-else-if="
+                        index ==
+                        Object.keys(record.category)[
+                          Object.keys(record.category).length - 1
+                        ]
+                      "
+                    >
+                      {{ category.category_content }}
+                    </template>
+                  </template>
+                </span>
+                <!-- 登録がない場合 -->
+                <template v-if="record.category === undefined">
+                  <span>登録なし</span>
+                </template>
+              </template>
+            </span>
+          </div>
+          <div class="text-xs text-gray-300 font-semibold text-center">メニュー</div>
           <span v-for="record in records" :key="record.recorded_at.recorded_at">
             <template
               v-if="
                 record.recorded_at.recorded_at ==
                 changeDayFormat(format(day.date, masks.L))
               "
-              ><span
-                v-for="(category, index) in record.category"
-                :key="category.category_id"
-              >
-                <template v-if="category.category_content">
+              ><span v-for="(menu, index) in record.menu" :key="menu.menu_id">
+                <template v-if="menu.menu_content">
                   <template
                     v-if="
                       index !=
-                      Object.keys(record.category)[
-                        Object.keys(record.category).length - 1
-                      ]
+                      Object.keys(record.menu)[Object.keys(record.menu).length - 1]
                     "
                   >
-                    {{ category.category_content }}、
+                    {{ menu.menu_content }}、
                   </template>
                   <!-- 最後の値を表示 -->
                   <template
                     v-else-if="
                       index ==
-                      Object.keys(record.category)[
-                        Object.keys(record.category).length - 1
-                      ]
+                      Object.keys(record.menu)[Object.keys(record.menu).length - 1]
                     "
                   >
-                    {{ category.category_content }}
+                    {{ menu.menu_content }}
                   </template>
                 </template>
-                <template v-else> <span>登録なし</span> </template>
-              </span></template
-            >
-          </span>
-        </div>
-        <div class="text-xs text-gray-300 font-semibold text-center">メニュー</div>
-        <span v-for="record in records" :key="record.recorded_at.recorded_at">
-          <template
-            v-if="
-              record.recorded_at.recorded_at == changeDayFormat(format(day.date, masks.L))
-            "
-            ><span v-for="(menu, index) in record.menu" :key="menu.menu_id">
-              <template v-if="menu.menu_content">
-                <template
-                  v-if="
-                    index != Object.keys(record.menu)[Object.keys(record.menu).length - 1]
-                  "
-                >
-                  {{ menu.menu_content }}、
-                </template>
-                <!-- 最後の値を表示 -->
-                <template
-                  v-else-if="
-                    index == Object.keys(record.menu)[Object.keys(record.menu).length - 1]
-                  "
-                >
-                  {{ menu.menu_content }}
-                </template>
+              </span>
+              <!-- 登録がない場合 -->
+              <template v-if="record.menu === undefined">
+                <span class="block text-center">登録なし</span>
               </template>
-              <template v-else> <span>登録なし</span> </template>
-            </span></template
-          >
-        </span>
-        <div class="flex flex-col items-center justify-center mt-2">
-          <button
-            class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
-          >
-            詳細へ
-          </button>
-        </div>
-      </template>
-    </v-calendar>
+            </template>
+          </span>
+          <div class="flex flex-col items-center justify-center mt-2">
+            <button
+              class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
+              @click.prevent="toDetailPage(day)"
+            >
+              詳細へ
+            </button>
+          </div>
+        </template>
+      </v-calendar>
+    </template>
+    <template v-else-if="!isLogined && isLoaded">
+      <v-calendar ref="calendar" locale="ja-jp" :attributes="attrs">
+        <!-- Calendarの中に以下でもタイトル名変更可能
+          :masks = masks -->
+        <!-- タイトル変更：header-titleのslot-scopeの中のpropを利用 (#はv-slotの省略記法) -->
+        <template #header-title="props">
+          {{ props.yearLabel }}年 {{ props.monthLabel }}
+        </template>
+      </v-calendar>
+    </template>
+    <template v-else>
+      <p class="text-center mt-5">データ読み込み中です。少々お待ちください。</p>
+    </template>
   </div>
 </template>
 
@@ -304,5 +373,9 @@ const getHolidays = async () => {
 /* 祝日を赤色に変更 */
 .vc-container::v-deep(.vc-day:has(.vc-dots) span) {
   color: red !important;
+}
+.vc-container::v-deep(.vc-popover-content-wrapper) {
+  /* 背景を押下できなくするため pointer-events: none;だと背景を押下できてしまう。 */
+  pointer-events: painted;
 }
 </style>

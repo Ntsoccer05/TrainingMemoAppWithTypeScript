@@ -22,7 +22,8 @@ return new class extends Migration
             //小数点あり：float('カラム名', 小数点を含めた桁数, 小数点以下の桁数)
             $table->float('bodyWeight',8, 1)->nullable();
             $table->date('recorded_at');
-            $table->timestamps();                        
+            $table->dateTime('created_at');                        
+            $table->dateTime('updated_at')->nullable();                        
         });
     }
 

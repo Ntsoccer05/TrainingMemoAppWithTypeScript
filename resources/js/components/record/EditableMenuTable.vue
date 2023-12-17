@@ -8,6 +8,7 @@
       <thead>
         <tr class="relative">
           <th :class="['border', editable ? '' : 'hover:bg-gray-200']">
+            <!-- <th :class="['border', editable ? '' : 'hover:bg-gray-200']"> -->
             <span :class="[editable ? 'hidden' : 'block']">{{ category.content }}</span>
             <div :class="['grid grid-cols-12 gap-2', editable ? 'block' : 'hidden']">
               <!--- @blurでPOSTする -->
@@ -58,7 +59,7 @@
       <tbody>
         <tr class="relative" v-for="menu in category.menus" :key="menu.id">
           <td
-            :class="['border', editable ? '' : 'hover:bg-gray-200']"
+            :class="['border', dataMenu.indexOf(menu.id) > -1 ? 'bg-green-400' : '']"
             @click="toRecordContents(category, menu)"
           >
             <span :class="['ml-2', editable ? 'hidden' : 'block']"
@@ -125,7 +126,7 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick, computed, toRef } from "vue";
+import { ref, onMounted, nextTick, computed, watch, toRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetRecordState from "../../composables/record/useGetRecordState";
@@ -133,6 +134,8 @@ export default {
   props: {
     editable: Boolean,
     dispHeadText: String,
+    records: Array,
+    dataMenu: Array,
   },
   setup(props) {
     const router = useRouter();
@@ -141,6 +144,10 @@ export default {
     //Propsの値はcomputedに入れないとreadOnlyとなり変更できない。
     const editable = computed(() => props.editable);
     const dispHeadText = computed(() => props.dispHeadText);
+    const records = computed(() => props.records);
+    const dataMenu = computed(() => props.dataMenu);
+
+    const recorded_day = route.params.recordId;
 
     const isOdd = ref(false);
 
@@ -189,15 +196,29 @@ export default {
             record_state_id: latestRecord.value.id,
           })
           .then((res) => {
-            router.push({
-              name: "record",
-              params: route.params,
-              query: {
-                categoryId: category.id,
-                menuId: menu.id,
-                recordId: latestRecord.value.id,
-              },
-            });
+            console.log(route);
+            if (recorded_day) {
+              router.push({
+                name: "record",
+                params: route.params,
+                // path: `/record/${route.params.recordId}`,
+                query: {
+                  categoryId: category.id,
+                  menuId: menu.id,
+                  recordId: latestRecord.value.id,
+                },
+              });
+            } else {
+              router.push({
+                name: "record",
+                params: route.params,
+                query: {
+                  categoryId: category.id,
+                  menuId: menu.id,
+                  recordId: latestRecord.value.id,
+                },
+              });
+            }
           })
           .catch((err) => {
             console.log(err);
@@ -206,6 +227,8 @@ export default {
         return;
       }
     };
+
+    // 記録したレコードがあれば
 
     //メニュー内容を取得
     const getMenus = async () => {
@@ -400,6 +423,7 @@ export default {
       editable,
       dispHeadText,
       hoverRed,
+      dataMenu,
       // DOM取得のため
       deleteFunc,
       deleteCategory,

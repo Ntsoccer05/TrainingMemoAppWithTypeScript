@@ -37,13 +37,13 @@ const routes = [
   },
   {
     // ?：NULL許容
-    path: '/selectMenu',
+    path: '/selectMenu/:recordId?',
     name: 'selectMenu',
-    component: SelectMenu
+    component: SelectMenu,
   },
   {
     // ?：NULL許容
-    path: '/record/:categoryId?/:menuId?/:recordId?',
+    path: '/record/:recordId',
     name: 'record',
     component: Record,
     props: true

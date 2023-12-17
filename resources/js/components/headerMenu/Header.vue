@@ -55,7 +55,7 @@
             <template v-else-if="paramName === 'record'">
               <li class="border-b border-t top- md:mr-auto md:border-none">
                 <router-link
-                  to="/selectMenu"
+                  :to="{ name: 'selectMenu', params: { recordId: recorded_day } }"
                   class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
                   ><i class="fa-solid fa-arrow-left mr-2"></i
                   >メニュー選択へ戻る</router-link
@@ -115,7 +115,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, computed, watchEffect } from "vue";
+import { ref, onMounted, computed, watchEffect, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useHoldLoginState from "../../composables/certification/useHoldLoginState";
@@ -125,9 +125,12 @@ export default {
     const route = useRoute();
     const store = useStore();
 
+    const recorded_day = ref("");
+
     const paramName = ref("");
     watchEffect(() => {
       paramName.value = route.name;
+      recorded_day.value = route.params.recordId;
     });
 
     const isOpen = ref(false);
@@ -147,6 +150,11 @@ export default {
         isOpen.value = false;
       }
     };
+    onMounted(() => {
+      // recorded_day.value = route.params.recordId;
+      // console.log(recorded_day.value);
+      // return recorded_day;
+    });
 
     // ログアウト処理
     const logout = async () => {
@@ -157,6 +165,8 @@ export default {
             router.push("/");
             // ログイン状態を変更するためVuexより呼び出し
             store.commit("LogoutState");
+            //ページ再読み込み
+            window.location.reload();
           }
         })
         .catch((err) => {
@@ -168,6 +178,7 @@ export default {
       isOpen,
       isLogined,
       user,
+      recorded_day,
       toggleNav,
       toHome,
       logout,

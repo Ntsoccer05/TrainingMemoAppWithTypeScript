@@ -28,12 +28,15 @@ class RecordController extends Controller
         $updatedDateTime = new DateTime($latestUpdated->updated_at);
         $createdDateTime = new DateTime($latestCreated->created_at);
 
+        // $updatedDateTime=$updatedDateTime->format("Y-m-d H:m:s");
+        // $createdDateTime=$createdDateTime->format("Y-m-d H:m:s");
+
         if($createdDateTime < $updatedDateTime){
             $latestRecord = $latestUpdated;
         }else{
             $latestRecord = $latestCreated;
         }
-        return response()->json(["status_code" => 200, "latestRecord" => $latestRecord]);
+        return response()->json(["status_code" => 200, "latestRecord" => $latestRecord,"updatedDateTime"=>$updatedDateTime,"createdDateTime"=>$createdDateTime,"latestUpdated"=>$latestUpdated,"latestCreated"=>$latestCreated]);
     }
 
     public function create(Request $request)

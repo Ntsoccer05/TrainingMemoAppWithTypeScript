@@ -19,7 +19,7 @@ class RecordContent extends Model
 
     public function category():BelongsTo
     {
-        return $this->belongsTo(category::class);
+        return $this->belongsTo(Category::class);
     }
 
     public function menu():BelongsTo

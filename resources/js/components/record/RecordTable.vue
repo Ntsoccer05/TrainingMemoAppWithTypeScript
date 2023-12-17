@@ -259,6 +259,7 @@ export default {
 
     // 片方ずつ記録するかどうかmenusテーブルのoneSideカラムにて判断
     const getMenuContent = async () => {
+      console.log(route);
       await axios
         .get("api/menus", {
           params: {
