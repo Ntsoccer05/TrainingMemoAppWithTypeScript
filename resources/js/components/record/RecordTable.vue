@@ -259,7 +259,6 @@ export default {
 
     // 片方ずつ記録するかどうかmenusテーブルのoneSideカラムにて判断
     const getMenuContent = async () => {
-      console.log(route);
       await axios
         .get("api/menus", {
           params: {
@@ -357,31 +356,59 @@ export default {
     };
 
     const postRecordContent = (index) => {
-      debugger;
-      axios
-        .post("/api/recordContent/create", {
-          user_id: loginUser.value.id,
-          category_id: route.query.categoryId,
-          menu_id: route.query.menuId,
-          record_state_id: route.query.recordId,
-          weight: weight.value[index],
-          right_weight: rightWeight.value[index],
-          right_rep: rightRep.value[index],
-          left_weight: leftWeight.value[index],
-          left_rep: leftRep.value[index],
-          rep: rep.value[index],
-          set: index + 1,
-          memo: memo.value[index],
-        })
-        .then((res) => {
-          console.log(res);
-          // 今回の合計セット数
-          //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
-          emit("totalSet", index + 1);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      if (
+        loginUser.value.id &&
+        ((weight.value[index] && rep.value[index]) ||
+          (rightWeight.value[index] && rightRep.value[index]) ||
+          (leftWeight.value[index] && leftRep.value[index]))
+      ) {
+        axios
+          .post("/api/recordContent/create", {
+            user_id: loginUser.value.id,
+            category_id: route.query.categoryId,
+            menu_id: route.query.menuId,
+            record_state_id: route.query.recordId,
+            weight: weight.value[index],
+            right_weight: rightWeight.value[index],
+            right_rep: rightRep.value[index],
+            left_weight: leftWeight.value[index],
+            left_rep: leftRep.value[index],
+            rep: rep.value[index],
+            set: index + 1,
+            memo: memo.value[index],
+          })
+          .then((res) => {
+            console.log(res);
+            // 今回の合計セット数
+            //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
+            emit("totalSet", index + 1);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        axios
+          .post("/api/recordContent/delete", {
+            user_id: loginUser.value.id,
+            category_id: route.query.categoryId,
+            menu_id: route.query.menuId,
+            record_state_id: route.query.recordId,
+            set: index + 1,
+          })
+          .then((res) => {
+            console.log(res);
+            // 今回の合計セット数
+            //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
+            if (index === 0) {
+              emit("totalSet", 0);
+            } else {
+              emit("totalSet", index - 1);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     };
 
     //tgtRecordを初期レンダリング時に取得するため、変更を常にwatchする。
@@ -432,6 +459,7 @@ export default {
       header,
       contents,
       hasOneHand,
+      route,
       validateNumber,
       validateDecimalNumber,
       postRecordContent,

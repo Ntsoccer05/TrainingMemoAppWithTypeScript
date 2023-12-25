@@ -76,7 +76,7 @@ export default {
         })
         .then((res) => {
           console.log(res);
-          router.push("/selectMenu");
+          router.push({ name: "selectMenu", params: { recordId: postDay } });
         })
         .catch((err) => {
           console.log(err);
@@ -85,7 +85,7 @@ export default {
 
     const toSelectMenu = () => {
       // トレーニング記録画面へ遷移
-      router.push("/selectMenu");
+      router.push({ name: "selectMenu", params: { recordId: postDay } });
     };
     return { recordingDay, loginUser, toSelectMenu, record, alertLogin };
   },

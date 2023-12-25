@@ -125,36 +125,74 @@ class RecordContentController extends Controller
         $tgtRecordMenu=$recordMenu->where(function($query) use($user_id, $category_id, $menu_id,$record_state_id){
             $query->where([['user_id', $user_id], ['category_id', $category_id], ['menu_id', $menu_id],['record_state_id', $record_state_id]]);
         })->first();
-        $tgtRecordContent = $tgtRecordMenu->recordContents()->where('set',$request->set)->first();
-        if($tgtRecordContent){
-            $tgtRecordContent->user_id=$request->user_id;
-            $tgtRecordContent->record_state_id=$request->record_state_id;
-            $tgtRecordContent->record_menu_id=$tgtRecordMenu->id;
-            $tgtRecordContent->weight = $request->weight;
-            $tgtRecordContent->right_weight = $request->right_weight;
-            $tgtRecordContent->right_rep = $request->right_rep;
-            $tgtRecordContent->left_weight = $request->left_weight;
-            $tgtRecordContent->left_rep = $request->left_rep;
-            $tgtRecordContent->set = $request->set;
-            $tgtRecordContent->rep = $request->rep;
-            $tgtRecordContent->memo = $request->memo;
-            $tgtRecordContent->save();
-            return response()->json(["status_code" => 200, "message" => "記録を更新しました。"]);
-        }elseif($tgtRecordMenu){
-            $recordContent->user_id=$request->user_id;
-            $recordContent->record_state_id=$request->record_state_id;
-            $recordContent->record_menu_id=$tgtRecordMenu->id;
-            $recordContent->weight = $request->weight;
-            $recordContent->right_weight = $request->right_weight;
-            $recordContent->right_rep = $request->right_rep;
-            $recordContent->left_weight = $request->left_weight;
-            $recordContent->left_rep = $request->left_rep;
-            $recordContent->set = $request->set;
-            $recordContent->rep = $request->rep;
-            $recordContent->memo = $request->memo;
-            $recordContent->save();
-            return response()->json(["status_code" => 200, "message" => "新規に記録しました。"]);
+        if($tgtRecordMenu){
+            $tgtRecordContent = $tgtRecordMenu->recordContents()->where('set',$request->set)->first();
+            if($tgtRecordContent){
+                $tgtRecordContent->user_id=$request->user_id;
+                $tgtRecordContent->record_state_id=$request->record_state_id;
+                $tgtRecordContent->record_menu_id=$tgtRecordMenu->id;
+                $tgtRecordContent->weight = $request->weight;
+                $tgtRecordContent->right_weight = $request->right_weight;
+                $tgtRecordContent->right_rep = $request->right_rep;
+                $tgtRecordContent->left_weight = $request->left_weight;
+                $tgtRecordContent->left_rep = $request->left_rep;
+                $tgtRecordContent->set = $request->set;
+                $tgtRecordContent->rep = $request->rep;
+                $tgtRecordContent->memo = $request->memo;
+                $tgtRecordContent->save();
+                return response()->json(["status_code" => 200, "message" => "記録を更新しました。"]);
+            }
+        }else{
+            // updateOrCreateを用いるにはインスタンス化が必要？
+            // $recordMenu->updateOrCreate(
+            //     ['user_id'=>$user_id],
+            //     ['record_state_id'=>$record_state_id],
+            //     ['menu_id'=>$menu_id],
+            //     ['category_id'=>$category_id],
+            // );
+            $recordMenu->user_id=$request->user_id;
+            $recordMenu->record_state_id=$record_state_id;
+            $recordMenu->menu_id=$menu_id;
+            $recordMenu->category_id=$category_id;
+            $recordMenu->save();
         }
-        return response()->json(["status_code" => 200, "message" => "記録できるデータがないです。"]);
+        $tgtRecordMenu=$recordMenu->where(function($query) use($user_id, $category_id, $menu_id,$record_state_id){
+            $query->where([['user_id', $user_id], ['category_id', $category_id], ['menu_id', $menu_id],['record_state_id', $record_state_id]]);
+        })->first();
+        $recordContent->user_id=$request->user_id;
+        $recordContent->record_state_id=$request->record_state_id;
+        $recordContent->record_menu_id=$tgtRecordMenu->id;
+        $recordContent->weight = $request->weight;
+        $recordContent->right_weight = $request->right_weight;
+        $recordContent->right_rep = $request->right_rep;
+        $recordContent->left_weight = $request->left_weight;
+        $recordContent->left_rep = $request->left_rep;
+        $recordContent->set = $request->set;
+        $recordContent->rep = $request->rep;
+        $recordContent->memo = $request->memo;
+        $recordContent->save();
+        return response()->json(["status_code" => 200, "message" => "新規に記録しました。", "tgtRecordMenu"=>$tgtRecordMenu]);
+    }
+
+    public function delete(Request $request, RecordMenu $recordMenu,RecordContent $recordContent){
+        $user_id = $request->user_id;
+        $category_id = $request->category_id;
+        $menu_id = $request->menu_id;
+        $record_state_id = $request->record_state_id;
+
+        $tgtRecordMenu=$recordMenu->where(function($query) use($user_id, $category_id, $menu_id,$record_state_id){
+            $query->where([['user_id', $user_id], ['category_id', $category_id], ['menu_id', $menu_id],['record_state_id', $record_state_id]]);
+        })->first();
+        if($tgtRecordMenu){
+            $tgtRecordContent = $tgtRecordMenu->recordContents()->where('set',$request->set)->first();
+            if($tgtRecordContent){
+                $tgtRecordContent->delete();
+                $tgtRecordContent = $tgtRecordMenu->recordContents()->where('set',$request->set)->first();
+            }
+            if(!$tgtRecordContent){
+                $tgtRecordMenu->delete();
+            }
+        }
+        return response()->json(["status_code" => 200, "message" => "データを削除しました。"]);
     }
 }

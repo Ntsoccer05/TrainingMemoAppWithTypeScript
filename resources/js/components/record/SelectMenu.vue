@@ -103,7 +103,12 @@ export default {
         if (record.menu) {
           // スプレッド演算子は追加する変数のままだと追加する状態前のまま
           // dataMenu = [...dataMenu.value, record.menu[0].menu_id];
-          dataMenu.value.push(record.menu[0].menu_id);
+
+          //for of でindexを取得したい場合は配列に  .entries()を付ける。
+          for (const [index, val] of record.menu.entries()) {
+            // dataMenu.value.push(record.menu[index].menu_id);
+            dataMenu.value.push(val.menu_id);
+          }
         }
         if (record.recorded_at.recorded_at) {
           let formatRecord = ref("");
@@ -160,7 +165,6 @@ export default {
 
     // valはString
     const validateWeight = (val) => {
-      debugger;
       val = replaceFullToHalf(val);
       // 小数点を含むか？
       let oldVal = val;

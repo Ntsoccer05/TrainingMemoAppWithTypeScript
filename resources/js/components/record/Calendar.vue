@@ -44,7 +44,7 @@ const { records, compGetData, getRecords } = useGetRecords();
 
 watch(records, () => {
   let label = "";
-  debugger;
+  ;
   records.value.forEach((record) => {
     if (record.menu !== undefined) {
       label = record.menu[0].menu_content;
@@ -90,7 +90,7 @@ const changeDayFormat = (day) => {
     .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
   // records.value.forEach((record) => {
   //   if (day === record.recorded_at.recorded_at) {
-  //     debugger;
+  //     ;
   //     record.menu.forEach((tgtMenu) => {
   //       dispMenu.value = [...dispMenu.value, tgtMenu.menu_content];
   //     });

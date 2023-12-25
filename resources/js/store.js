@@ -66,7 +66,7 @@ export default createStore({
           await axios.get("/api/record")
           .then(res =>{
             state.latestRecordState = res.data.latestRecord
-            state.Menus = res.data.latestRecord
+            state.latestRecordMenus = res.data.latestRecord
           })
           .catch((err) => {
             console.log(err)

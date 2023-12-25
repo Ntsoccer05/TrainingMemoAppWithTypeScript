@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class RecordMenu extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'menu_id', 'category_id', 'record_state_id'];
+    protected $fillable = ['id', 'user_id', 'menu_id', 'category_id', 'record_state_id'];
 
     // 初期データ入力時にupdated_atカラムへのデータ挿入させなくする
     const UPDATED_AT = NULL;

@@ -7,7 +7,7 @@
     >
       <thead>
         <tr class="relative">
-          <th :class="['border', editable ? '' : 'hover:bg-gray-200']">
+          <th :class="['border', editable ? '' : '']">
             <!-- <th :class="['border', editable ? '' : 'hover:bg-gray-200']"> -->
             <span :class="[editable ? 'hidden' : 'block']">{{ category.content }}</span>
             <div :class="['grid grid-cols-12 gap-2', editable ? 'block' : 'hidden']">
@@ -59,7 +59,13 @@
       <tbody>
         <tr class="relative" v-for="menu in category.menus" :key="menu.id">
           <td
-            :class="['border', dataMenu.indexOf(menu.id) > -1 ? 'bg-green-400' : '']"
+            :class="[
+              'border cursor-pointer',
+              dataMenu.indexOf(menu.id) > -1
+                ? 'bg-green-400 hover:bg-green-600'
+                : 'hover:bg-gray-200',
+              editable ? '' : '',
+            ]"
             @click="toRecordContents(category, menu)"
           >
             <span :class="['ml-2', editable ? 'hidden' : 'block']"
@@ -188,41 +194,42 @@ export default {
     //トレーニング記録画面に遷移
     const toRecordContents = (category, menu) => {
       if (!editable.value) {
-        axios
-          .post("/api/recordMenu/create", {
-            user_id: loginUser.value.id,
-            category_id: category.id,
-            menu_id: menu.id,
-            record_state_id: latestRecord.value.id,
-          })
-          .then((res) => {
-            console.log(route);
-            if (recorded_day) {
-              router.push({
-                name: "record",
-                params: route.params,
-                // path: `/record/${route.params.recordId}`,
-                query: {
-                  categoryId: category.id,
-                  menuId: menu.id,
-                  recordId: latestRecord.value.id,
-                },
-              });
-            } else {
-              router.push({
-                name: "record",
-                params: route.params,
-                query: {
-                  categoryId: category.id,
-                  menuId: menu.id,
-                  recordId: latestRecord.value.id,
-                },
-              });
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+        // axios
+        //   .post("/api/recordMenu/create", {
+        //     user_id: loginUser.value.id,
+        //     category_id: category.id,
+        //     menu_id: menu.id,
+        //     record_state_id: latestRecord.value.id,
+        //   })
+        //   .then((res) => {
+        //     console.log(route);
+        //     debugger;
+        if (recorded_day) {
+          router.push({
+            name: "record",
+            params: route.params,
+            // path: `/record/${route.params.recordId}`,
+            query: {
+              categoryId: category.id,
+              menuId: menu.id,
+              recordId: latestRecord.value.id,
+            },
           });
+        } else {
+          router.push({
+            name: "record",
+            params: route.params,
+            query: {
+              categoryId: category.id,
+              menuId: menu.id,
+              recordId: latestRecord.value.id,
+            },
+          });
+        }
+        // })
+        // .catch((err) => {
+        //   console.log(err);
+        // });
       } else {
         return;
       }

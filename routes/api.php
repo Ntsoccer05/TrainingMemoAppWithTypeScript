@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/recordMenu/create', [RecordMenuController::class, 'create']);
     Route::get('/recordContent', [RecordContentController::class, 'index']);
     Route::post('/recordContent/create', [RecordContentController::class, 'create']);
+    Route::post('/recordContent/delete', [RecordContentController::class, 'delete']);
 });
 
 // ログイン済みのみ

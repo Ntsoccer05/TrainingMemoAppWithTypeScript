@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('record_menus', function (Blueprint $table) {
-            $table->id();
+            // 自動で連番とするためbigIncrements()を利用
+            $table->bigIncrements('id');
+            // $table->id();
             //外部キーに紐づくテーブルはreferences->onかconstrained
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             //外部キーの制約（null許容）はforeignIdの直後
