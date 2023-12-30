@@ -13,6 +13,7 @@
 <script>
 import { onMounted, ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
 import useHoldLoginState from "../../composables/certification/useHoldLoginState";
@@ -20,6 +21,7 @@ export default {
   setup() {
     const date = new Date();
     const router = useRouter();
+    const store = useStore();
     const authUser = ref([]);
 
     // 現在時刻を取得する場合
@@ -76,6 +78,7 @@ export default {
         })
         .then((res) => {
           console.log(res);
+          store.commit("setRecordedAt", postDay);
           router.push({ name: "selectMenu", params: { recordId: postDay } });
         })
         .catch((err) => {
@@ -85,6 +88,7 @@ export default {
 
     const toSelectMenu = () => {
       // トレーニング記録画面へ遷移
+      store.commit("setRecordedAt", postDay);
       router.push({ name: "selectMenu", params: { recordId: postDay } });
     };
     return { recordingDay, loginUser, toSelectMenu, record, alertLogin };

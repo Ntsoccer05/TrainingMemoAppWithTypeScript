@@ -52,7 +52,7 @@
                 >
               </li>
             </template>
-            <template v-else-if="paramName === 'record'">
+            <template v-else-if="paramName === 'record' || paramName === 'addMenu'">
               <li class="border-b border-t top- md:mr-auto md:border-none">
                 <router-link
                   :to="{ name: 'selectMenu', params: { recordId: recorded_day } }"

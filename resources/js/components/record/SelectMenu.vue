@@ -25,6 +25,12 @@
     >
       編集／削除を終了する
     </button>
+    <template v-if="hasRecord">
+      <div class="text-right mr-5 md:mr-10">
+        <i class="fa-solid fa-minus text-green-400 text-xl"></i>
+        <span class="text-lg">：記録済み</span>
+      </div>
+    </template>
     <div :class="['text-right mr-5 md:mr-10', editable ? 'block' : 'hidden']">
       <!---div><i class="fa-solid fa-pen"></i><span>：編集</span></div>--->
       <div><i class="fa-solid fa-trash"></i><span class="font-bold">：削除</span></div>
@@ -59,7 +65,7 @@
 <script>
 import EditableMenuTable from "./EditableMenuTable.vue";
 import { ref, onMounted, nextTick, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetRecords from "../../composables/record/useGetRecords";
@@ -71,7 +77,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
 
-    const dispHeadText = ref("鍛える部位を選択してください");
+    const dispHeadText = ref("");
 
     const recorded_day = route.params.recordId;
 
@@ -81,6 +87,9 @@ export default {
     let dataMenu = ref([]);
 
     const editable = ref(false);
+    const hasCategory = ref(true);
+    const hasMenu = ref(true);
+    const hasRecord = ref(false);
     // DOM取得のため
     const deleteFunc = ref(null);
     const deleteCategory = ref(null);
@@ -101,6 +110,7 @@ export default {
           dataCategory.value.push(record.category[0].category_id);
         }
         if (record.menu) {
+          hasRecord.value = true;
           // スプレッド演算子は追加する変数のままだと追加する状態前のまま
           // dataMenu = [...dataMenu.value, record.menu[0].menu_id];
 
@@ -137,7 +147,60 @@ export default {
 
     const compEditMenu = () => {
       editable.value = false;
-      dispHeadText.value = "鍛える部位を選択してください";
+      dispHeadText.value = "";
+      getMenus();
+      if (hasCategory.value === false) {
+        dispHeadText.value = "部位・種目を追加してください";
+      } else if (hasMenu.value === false) {
+        dispHeadText.value = "種目を追加してください";
+      } else {
+        dispHeadText.value = "鍛える部位を選択してください";
+      }
+    };
+
+    //メニュー内容を取得
+    const getMenus = async () => {
+      await axios
+        .get("/api/menus", {
+          // get時にパラメータを渡す際はparamsで指定が必要
+          params: {
+            user_id: loginUser.value.id,
+          },
+        })
+        .then((res) => {
+          //編集画面でなければ
+          if (!editable.value) {
+            if (res.data.categories.length === 0) {
+              dispHeadText.value = "部位・種目を追加してください";
+              hasCategory.value = false;
+              hasMenu.value = false;
+            } else if (res.data.menulist.length === 0) {
+              dispHeadText.value = "種目を追加してください";
+              hasMenu.value = false;
+              hasCategory.value = true;
+            } else {
+              dispHeadText.value = "鍛える部位を選択してください";
+              hasCategory.value = true;
+              hasMenu.value = true;
+            }
+            if (res.data.categorylist.length === 0) {
+              dispHeadText.value = "部位・種目を追加してください";
+              hasCategory.value = false;
+              hasMenu.value = false;
+            } else if (res.data.menulist2[0].length === 0) {
+              dispHeadText.value = "種目を追加してください";
+              hasMenu.value = false;
+              hasCategory.value = true;
+            } else {
+              dispHeadText.value = "鍛える部位を選択してください";
+              hasCategory.value = true;
+              hasMenu.value = true;
+            }
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     };
 
     //体重を記録する
@@ -194,6 +257,7 @@ export default {
 
       await getLoginUser();
       await getLatestRecordState();
+      await getMenus();
       if (latestRecord.value.bodyWeight) {
         weight.value = latestRecord.value.bodyWeight;
       }
@@ -201,6 +265,25 @@ export default {
         await getRecords(loginUser.value.id, recorded_day);
       } else if (loginUser.value.id) {
         await getRecords(loginUser.value.id);
+      }
+    });
+
+    onBeforeRouteLeave((to, from) => {
+      console.log(to);
+      if (to.name === "home") {
+        records.value.forEach((record) => {
+          // データがなければ記録削除
+          if (!record.category) {
+            // asyncの即時関数(その場で処理)
+            (async () => {
+              await axios
+                .post("/api/record/destroy", {
+                  recorded_at: recorded_day,
+                })
+                .then((res) => {});
+            })();
+          }
+        });
       }
     });
 
@@ -212,6 +295,7 @@ export default {
       recorded_at,
       dataMenu,
       dataCategory,
+      hasRecord,
       // DOM取得のため
       deleteFunc,
       deleteCategory,

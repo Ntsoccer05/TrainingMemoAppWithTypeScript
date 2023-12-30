@@ -53,7 +53,7 @@ class MenuController extends Controller
                 }
             }
     
-            return response()->json(['status' => 200, "menulist"=>$menulist, "categories"=>$categories, "categorylist" => $categorylist, "munulist2" => $menulist2]);
+            return response()->json(['status' => 200, "menulist"=>$menulist, "categories"=>$categories, "categorylist" => $categorylist, "menulist2" => $menulist2]);
         }
     }
 

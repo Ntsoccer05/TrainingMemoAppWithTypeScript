@@ -123,7 +123,7 @@ export default {
 
     const fillBeforeRecord = async () => {
       await getSecondRecord(loginUser.value.id, category_id, menu_id, record_state_id);
-      if (hasSecondRecord) {
+      if (hasSecondRecord.value) {
         isBeforeData.value = true;
         beforeBodyWeight.value = secondRecord.bodyWeight;
       } else {

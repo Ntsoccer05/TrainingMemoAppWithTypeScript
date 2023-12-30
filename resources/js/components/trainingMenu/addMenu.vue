@@ -88,10 +88,10 @@
         追加する
       </button>
       <button
-        class="bg-red-500 text-white w-28 rounded-md ml-5 justify-self-start"
+        class="bg-red-500 text-white w-28 h-8 rounded-md ml-5 justify-self-start"
         @click="cancelAddMenu"
       >
-        前ページへ戻る
+        前へ戻る
       </button>
     </div>
     <MenuTable :categories="categories" />
@@ -99,8 +99,9 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, nextTick } from "vue";
+import { ref, reactive, onMounted, nextTick, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 import useValidationMsg from "../../composables/menu/useValidationMsg";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import dispValidationMsg from "../../composables/menu/useDispValidationMsg";
@@ -111,7 +112,9 @@ export default {
   },
   setup() {
     const router = useRouter();
-    // const route = useRoute();
+    const route = useRoute();
+    const store = useStore();
+    const recordedAt = ref("");
 
     const editable = ref(false);
 
@@ -139,6 +142,12 @@ export default {
     const addPart = ref(null);
     const addPartBtn = ref(null);
     // const addPartInput = ref(null);
+
+    // computedはreturnする必要がある
+    const recorded_at = computed(() => store.getters.getRecordedAt);
+    if (recorded_at) {
+      recordedAt.value = recorded_at.value;
+    }
 
     //バリデーションエラーメッセージのレイアウト
     const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
@@ -268,9 +277,13 @@ export default {
         return { dispCategoryErrMsg, dispMenuErrMsg };
       } else {
         addMenu.value = "";
-        //前の画面へ戻りたいため
-        history.back();
-        // router.push({ name: "selectMenu" });
+        if (isInputMenu.value) {
+          //前の画面へ戻りたいため
+          history.back();
+        } else {
+          console.log(recordedAt.value);
+          router.push({ name: "selectMenu", params: { recordId: recordedAt.value } });
+        }
       }
     };
 

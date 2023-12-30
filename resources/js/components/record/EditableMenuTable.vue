@@ -61,7 +61,7 @@
           <td
             :class="[
               'border cursor-pointer',
-              dataMenu.indexOf(menu.id) > -1
+              dataMenu.indexOf(menu.id) > -1 && !editable
                 ? 'bg-green-400 hover:bg-green-600'
                 : 'hover:bg-gray-200',
               editable ? '' : '',
@@ -77,7 +77,12 @@
                 @blur="postEditMenu(category, menu)"
                 type="text"
                 v-model="menu.content"
-                class="border-2 col-span-11"
+                :class="[
+                  'border-2 col-span-11',
+                  dataMenu.indexOf(menu.id) > -1
+                    ? 'bg-green-400 hover:bg-green-600'
+                    : 'hover:bg-gray-200',
+                ]"
               />
               <!---
                 <i
@@ -248,15 +253,15 @@ export default {
         })
         .then((res) => {
           //編集画面でなければ
-          if (!editable.value) {
-            if (res.data.categories.length === 0) {
-              dispHeadText.value = "部位・種目を追加してください";
-            } else if (res.data.munulist2.length === 0) {
-              dispHeadText.value = "種目を追加してください";
-            } else {
-              dispHeadText.value = "鍛える部位を選択してください";
-            }
-          }
+          // if (!editable.value) {
+          //   if (res.data.categories.length === 0) {
+          //     dispHeadText.value = "部位・種目を追加してください";
+          //   } else if (res.data.menulist2.length === 0) {
+          //     dispHeadText.value = "種目を追加してください";
+          //   } else {
+          //     dispHeadText.value = "鍛える部位を選択してください";
+          //   }
+          // }
           categories.value = res.data.categorylist;
           if (categories.value.length % 2 === 1) {
             isOdd.value = true;
@@ -314,7 +319,7 @@ export default {
               }
             }
             getMenus();
-            dispHeadText.value = "編集する部位・種目を選択してください";
+            // dispHeadText.value = "編集する部位・種目を選択してください";
           })
           .catch((err) => {
             console.log(err);
@@ -385,7 +390,7 @@ export default {
               }
             }
             getMenus();
-            dispHeadText.value = "編集する部位・種目を選択してください";
+            // dispHeadText.value = "編集する部位・種目を選択してください";
           })
           .catch((err) => {
             console.log(err);

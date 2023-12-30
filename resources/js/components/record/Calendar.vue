@@ -4,6 +4,7 @@
 // https://v2.vcalendar.io/attributes.html#_2-scoped-slot
 import { onMounted, reactive, ref, nextTick, watch, computed } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
 import useHoldLoginState from "../../composables/certification/useHoldLoginState";
@@ -11,6 +12,7 @@ import useGetRecords from "../../composables/record/useGetRecords";
 
 const router = useRouter();
 const authUser = ref([]);
+const store = useStore();
 // 祝日の情報を取得
 const url = "https://holidays-jp.github.io/api/v1/date.json";
 const options = { method: "get" };
@@ -30,6 +32,8 @@ const isSendData = ref(false);
 const dispMenu = ref([]);
 const dispCategory = ref([]);
 
+const loginState = computed(() => store.getters.isLogined);
+
 // script setup内だとDom取得はreturnしなくていい
 const calendar = ref(null);
 
@@ -44,7 +48,6 @@ const { records, compGetData, getRecords } = useGetRecords();
 
 watch(records, () => {
   let label = "";
-  ;
   records.value.forEach((record) => {
     if (record.menu !== undefined) {
       label = record.menu[0].menu_content;
@@ -139,6 +142,7 @@ const selectedDayRecord = async (day) => {
       recording_day: day,
     })
     .then((res) => {
+      store.commit("setRecordedAt", day);
       // isSendData.value = true;
       router.push({ name: "selectMenu", params: { recordId: day } });
     })
@@ -148,7 +152,7 @@ const selectedDayRecord = async (day) => {
 };
 
 const selectedDay = (day) => {
-  if (isLogined.value === false) {
+  if (loginState.value === false) {
     alert("ログインしてください");
     return;
   }
@@ -204,6 +208,7 @@ const toDetailPage = async (day) => {
       .then((res) => {
         console.log(res.data);
         // isSendData.value = true;
+        store.commit("setRecordedAt", day);
         router.push({ name: "selectMenu", params: { recordId: day } });
       });
   }
@@ -211,7 +216,7 @@ const toDetailPage = async (day) => {
 </script>
 
 <template>
-  <div class="calendar container md:w-11/12 ml:h-2/3 mx-auto">
+  <div class="calendar container md:w-11/12 ml:h-2/3 mx-auto h-2/3">
     <!-- $event.targetでクリックした要素を取得できる -->
     <template v-if="compGetData && isLoaded">
       <v-calendar
@@ -321,7 +326,12 @@ const toDetailPage = async (day) => {
       </v-calendar>
     </template>
     <template v-else-if="!isLogined && isLoaded">
-      <v-calendar ref="calendar" locale="ja-jp" :attributes="attrs">
+      <v-calendar
+        ref="calendar"
+        locale="ja-jp"
+        :attributes="attrs"
+        @click="selectedDay($event.target)"
+      >
         <!-- Calendarの中に以下でもタイトル名変更可能
           :masks = masks -->
         <!-- タイトル変更：header-titleのslot-scopeの中のpropを利用 (#はv-slotの省略記法) -->

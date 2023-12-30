@@ -34,6 +34,7 @@
 import Calendar from "../components/record/Calendar.vue";
 import RecordToday from "../components/record/RecordToday.vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 export default {
   components: {
     RecordToday,
@@ -41,11 +42,9 @@ export default {
   },
   setup(props) {
     const router = useRouter();
-    const toSelectMenu = () => {
-      // トレーニング記録画面へ遷移
-      router.push("/selectMenu");
-    };
-    return { toSelectMenu };
+    const store = useStore();
+    // 記録日を初期化
+    store.commit("setRecordedAt", "");
   },
 };
 </script>

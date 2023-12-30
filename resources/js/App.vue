@@ -6,7 +6,8 @@
 </template>
 
 <script>
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
 import Header from "./components/headerMenu/Header.vue";
 import useHoldLoginState from "./composables/certification/useHoldLoginState";
 
@@ -15,12 +16,20 @@ export default {
     Header,
   },
   setup() {
+    const router = useRouter();
     //ログイン状態をリロードしても維持するため
-    const { holdLoginState } = useHoldLoginState();
+    const { holdLoginState, isLogined } = useHoldLoginState();
 
     // async await を使わないとユーザ情報取得する前にMountedサイクルが終了してしまう
     onMounted(async () => {
       await holdLoginState();
+    });
+
+    watch(isLogined, () => {
+      if (!isLogined) {
+        router.push("/");
+        alert("ログインしてください");
+      }
     });
 
     return { holdLoginState };

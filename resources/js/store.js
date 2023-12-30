@@ -8,14 +8,16 @@ export default createStore({
         isLogined: false,
         day: "",
         latestRecordState:"",
-        latestRecordMenus:""
+        latestRecordMenus:"",
+        recorded_at:"",
     },
     getters:{
       isLogined:state => state.isLogined,
       loginUser:state => state.user,
       selectedDay:state => state.day,
       latestRecord:state=>state.latestRecordState,
-      latestMenus:state=>state.latestRecordMenus
+      latestMenus:state=>state.latestRecordMenus,
+      getRecordedAt:state=>state.recorded_at
     },
     mutations:{
       LoginState(state){
@@ -34,6 +36,9 @@ export default createStore({
       },
       latestRecordState(state,latestRecordState){
         state.latestRecordState = latestRecordState
+      },
+      setRecordedAt(state, recordedAt){
+        state.recorded_at = recordedAt
       }
     },
     actions:{
