@@ -17,7 +17,7 @@
         <div class="h-screen md:w-8/12 lg:ml-6 lg:w-5/12">
           <Login />
           <!--Forgot password link-->
-          <a href="#!">パスワードを忘れた方はこちら</a>
+          <router-link to="/password/forget">パスワードを忘れた方はこちら</router-link>
 
           <!-- Divider -->
           <div

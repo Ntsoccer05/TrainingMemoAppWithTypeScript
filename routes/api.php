@@ -8,6 +8,8 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\RecordContentController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\RecordMenuController;
+use App\Http\Controllers\Auth\ForgetPasswordController;
+use App\Http\Controllers\Inquiry\InquiryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,3 +61,11 @@ Route::prefix('login')->group(function () {
 Route::prefix('register')->group(function () {
     Route::post('/{provider}', [RegisterController::class, 'registerProviderUser']);
 });
+
+//パスワードリセット
+//[コントローラー名, メソッド名]
+Route::post('/password/forget', [ForgetPasswordController::class, 'sendemail']);
+Route::post('/password/reset', [ForgetPasswordController::class, 'passwordreset'])->name('password.reset');
+
+//お問い合わせ
+Route::post('/inquiry', [InquiryController::class, 'sendemail']);

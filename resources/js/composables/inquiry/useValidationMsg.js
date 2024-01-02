@@ -7,13 +7,6 @@
 export default function useValidationMsg(msgs, data, hasMsg){
     // ユーザ名のバリデーションエラー
     if(msgs){
-        if (msgs.hasOwnProperty('name')) {
-            data.name = msgs.name
-            hasMsg.name = true;
-        } else {
-            data.name = [];
-            hasMsg.name = false;
-        }
         // メールアドレスのバリデーションエラー
         if (msgs.hasOwnProperty('email')) {
             data.email = msgs.email;
@@ -22,13 +15,13 @@ export default function useValidationMsg(msgs, data, hasMsg){
             data.email = [];
             hasMsg.email = false;
         }
-        // パスワードのバリデーションエラー
-        if (msgs.hasOwnProperty('password')) {
-            data.password = msgs.password;
-            hasMsg.password = true;
+        // お問い合わせ内容のバリデーションエラー
+        if (msgs.hasOwnProperty('content')) {
+            data.content = msgs.content;
+            hasMsg.content = true;
         } else {
-            data.password = [];
-            hasMsg.password = false;
+            data.content = [];
+            hasMsg.content = false;
         }
     }
 }

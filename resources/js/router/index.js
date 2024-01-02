@@ -7,7 +7,10 @@ import Home from '../views/home.vue';
 import SelectMenu from '../views/record/selectMenu.vue';
 import Record from '../views/record/recordContents.vue';
 import trainingMenuList from '../views/trainingMenuList.vue';
-import AddMenu from '../views/menu/addMenu.vue'
+import AddMenu from '../views/menu/addMenu.vue';
+import PasswordForget from '../views/certification/passwordForget.vue';
+import ResetPassword from '../views/certification/resetPassword.vue';
+import Inquiry from '../views/inquiry/inquiry.vue';
 
 const routes = [
   {
@@ -34,6 +37,21 @@ const routes = [
     path: '/api/register/:provider',
     name: 'googleRegister',
     component: googleRegister
+  },
+  {
+    path: '/password/forget',
+    name: 'PasswordForget',
+    component: PasswordForget
+  },
+  {
+    path: '/api/password/reset',
+    name: 'ResetPassword',
+    component: ResetPassword
+  },
+  {
+    path: '/inquiry',
+    name: 'Inquiry',
+    component: Inquiry
   },
   {
     // ?：NULL許容

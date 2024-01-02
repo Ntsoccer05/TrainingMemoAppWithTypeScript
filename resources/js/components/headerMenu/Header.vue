@@ -94,15 +94,15 @@
                 >
               </li>
             </template>
-            <li class="border-b md:border-none">
+            <!-- <li class="border-b md:border-none">
               <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
                 >お知らせ</router-link
               >
-            </li>
+            </li> -->
             <li>
               <div class="my-8 text-center md:my-4">
                 <router-link
-                  to="/"
+                  to="/inquiry"
                   class="px-6 py-2 bg-orange-500 hover:bg-orange-400 rounded-full"
                   >お問い合わせ</router-link
                 >
