@@ -17,7 +17,7 @@ export default function useHoldLoginState(){
         nextTick(()=>{
             isLogined.value = store.getters.isLogined;
             if(!isLogined.value){
-                // router.push("/")
+                router.push("/")
             }
         })
     };

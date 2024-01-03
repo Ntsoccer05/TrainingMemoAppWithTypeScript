@@ -20,7 +20,11 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->rememberToken();
-            $table->timestamps();
+            // 2038年問題対策timestamps()->dateTime()
+            // $table->timestamps();
+            // default()にて自動で現在時刻が入るようにしている
+            $table->dateTime('created_at')->default(now());
+            $table->dateTime('updated_at')->default(now());
         });
     }
 

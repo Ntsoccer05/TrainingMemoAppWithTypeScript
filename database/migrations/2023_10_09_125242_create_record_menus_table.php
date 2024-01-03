@@ -25,7 +25,10 @@ return new class extends Migration
             // cascadeOnDelete()は親のテーブルのレコードが削除された場合に一緒に削除
             // 紐づける際に相手のテーブル名は単数形
             $table->foreignId('record_state_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->timestamps();
+            // 2038年問題対策
+            // $table->timestamps();
+            $table->dateTime('created_at')->default(now());
+            $table->dateTime('updated_at')->default(now());
         });
     }
 

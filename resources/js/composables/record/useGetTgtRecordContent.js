@@ -18,7 +18,6 @@ export default function useGetTgtRecordContents(user_id, category_id, menu_id, r
                 record_state_id,
             }
         }).then((res) =>{
-            console.log(res.data)
             if(res.data.tgtRecords){
                 tgtRecord.value = res.data.tgtRecords
                 hasTgtRecord.value = true

@@ -218,17 +218,54 @@ import { useRoute } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
 import axios from "axios";
+// const createOrDelete = (tgtVal, canRecord, canDelete) => {
+//   switch (tgtVal) {
+//     case "":
+//       canRecord.value = false;
+//       canDelete.value = true;
+//       break;
+//     default:
+//       canRecord.value = true;
+//       canDelete.value = false;
+//   }
+// };
+// エンターキーを押すと次の要素入力可
+function keydown(e) {
+  if (e.keyCode === 13) {
+    var obj = document.activeElement;
+    if (obj.nextElementSibling) {
+      obj.nextElementSibling.focus();
+    } else if (obj.parentNode.nextSibling) {
+      if (obj.parentNode.nextSibling.children) {
+        if (obj.parentNode.nextSibling.children[0].nodeName == "TEXTAREA") {
+          obj.parentNode.nextSibling.children[0].focus();
+        }
+        if (obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children) {
+          if (
+            obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children[0]
+              .nodeName == "TEXTAREA"
+          ) {
+            obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children[0].focus();
+          }
+        }
+      }
+    }
+  }
+}
+
+window.onkeydown = keydown;
 export default {
   props: {
     second_record: [Object, String],
     hasSecondRecord: Boolean,
+    hasOneHand: Boolean,
     category_id: String,
     menu_id: String,
     record_state_id: String,
   },
   setup(props, { emit }) {
     const route = useRoute();
-    const hasOneHand = ref(false);
+    const hasOneHand = computed(() => props.hasOneHand);
     const second_record = computed(() => props.second_record);
     const weight = ref([]);
     const rep = ref([]);
@@ -237,6 +274,8 @@ export default {
     const leftWeight = ref([]);
     const leftRep = ref([]);
     const memo = ref([]);
+    const doRecord = ref(false);
+    const doDelete = ref(false);
 
     const maxBeforeLength = ref("");
 
@@ -257,25 +296,25 @@ export default {
     //今回記録するデータの値を取得
     const { tgtRecord, hasTgtRecord, getTgtRecords } = useGetTgtRecordContent();
 
-    // 片方ずつ記録するかどうかmenusテーブルのoneSideカラムにて判断
-    const getMenuContent = async () => {
-      await axios
-        .get("api/menus", {
-          params: {
-            user_id: loginUser.value.id,
-            category_id: route.query.categoryId,
-            menu_id: route.query.menuId,
-          },
-        })
-        .then((res) => {
-          if (res.data.menu.oneSide === 1) {
-            hasOneHand.value = true;
-          } else {
-            hasOneHand.value = false;
-          }
-        })
-        .catch((err) => [console.log(err)]);
-    };
+    // 片方ずつ記録するかどうかmenusテーブルのoneSideカラムにて判断<-親側で処理
+    // const getMenuContent = async () => {
+    //   await axios
+    //     .get("api/menus", {
+    //       params: {
+    //         user_id: loginUser.value.id,
+    //         category_id: route.query.categoryId,
+    //         menu_id: route.query.menuId,
+    //       },
+    //     })
+    //     .then((res) => {
+    //       if (res.data.menu.oneSide === 1) {
+    //         hasOneHand.value = true;
+    //       } else {
+    //         hasOneHand.value = false;
+    //       }
+    //     })
+    //     .catch((err) => [console.log(err)]);
+    // };
 
     const contents = ref([
       { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
@@ -356,59 +395,124 @@ export default {
     };
 
     const postRecordContent = (index) => {
-      if (
-        loginUser.value.id &&
-        ((weight.value[index] && rep.value[index]) ||
-          (rightWeight.value[index] && rightRep.value[index]) ||
-          (leftWeight.value[index] && leftRep.value[index]))
-      ) {
-        axios
-          .post("/api/recordContent/create", {
-            user_id: loginUser.value.id,
-            category_id: route.query.categoryId,
-            menu_id: route.query.menuId,
-            record_state_id: route.query.recordId,
-            weight: weight.value[index],
-            right_weight: rightWeight.value[index],
-            right_rep: rightRep.value[index],
-            left_weight: leftWeight.value[index],
-            left_rep: leftRep.value[index],
-            rep: rep.value[index],
-            set: index + 1,
-            memo: memo.value[index],
-          })
-          .then((res) => {
-            console.log(res);
-            // 今回の合計セット数
-            //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
-            emit("totalSet", index + 1);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      } else {
-        axios
-          .post("/api/recordContent/delete", {
-            user_id: loginUser.value.id,
-            category_id: route.query.categoryId,
-            menu_id: route.query.menuId,
-            record_state_id: route.query.recordId,
-            set: index + 1,
-          })
-          .then((res) => {
-            console.log(res);
-            // 今回の合計セット数
-            //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
-            if (index === 0) {
-              emit("totalSet", 0);
-            } else {
-              emit("totalSet", index - 1);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
+      // createOrDelete(weight.value[index], doRecord, doDelete);
+      // createOrDelete(rep.value[index], doRecord, doDelete);
+      // createOrDelete(rightWeight.value[index], doRecord, doDelete);
+      // createOrDelete(rightRep.value[index], doRecord, doDelete);
+      // createOrDelete(leftWeight.value[index], doRecord, doDelete);
+      // createOrDelete(leftRep.value[index], doRecord, doDelete);
+
+      // switch (weight.value[index]) {
+      //   case "":
+      //     doRecord.value = false;
+      //     doDelete.value = true;
+      //     break;
+      //   default:
+      //     doRecord.value = true;
+      //     doDelete.value = false;
+      // }
+      // switch (weight.value[index]) {
+      //   case "":
+      //     doRecord.value = false;
+      //     doDelete.value = true;
+      //     break;
+      //   default:
+      //     doRecord.value = true;
+      //     doDelete.value = false;
+      // }
+
+      // if (weight.value[index] && rep.value[index]) {
+      //   doRecord.value = true;
+      //   doDelete.value = false;
+      // } else if (!weight.value[index] && !rep.value[index]) {
+      //   doDelete.value = true;
+      // } else {
+      //   doRecord.value = false;
+      //   doDelete.value = false;
+      // }
+      // if (rightWeight.value[index] && rightRep.value[index]) {
+      //   doRecord.value = true;
+      //   doDelete.value = false;
+      // } else if (!rightWeight.value[index] && !rightRep.value[index]) {
+      //   if (!leftWeight.value[index] && !leftRep.value[index]) {
+      //     doDelete.value = true;
+      //   } else {
+      //     doDelete.value = false;
+      //   }
+      // } else {
+      //   if (leftWeight.value[index] && leftRep.value[index]) {
+      //     doRecord.value = true;
+      //   } else {
+      //     doRecord.value = false;
+      //   }
+      //   doDelete.value = false;
+      // }
+      // if (leftWeight.value[index] && leftRep.value[index]) {
+      //   doRecord.value = true;
+      //   doDelete.value = false;
+      // } else if (!leftWeight.value[index] && !leftRep.value[index]) {
+      //   if (!rightWeight.value[index] && !rightRep.value[index]) {
+      //     doDelete.value = true;
+      //   } else {
+      //     doDelete.value = false;
+      //   }
+      // } else {
+      //   if (rightWeight.value[index] && rightRep.value[index]) {
+      //     doRecord.value = true;
+      //   } else {
+      //     doRecord.value = false;
+      //   }
+      //   doDelete.value = false;
+      // }
+      // if (doRecord.value) {
+      axios
+        .post("/api/recordContent/create", {
+          user_id: loginUser.value.id,
+          category_id: route.query.categoryId,
+          menu_id: route.query.menuId,
+          record_state_id: route.query.recordId,
+          weight: weight.value[index],
+          right_weight: rightWeight.value[index],
+          right_rep: rightRep.value[index],
+          left_weight: leftWeight.value[index],
+          left_rep: leftRep.value[index],
+          rep: rep.value[index],
+          set: index + 1,
+          memo: memo.value[index],
+        })
+        .then((res) => {
+          console.log(res.data.totalSet);
+          // 今回の合計セット数
+          // emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
+          emit("totalSet", res.data.totalSet);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      // } else if (doDelete.value) {
+      //   axios
+      //     .post("/api/recordContent/delete", {
+      //       user_id: loginUser.value.id,
+      //       category_id: route.query.categoryId,
+      //       menu_id: route.query.menuId,
+      //       record_state_id: route.query.recordId,
+      //       set: index + 1,
+      //     })
+      //     .then((res) => {
+      //       debugger;
+      //       console.log(res);
+      //       // 今回の合計セット数
+      //       //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
+      //       // if (index === 0) {
+      //       //   emit("totalSet", 0);
+      //       // } else {
+      //       emit("totalSet", res.data.totalSet.length);
+      //       // }
+      //     })
+      //     .catch((err) => {
+      //       console.log(err);
+      //     });
+      // }
     };
 
     //tgtRecordを初期レンダリング時に取得するため、変更を常にwatchする。
@@ -439,7 +543,7 @@ export default {
 
     onMounted(async () => {
       await getLoginUser();
-      await getMenuContent();
+      // await getMenuContent();
       await getTgtRecords(
         loginUser.value.id,
         props.category_id,

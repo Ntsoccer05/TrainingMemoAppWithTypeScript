@@ -20,31 +20,41 @@ class MenuSeeder extends Seeder
                 'user_id' => 1,
                 'category_id' => 1,
                 'content' => 'ベンチプレス',
-                'oneSide' => 0
+                'oneSide' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'user_id' => 1,
                 'category_id' => 2,
                 'content' => 'ベントオーバーロー',
-                'oneSide' => 0
+                'oneSide' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'user_id' => 1,
                 'category_id' => 2,
                 'content' => 'ダンベルワンハンドロー',
-                'oneSide' => 1
+                'oneSide' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'user_id' => 1,
                 'category_id' => 3,
                 'content' => 'スクワット',
-                'oneSide' => 0
+                'oneSide' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'user_id' => 1,
                 'category_id' => 4,
                 'content' => 'ダンベルカール',
-                'oneSide' => 1
+                'oneSide' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ];
         

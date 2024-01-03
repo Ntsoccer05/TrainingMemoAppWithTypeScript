@@ -118,6 +118,8 @@ export default {
 
     const editable = ref(false);
 
+    const recorded_day = route.params.recordId;
+
     const errors = reactive({
       category_content: [],
       menu: [],
@@ -281,8 +283,7 @@ export default {
           //前の画面へ戻りたいため
           history.back();
         } else {
-          console.log(recordedAt.value);
-          router.push({ name: "selectMenu", params: { recordId: recordedAt.value } });
+          router.push({ name: "selectMenu", params: { recordId: recorded_day } });
         }
       }
     };

@@ -20,7 +20,10 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->string('content');
             $table->boolean('oneSide')->default(false);
-            $table->timestamps();
+            // 2038年問題対策
+            // $table->timestamps();
+            $table->dateTime('created_at')->default(now());
+            $table->dateTime('updated_at')->default(now());
         });
     }
 

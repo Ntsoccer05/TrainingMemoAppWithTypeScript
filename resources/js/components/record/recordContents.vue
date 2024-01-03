@@ -40,6 +40,7 @@
       <RecordTable
         :second_record="secondRecord"
         :hasSecondRecord="hasSecondRecord"
+        :hasOneHand="hasOneHand"
         :category_id="category_id"
         :menu_id="menu_id"
         :record_state_id="record_state_id"
@@ -104,7 +105,7 @@ export default {
     // 片方ずつ記録するかどうかmenusテーブルのoneSideカラムにて判断
     const getMenuContent = async () => {
       await axios
-        .get("api/menus", {
+        .get("/api/menus", {
           params: {
             user_id: loginUser.value.id,
             category_id: category_id,

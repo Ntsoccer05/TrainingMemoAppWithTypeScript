@@ -115,9 +115,10 @@ export default {
           // dataMenu = [...dataMenu.value, record.menu[0].menu_id];
 
           //for of でindexを取得したい場合は配列に  .entries()を付ける。
-          for (const [index, val] of record.menu.entries()) {
+          // for (const [index, val] of record.menu.entries()) {
+          for (const index in record.menu) {
             // dataMenu.value.push(record.menu[index].menu_id);
-            dataMenu.value.push(val.menu_id);
+            dataMenu.value.push(record.menu[index].menu_id);
           }
         }
         if (record.recorded_at.recorded_at) {
@@ -135,9 +136,7 @@ export default {
 
     //トレーニングメニュー追加画面に遷移
     const toAddMenu = () => {
-      router.push({
-        name: "addMenu",
-      });
+      router.push({ name: "addMenu", params: { recordId: recorded_day } });
     };
 
     const editMenu = () => {
@@ -269,9 +268,8 @@ export default {
     });
 
     onBeforeRouteLeave((to, from) => {
-      console.log(to);
       if (to.name === "home") {
-        records.value.forEach((record) => {
+        for (let record of records.value) {
           // データがなければ記録削除
           if (!record.category) {
             // asyncの即時関数(その場で処理)
@@ -282,8 +280,10 @@ export default {
                 })
                 .then((res) => {});
             })();
+          } else {
+            break;
           }
-        });
+        }
       }
     });
 

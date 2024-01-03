@@ -19,18 +19,26 @@ class CategorySeeder extends Seeder
             [
                 'user_id' => 1,
                 'content' => '胸',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'user_id' => 1,
                 'content' => '背中',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'user_id' => 1,
                 'content' => '足',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'user_id' => 1,
                 'content' => '腕',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ];
 

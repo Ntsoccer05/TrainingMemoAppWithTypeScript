@@ -67,13 +67,13 @@ const routes = [
     props: true
   },
   {
-    path: '/menu/:user_id?',
+    path: '/menu/:user_id?/:recordId?',
     name: 'menu',
     component: trainingMenuList,
     props: true
   },
   {
-    path: '/addMenu/',
+    path: '/addMenu/:recordId?',
     name: 'addMenu',
     component: AddMenu,
   },

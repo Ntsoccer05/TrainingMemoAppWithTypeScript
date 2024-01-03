@@ -21,8 +21,8 @@ class MenuController extends Controller
             $getMenu = $menu->where('user_id', $request->user_id)->where('category_id', $request->category_id)->where('id', $request->menu_id)->first();
             return response()->json(['status' => 200, "menu"=>$getMenu]);
         }else{
-            $menulist = Menu::where('user_id', $request->user_id)->get();
-            $categorylist = Category::where('user_id', $request->user_id)->get();
+            $menulist = Menu::where('user_id', $request->user_id)->get()->load('category');
+            $categorylist = Category::where('user_id', $request->user_id)->get()->load('menus');
             $categories = [];
             $menulist2 = [];
             if(isset($menulist)){
@@ -168,7 +168,7 @@ class MenuController extends Controller
         $menu_id = $request ->menu_id;
         $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
             $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
-        })->first();
+        })->first()->load('content');
         If($menulist){
             $menulist->content = $request->content;
             $menulist->save();

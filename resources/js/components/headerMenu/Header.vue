@@ -11,9 +11,11 @@
             >
           </h3>
         </template>
-        <template v-else-if="paramName === 'record'">
+        <template v-else-if="paramName === 'record' || paramName === 'addMenu'">
           <h3 class="md:mr-auto md:border-none">
-            <router-link to="/selectMenu" class="text-xl font-semibold"
+            <router-link
+              :to="{ name: 'selectMenu', params: { recordId: recorded_day } }"
+              class="text-xl font-semibold"
               ><i class="fa-solid fa-arrow-left mr-2"></i>メニュー選択へ戻る</router-link
             >
           </h3>
@@ -21,7 +23,7 @@
         <template v-else>
           <h3 class="md:mr-auto md:border-none">
             <router-link to="/" class="text-2xl font-semibold md:text-4xl"
-              >HR</router-link
+              >トレメモ</router-link
             >
           </h3>
         </template>
@@ -65,7 +67,7 @@
             <template v-else>
               <li class="border-b border-t top- md:mr-auto md:border-none">
                 <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
-                  >HR</router-link
+                  >トレメモ</router-link
                 >
               </li>
             </template>
@@ -126,11 +128,16 @@ export default {
     const store = useStore();
 
     const recorded_day = ref("");
+    const recordedAt = ref("");
+    const recorded_at = computed(() => store.getters.getRecordedAt);
 
     const paramName = ref("");
     watchEffect(() => {
       paramName.value = route.name;
       recorded_day.value = route.params.recordId;
+      if (recorded_at) {
+        recordedAt.value = recorded_at.value;
+      }
     });
 
     const isOpen = ref(false);
@@ -179,6 +186,7 @@ export default {
       isLogined,
       user,
       recorded_day,
+      recordedAt,
       toggleNav,
       toHome,
       logout,

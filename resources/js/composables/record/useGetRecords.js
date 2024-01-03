@@ -16,7 +16,6 @@ export default function useGetRecords(){
         }).then((res) =>{
             records.value = res.data.records
             compGetData.value = true
-            console.log(res.data)
         })
     }
 

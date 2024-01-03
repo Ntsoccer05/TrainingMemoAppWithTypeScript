@@ -26,7 +26,7 @@ class RecordMenuSeeder extends Seeder
                 // 'weight' => rand(20,100),
                 // バッチ処理テスト用
                 'created_at' => now(),
-                'updated_at' => null,
+                'updated_at' => now(),
             ];
 
             DB::table('record_menus')->insert($data);

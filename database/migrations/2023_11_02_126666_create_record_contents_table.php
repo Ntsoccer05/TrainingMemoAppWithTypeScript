@@ -30,7 +30,10 @@ return new class extends Migration
             $table->integer('set')->nullable();
             $table->integer('rep')->nullable();
             $table->string('memo')->nullable();
-            $table->timestamps();
+            // 2038年問題対策
+            // $table->timestamps();
+            $table->dateTime('created_at')->default(now());
+            $table->dateTime('updated_at')->default(now());
         });
     }
 
