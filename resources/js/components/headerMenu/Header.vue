@@ -6,7 +6,13 @@
       >
         <template v-if="paramName === 'selectMenu'">
           <h3 class="md:mr-auto md:border-none">
-            <router-link to="/" class="text-xl font-semibold"
+            <router-link
+              :to="
+                recorded_day
+                  ? { name: 'home', query: { day: recorded_day } }
+                  : { name: 'home' }
+              "
+              class="text-xl font-semibold"
               ><i class="fa-solid fa-arrow-left mr-2"></i>日付選択へ戻る</router-link
             >
           </h3>
@@ -22,7 +28,13 @@
         </template>
         <template v-else>
           <h3 class="md:mr-auto md:border-none">
-            <router-link to="/" class="text-2xl font-semibold md:text-4xl"
+            <router-link
+              :to="
+                recorded_day
+                  ? { name: 'home', query: { day: recorded_day } }
+                  : { name: 'home' }
+              "
+              class="text-2xl font-semibold md:text-4xl"
               >トレメモ</router-link
             >
           </h3>
@@ -47,14 +59,22 @@
             class="md:flex md:justify-between md:items-center md:mr-1 md: m-auto lg:mr-0"
             @click="closeHumbuger"
           >
-            <template v-if="paramName === 'selectMenu'">
+            <template v-if="paramName === 'selectMenu' && !isOpen">
               <li class="border-b border-t top- md:mr-auto md:border-none">
-                <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
+                <router-link
+                  :to="
+                    recorded_day
+                      ? { name: 'home', query: { day: recorded_day } }
+                      : { name: 'home' }
+                  "
+                  class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
                   ><i class="fa-solid fa-arrow-left mr-2"></i>日付選択へ戻る</router-link
                 >
               </li>
             </template>
-            <template v-else-if="paramName === 'record' || paramName === 'addMenu'">
+            <template
+              v-else-if="(paramName === 'record' || paramName === 'addMenu') && !isOpen"
+            >
               <li class="border-b border-t top- md:mr-auto md:border-none">
                 <router-link
                   :to="{ name: 'selectMenu', params: { recordId: recorded_day } }"
@@ -66,7 +86,13 @@
             </template>
             <template v-else>
               <li class="border-b border-t top- md:mr-auto md:border-none">
-                <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
+                <router-link
+                  :to="
+                    recorded_day
+                      ? { name: 'home', query: { day: recorded_day } }
+                      : { name: 'home' }
+                  "
+                  class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
                   >トレメモ</router-link
                 >
               </li>
@@ -102,7 +128,7 @@
               >
             </li> -->
             <li>
-              <div class="my-8 text-center md:my-4">
+              <div class="my-8 text-center md:my-4 md:mr-3">
                 <router-link
                   to="/inquiry"
                   class="px-6 py-2 bg-orange-500 hover:bg-orange-400 rounded-full"

@@ -71,19 +71,21 @@ export default {
     selectedDay();
 
     const record = async () => {
-      await axios
-        .post("/api/record/create", {
-          user_id: loginUser.value.id,
-          recording_day: postDay,
-        })
-        .then((res) => {
-          console.log(res);
-          store.commit("setRecordedAt", postDay);
-          router.push({ name: "selectMenu", params: { recordId: postDay } });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      if (isLogined.value) {
+        await axios
+          .post("/api/record/create", {
+            user_id: loginUser.value.id,
+            recording_day: postDay,
+          })
+          .then((res) => {
+            console.log(res);
+            store.commit("setRecordedAt", postDay);
+            router.push({ name: "selectMenu", params: { recordId: postDay } });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     };
 
     const toSelectMenu = () => {

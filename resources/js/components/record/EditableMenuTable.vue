@@ -145,7 +145,7 @@ export default {
   props: {
     editable: Boolean,
     dispHeadText: String,
-    records: Array,
+    records: [Array, String],
     dataMenu: Array,
   },
   setup(props) {

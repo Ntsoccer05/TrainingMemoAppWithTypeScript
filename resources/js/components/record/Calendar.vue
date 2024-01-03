@@ -3,7 +3,7 @@
 <script setup>
 // https://v2.vcalendar.io/attributes.html#_2-scoped-slot
 import { onMounted, reactive, ref, nextTick, watch, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
@@ -11,6 +11,7 @@ import useHoldLoginState from "../../composables/certification/useHoldLoginState
 import useGetRecords from "../../composables/record/useGetRecords";
 
 const router = useRouter();
+const route = useRoute();
 const authUser = ref([]);
 const store = useStore();
 // 祝日の情報を取得
@@ -83,6 +84,7 @@ watch(holidays.value, () => {
   });
 });
 
+//日付フォーマットを修正
 const changeDayFormat = (day) => {
   // 年-月-日の形に修正
   day = day.replace("日", "");
@@ -130,11 +132,21 @@ onMounted(async () => {
   // getLoginUser()内でnextTickを実行
   authUser.value = loginUser;
   nextTick(() => {
+    // DOM取得のため<-script setupではnextTickの中でないとDOM取得できない。
+    const calendarDom = calendar.value;
+
     toDetailPage();
     // selectedDay();
+    // クエリパラメータがあればリロード時にその日付が存在するページを表示
+    if (route.query.day) {
+      calendarDom.move(new Date(route.query.day));
+      delete route.query.day;
+      debugger;
+    }
   });
 });
 
+// 日付選択時にレコード記録
 const selectedDayRecord = async (day) => {
   await axios
     .post("/api/record/create", {
@@ -151,6 +163,7 @@ const selectedDayRecord = async (day) => {
     });
 };
 
+// 日付選択時処理
 const selectedDay = (day) => {
   if (loginState.value === false) {
     alert("ログインしてください");
@@ -182,6 +195,7 @@ const selectedDay = (day) => {
   }
 };
 
+// 休日を取得
 const getHolidays = async () => {
   // 祝日の情報を取得
   await fetch(url, options).then((response) => {
@@ -194,6 +208,7 @@ const getHolidays = async () => {
   });
 };
 
+// 詳細ページへ遷移
 const toDetailPage = async (day) => {
   if (day) {
     // 年-月-日の形に修正
@@ -206,12 +221,17 @@ const toDetailPage = async (day) => {
         recording_day: postDay,
       })
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         // isSendData.value = true;
         store.commit("setRecordedAt", day);
         router.push({ name: "selectMenu", params: { recordId: day } });
       });
   }
+};
+
+//今日のカレンダーを表示
+const moveToday = () => {
+  calendar.value.move(new Date());
 };
 </script>
 
@@ -320,6 +340,16 @@ const toDetailPage = async (day) => {
               @click.prevent="toDetailPage(day)"
             >
               詳細へ
+            </button>
+          </div>
+        </template>
+        <template #footer>
+          <div class="w-full px-4 pb-3">
+            <button
+              class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold w-full px-3 py-1 rounded-md"
+              @click="moveToday"
+            >
+              今日のカレンダー表示
             </button>
           </div>
         </template>
