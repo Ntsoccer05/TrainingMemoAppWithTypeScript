@@ -165,15 +165,16 @@ const selectedDayRecord = async (day) => {
 
 // 日付選択時処理
 const selectedDay = (day) => {
-  if (loginState.value === false) {
-    alert("ログインしてください");
-    return;
-  }
+  // 日付をクリック時
   if (day.ariaLabel !== null) {
+    //ログインしていなかったらメッセージを表示
+    if (loginState.value === false) {
+      alert("ログインしてください");
+      return;
+    }
     // 年-月-日の形に修正
     day = day.ariaLabel.split("日");
     day = day[0].replace(/年|月/g, "-");
-    //ログインしていなかったらメッセージを表示
     changeDayFormat(day);
     const isRecord = ref(false);
     for (let record of records.value) {
@@ -356,17 +357,28 @@ const moveToday = () => {
       </v-calendar>
     </template>
     <template v-else-if="!isLogined && isLoaded">
+      <!-- 親の@clickイベントに引きつられるため修飾子stopを追加 -->
       <v-calendar
         ref="calendar"
         locale="ja-jp"
         :attributes="attrs"
-        @click="selectedDay($event.target)"
+        @click.stop="selectedDay($event.target)"
       >
         <!-- Calendarの中に以下でもタイトル名変更可能
           :masks = masks -->
         <!-- タイトル変更：header-titleのslot-scopeの中のpropを利用 (#はv-slotの省略記法) -->
         <template #header-title="props">
           {{ props.yearLabel }}年 {{ props.monthLabel }}
+        </template>
+        <template #footer>
+          <div class="w-full px-4 pb-3">
+            <button
+              class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold w-full px-3 py-1 rounded-md"
+              @click="moveToday"
+            >
+              今日のカレンダー表示
+            </button>
+          </div>
         </template>
       </v-calendar>
     </template>
