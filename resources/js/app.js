@@ -12,5 +12,5 @@ import store from './store'
 
 const app = createApp(App);
 app.component('VCalendar', Calendar)
-app.use(VCalendar).use(router).use(store);
+app.use(VCalendar).use(store).use(router);
 app.mount("#app");

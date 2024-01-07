@@ -25,6 +25,7 @@ class RecordMenuSeeder extends Seeder
                 'record_state_id' =>rand(1, 10),
                 // 'weight' => rand(20,100),
                 // バッチ処理テスト用
+                'recorded_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

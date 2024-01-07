@@ -12,7 +12,7 @@
                   ? { name: 'home', query: { day: recorded_day } }
                   : { name: 'home' }
               "
-              class="text-xl font-semibold"
+              class="md:text-xl font-semibold text-lg"
               ><i class="fa-solid fa-arrow-left mr-2"></i>日付選択へ戻る</router-link
             >
           </h3>
@@ -21,7 +21,7 @@
           <h3 class="md:mr-auto md:border-none">
             <router-link
               :to="{ name: 'selectMenu', params: { recordId: recorded_day } }"
-              class="text-xl font-semibold"
+              class="md:text-xl font-semibold text-lg"
               ><i class="fa-solid fa-arrow-left mr-2"></i>メニュー選択へ戻る</router-link
             >
           </h3>
@@ -34,7 +34,7 @@
                   ? { name: 'home', query: { day: recorded_day } }
                   : { name: 'home' }
               "
-              class="text-2xl font-semibold md:text-4xl"
+              class="text-xl font-semibold md:text-4xl"
               >トレメモ</router-link
             >
           </h3>
@@ -97,7 +97,7 @@
                 >
               </li>
             </template>
-            <template v-if="isLogined">
+            <template v-if="isLogined && isloaded">
               <li class="border-b md:border-none">
                 <a
                   class="block px-8 py-2 my-4 hover:bg-gray-600 rounded cursor-pointer"
@@ -106,7 +106,7 @@
                 >
               </li>
             </template>
-            <template v-else-if="!isLogined">
+            <template v-else-if="!isLogined && isloaded">
               <li class="border-b md:border-none">
                 <router-link
                   to="/login"
@@ -143,12 +143,12 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, computed, watchEffect, nextTick } from "vue";
+import { ref, onMounted, computed, watchEffect, nextTick, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import useHoldLoginState from "../../composables/certification/useHoldLoginState";
 export default {
   setup() {
+    const isloaded = ref(false);
     const router = useRouter();
     const route = useRoute();
     const store = useStore();
@@ -158,19 +158,27 @@ export default {
     const recorded_at = computed(() => store.getters.getRecordedAt);
 
     const paramName = ref("");
+
+    const isOpen = ref(false);
+    const user = ref([]);
+
+    // ログイン状態をVuexより取得
+    let isLogined = "";
+
     watchEffect(() => {
       paramName.value = route.name;
       recorded_day.value = route.params.recordId;
       if (recorded_at) {
         recordedAt.value = recorded_at.value;
       }
+      // if (isLogined) {
+      //   isLogined.value = isLogined.value;
+      // }
+      isLogined = computed(() => store.state.isLogined);
+      if (!isloaded.value) {
+        isloaded.value = true;
+      }
     });
-
-    const isOpen = ref(false);
-    const user = ref([]);
-
-    // ログイン状態をVuexより取得
-    const isLogined = computed(() => store.state.isLogined);
 
     // ハンバーガーメニューの表示/非表示
     const toggleNav = () => (isOpen.value = !isOpen.value);
@@ -183,22 +191,27 @@ export default {
         isOpen.value = false;
       }
     };
-    onMounted(() => {
-      // recorded_day.value = route.params.recordId;
-      // console.log(recorded_day.value);
-      // return recorded_day;
+    watch(isLogined, () => {
+      // debugger;
+      isloaded.value = true;
     });
+
+    // onMounted(() => {
+    //   isloaded.value = true;
+    // });
 
     // ログアウト処理
     const logout = async () => {
+      debugger;
       await axios
         .post("/api/logout", {})
         .then((res) => {
           if ((res.data.status_code = 200)) {
-            router.push("/");
+            // router.push("/");
             // ログイン状態を変更するためVuexより呼び出し
             store.commit("LogoutState");
             //ページ再読み込み
+            alert("ログアウトしました。");
             window.location.reload();
           }
         })
@@ -210,6 +223,7 @@ export default {
       paramName,
       isOpen,
       isLogined,
+      isloaded,
       user,
       recorded_day,
       recordedAt,

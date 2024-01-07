@@ -27,6 +27,7 @@ return new class extends Migration
             $table->foreignId('record_state_id')->nullable()->constrained()->cascadeOnDelete();
             // 2038年問題対策
             // $table->timestamps();
+            $table->date('recorded_at');
             $table->dateTime('created_at')->default(now());
             $table->dateTime('updated_at')->default(now());
         });

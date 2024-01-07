@@ -11,18 +11,18 @@
 </template>
 
 <script>
-import { onMounted, ref, nextTick } from "vue";
+import { onMounted, ref, nextTick, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
-import useHoldLoginState from "../../composables/certification/useHoldLoginState";
+// import useHoldLoginState from "../../composables/certification/useHoldLoginState";
 export default {
   setup() {
     const date = new Date();
     const router = useRouter();
     const store = useStore();
-    const authUser = ref([]);
+    const isLogined = ref(false);
 
     // 現在時刻を取得する場合
     // const time = `${date
@@ -34,7 +34,7 @@ export default {
     //   .padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
 
     //ログイン状態をリロードしても維持するため
-    const { holdLoginState, isLogined } = useHoldLoginState();
+    // const { holdLoginState, isLogined } = useHoldLoginState();
 
     const { getLoginUser, loginUser } = useGetLoginUser();
     // getLoginUser();
@@ -43,25 +43,23 @@ export default {
     onMounted(async () => {
       // onMounted(() => {
       await getLoginUser();
-      await holdLoginState();
-
+      // await holdLoginState();
+      // ログイン状態をVuexより取得<-このタイミングだとカレンダーの描画が完了しているためVuexの値を取得できる。
+      isLogined.value = computed(() => store.state.isLogined);
       // 画面生成後のタイミングでしかユーザ情報取得できないため
       // window.onload = () => {
       //   authUser.value = loginUser;
       // };
-
       // nextTickはonMounted内の処理完了後に呼び出されるのでloginUserを取得できる
       // nextTick(() => {
       //   authUser.value = loginUser;
       // });
-
       // getLoginUser()内でnextTickを実行
-      authUser.value = loginUser;
     });
 
     //ログインしていなかったらメッセージを表示
     const alertLogin = () => {
-      if (isLogined.value === false) {
+      if (isLogined.value.value === false) {
         alert("ログインしてください");
       }
     };
@@ -71,7 +69,7 @@ export default {
     selectedDay();
 
     const record = async () => {
-      if (isLogined.value) {
+      if (isLogined.value.value) {
         await axios
           .post("/api/record/create", {
             user_id: loginUser.value.id,

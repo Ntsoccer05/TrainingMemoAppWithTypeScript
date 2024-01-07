@@ -208,7 +208,6 @@ export default {
         //   })
         //   .then((res) => {
         //     console.log(route);
-        //     debugger;
         if (recorded_day) {
           router.push({
             name: "record",

@@ -60,7 +60,6 @@ const { dispEmailErrMsg, dispPassErrMsg } = dispValidationMsg(dispErrorMsg);
 
 // パスワード変更ボタン押下処理
 const sendForgotPasswordEmail = async () => {
-  debugger;
   await axios.get("sanctum/csrf-cookie");
   await axios
     .post("/api/password/reset", {

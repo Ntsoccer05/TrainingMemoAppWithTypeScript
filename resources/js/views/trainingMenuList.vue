@@ -10,9 +10,9 @@ const store = useStore();
 const isLogined = computed(() => store.getters.isLogined);
 onMounted(() => {
   // ログインしていなかったらホーム画面へ遷移する処理はApp.vueにてまとめた
-  // if (!isLogined.value) {
-  //   router.push("/");
-  // }
+  if (!isLogined.value) {
+    router.push("/");
+  }
 });
 </script>
 

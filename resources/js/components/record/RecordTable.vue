@@ -76,9 +76,10 @@
           </div>
           <div class="border">
             <textarea
-              class="w-full"
+              class="w-full leading-3"
               v-model="memo[index]"
               cols="20"
+              rows="4"
               placeholder="メモ"
               @blur="postRecordContent(index)"
             ></textarea>
@@ -137,10 +138,11 @@
             </div>
             <div class="border">
               <textarea
-                class="w-full"
+                class="w-full leading-3"
                 name=""
                 id=""
                 cols="20"
+                rows="4"
                 placeholder="メモ"
                 :value="content.memo"
                 disabled
@@ -196,10 +198,11 @@
             </div>
             <div class="border">
               <textarea
-                class="w-full"
+                class="w-full leading-3"
                 name=""
                 id=""
                 cols="20"
+                rows="4"
                 placeholder="メモ"
                 disabled
                 ref="beforeMemo"
@@ -233,6 +236,7 @@ import axios from "axios";
 function keydown(e) {
   if (e.keyCode === 13) {
     var obj = document.activeElement;
+    // debugger;
     if (obj.nextElementSibling) {
       obj.nextElementSibling.focus();
     } else if (obj.parentNode.nextSibling) {
@@ -240,12 +244,14 @@ function keydown(e) {
         if (obj.parentNode.nextSibling.children[0].nodeName == "TEXTAREA") {
           obj.parentNode.nextSibling.children[0].focus();
         }
-        if (obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children) {
-          if (
-            obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children[0]
-              .nodeName == "TEXTAREA"
-          ) {
-            obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children[0].focus();
+        if (obj.parentNode.nextSibling.children[2]) {
+          if (obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children) {
+            if (
+              obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children[0]
+                .nodeName == "TEXTAREA"
+            ) {
+              obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children[0].focus();
+            }
           }
         }
       }
@@ -471,6 +477,7 @@ export default {
           category_id: route.query.categoryId,
           menu_id: route.query.menuId,
           record_state_id: route.query.recordId,
+          recorded_at: route.params.recordId,
           weight: weight.value[index],
           right_weight: rightWeight.value[index],
           right_rep: rightRep.value[index],
@@ -499,7 +506,6 @@ export default {
       //       set: index + 1,
       //     })
       //     .then((res) => {
-      //       debugger;
       //       console.log(res);
       //       // 今回の合計セット数
       //       //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値

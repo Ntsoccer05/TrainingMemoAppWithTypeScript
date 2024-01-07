@@ -25,14 +25,14 @@ export default {
       await holdLoginState();
     });
 
-    watch(isLogined, () => {
-      if (!isLogined) {
-        router.push("/");
-        alert("ログインしてください");
-      }
-    });
+    // watch(isLogined, () => {
+    //   if (!isLogined) {
+    //     // router.push("/");
+    //     alert("ログインしてください");
+    //   }
+    // });
 
-    return { holdLoginState };
+    // return { holdLoginState };
   },
 };
 </script>

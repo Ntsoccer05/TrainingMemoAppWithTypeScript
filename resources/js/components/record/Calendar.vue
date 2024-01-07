@@ -34,6 +34,7 @@ const dispMenu = ref([]);
 const dispCategory = ref([]);
 
 const loginState = computed(() => store.getters.isLogined);
+const isLogined = ref(false);
 
 // script setup内だとDom取得はreturnしなくていい
 const calendar = ref(null);
@@ -41,7 +42,7 @@ const calendar = ref(null);
 const selected_day = ref(null);
 
 //ログイン状態をリロードしても維持するため
-const { holdLoginState, isLogined } = useHoldLoginState();
+// const { holdLoginState, isLogined } = useHoldLoginState();
 
 const { getLoginUser, loginUser } = useGetLoginUser();
 
@@ -113,7 +114,7 @@ const changeDayFormat = (day) => {
 onMounted(async () => {
   await getLoginUser();
   getHolidays();
-  await holdLoginState();
+  // await holdLoginState();
   if (loginUser.value.id) {
     await getRecords(loginUser.value.id);
   }
@@ -135,13 +136,15 @@ onMounted(async () => {
     // DOM取得のため<-script setupではnextTickの中でないとDOM取得できない。
     const calendarDom = calendar.value;
 
+    // ログイン状態をVuexより取得<-このタイミングだとカレンダーの描画が完了しているためVuexの値を取得できる。
+    isLogined.value = computed(() => store.state.isLogined);
+
     toDetailPage();
     // selectedDay();
     // クエリパラメータがあればリロード時にその日付が存在するページを表示
     if (route.query.day) {
       calendarDom.move(new Date(route.query.day));
       delete route.query.day;
-      debugger;
     }
   });
 });
@@ -356,7 +359,7 @@ const moveToday = () => {
         </template>
       </v-calendar>
     </template>
-    <template v-else-if="!isLogined && isLoaded">
+    <template v-else-if="isLoaded">
       <!-- 親の@clickイベントに引きつられるため修飾子stopを追加 -->
       <v-calendar
         ref="calendar"

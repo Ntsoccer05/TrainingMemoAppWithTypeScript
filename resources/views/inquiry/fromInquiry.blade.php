@@ -1,5 +1,5 @@
 @if($contents['name'])
-{{ $contents['name'] }} 様より下記の内容のお問い合わせがありました
+{{ $contents['name'] }} 様より以下内容のお問い合わせがありました
 @else
 名無しより下記の内容のお問い合わせがありました
 @endif

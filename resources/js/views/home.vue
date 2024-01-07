@@ -31,10 +31,13 @@
 </template>
 
 <script>
-import Calendar from "../components/record/Calendar.vue";
-import RecordToday from "../components/record/RecordToday.vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { onMounted, ref } from "vue";
+import Calendar from "../components/record/Calendar.vue";
+import RecordToday from "../components/record/RecordToday.vue";
+import useGetLoginUser from "../composables/certification/useGetLoginUser.js";
+// import useHoldLoginState from "../composables/certification/useHoldLoginState";
 export default {
   components: {
     RecordToday,

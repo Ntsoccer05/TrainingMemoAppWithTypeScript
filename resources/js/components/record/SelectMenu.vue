@@ -267,6 +267,7 @@ export default {
       }
     });
 
+    //遷移前処理
     onBeforeRouteLeave((to, from) => {
       if (to.name === "home") {
         for (let record of records.value) {
