@@ -97,7 +97,7 @@
                 >
               </li>
             </template>
-            <template v-if="isLogined && isloaded">
+            <template v-if="isLogined === true && isloaded">
               <li class="border-b md:border-none">
                 <a
                   class="block px-8 py-2 my-4 hover:bg-gray-600 rounded cursor-pointer"
@@ -106,7 +106,7 @@
                 >
               </li>
             </template>
-            <template v-else-if="!isLogined && isloaded">
+            <template v-else-if="isLogined === false && isloaded">
               <li class="border-b md:border-none">
                 <router-link
                   to="/login"
@@ -146,12 +146,19 @@
 import { ref, onMounted, computed, watchEffect, nextTick, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
+import useHoldLoginState from "../../composables/certification/useHoldLoginState";
+// const props = {
+//   isloaded: Boolean,
+//   isLogined: [Object,Stri]
+// }
 export default {
   setup() {
-    const isloaded = ref(false);
     const router = useRouter();
     const route = useRoute();
     const store = useStore();
+
+    // データ取得できたか
+    const isloaded = ref(false);
 
     const recorded_day = ref("");
     const recordedAt = ref("");
@@ -163,20 +170,16 @@ export default {
     const user = ref([]);
 
     // ログイン状態をVuexより取得
-    let isLogined = "";
+    const isLogined = computed(() => store.state.isLogined);
+
+    //ちらつき防止のためログイン状態取得
+    const { holdLoginState } = useHoldLoginState();
 
     watchEffect(() => {
       paramName.value = route.name;
       recorded_day.value = route.params.recordId;
       if (recorded_at) {
         recordedAt.value = recorded_at.value;
-      }
-      // if (isLogined) {
-      //   isLogined.value = isLogined.value;
-      // }
-      isLogined = computed(() => store.state.isLogined);
-      if (!isloaded.value) {
-        isloaded.value = true;
       }
     });
 
@@ -191,14 +194,14 @@ export default {
         isOpen.value = false;
       }
     };
-    watch(isLogined, () => {
-      // debugger;
-      isloaded.value = true;
-    });
 
-    // onMounted(() => {
-    //   isloaded.value = true;
-    // });
+    onMounted(async () => {
+      //ちらつき防止のためログイン状態取得
+      await holdLoginState();
+      if (isLogined.value === false || isLogined.value === true) {
+        isloaded.value = true;
+      }
+    });
 
     // ログアウト処理
     const logout = async () => {
@@ -216,6 +219,7 @@ export default {
           }
         })
         .catch((err) => {
+          debugger;
           console.log(err);
         });
     };

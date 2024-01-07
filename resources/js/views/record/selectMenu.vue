@@ -12,6 +12,7 @@ onMounted(() => {
   // ログインしていなかったらホーム画面へ遷移する処理はApp.vueにてまとめた
   if (!isLogined.value) {
     router.push("/");
+    alert("ログインしてください。");
   }
 });
 </script>

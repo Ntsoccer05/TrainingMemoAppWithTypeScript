@@ -251,6 +251,8 @@ function keydown(e) {
                 .nodeName == "TEXTAREA"
             ) {
               obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children[0].focus();
+              // 1行目指定のため(無いと2行目指定となる)
+              e.returnValue = false;
             }
           }
         }
