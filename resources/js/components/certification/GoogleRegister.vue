@@ -14,6 +14,7 @@
         class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
         >ユーザ名
       </label>
+      <p :class="dispNameErrMsg">{{ errors.name[0] }}</p>
     </div>
 
     <!-- Email input -->
@@ -49,9 +50,11 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
+import useValidationMsg from "../../composables/certification/useValidationMsg";
+import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
 export default {
   setup(props) {
     const route = useRoute();
@@ -60,6 +63,15 @@ export default {
 
     const name = ref("");
     const email = route.query.email;
+    const errors = reactive({
+      name: [],
+    });
+    const dispErrorMsg = reactive({
+      name: false,
+    });
+
+    //バリデーションエラーメッセージのレイアウト
+    const { dispNameErrMsg } = dispValidationMsg(dispErrorMsg);
 
     const register = async () => {
       await axios
@@ -80,6 +92,9 @@ export default {
               }
             })
             .catch((err) => {
+              // POST時のバリデーションエラー
+              const errorMsgs = err.response.data.errors;
+              useValidationMsg(errorMsgs, errors, dispErrorMsg);
               console.log(err);
             });
         })
@@ -88,7 +103,7 @@ export default {
         });
     };
 
-    return { name, email, register };
+    return { name, email, errors, dispNameErrMsg, register };
   },
 };
 </script>

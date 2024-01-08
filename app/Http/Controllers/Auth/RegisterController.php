@@ -32,7 +32,7 @@ class RegisterController extends Controller
     }
 
     //Googleユーザ登録処理
-    public function registerProviderUser(Request $request, string $provider)
+    public function registerProviderUser(RegisterRequest $request, string $provider)
     {
         $request->validate([
             'name' => ['required', 'string', 'unique:users'],

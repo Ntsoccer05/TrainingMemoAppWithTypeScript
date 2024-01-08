@@ -19,8 +19,8 @@ class InquiryController extends Controller
         $email = $contents['email'];
 
         // sendの引数はMailクラスの__constructの引数に渡される
-        Mail::to($email)->send( New InquiryFromMail($contents) );
-        Mail::to(env('MAIL_FROM_ADDRESS'))->send( New InquiryToMail($contents) );
+        Mail::to($email)->send( New InquiryToMail($contents) );
+        Mail::to(config('mail.from.address'))->send( New InquiryFromMail($contents) );
         
         return response()->json(["status"=> 200, "message"=> "ユーザと管理者にお問い合わせ内容が伝えられました。"]);
     }

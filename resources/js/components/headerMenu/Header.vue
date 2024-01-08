@@ -205,7 +205,6 @@ export default {
 
     // ログアウト処理
     const logout = async () => {
-      debugger;
       await axios
         .post("/api/logout", {})
         .then((res) => {
