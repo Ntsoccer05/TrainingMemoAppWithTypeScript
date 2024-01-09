@@ -72,6 +72,8 @@ function keydown(e) {
           "TEXTAREA"
         ) {
           obj.parentNode.nextElementSibling.nextElementSibling.children[0].focus();
+          // 1行目指定のため(無いと2行目指定となる)
+          e.returnValue = false;
         }
       }
     }
