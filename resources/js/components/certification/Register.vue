@@ -80,7 +80,7 @@ import { useRouter } from "vue-router";
 import useValidationMsg from "../../composables/certification/useValidationMsg.js";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
 export default {
-  setup(props) {
+  setup() {
     const router = useRouter();
     const name = ref("");
     const email = ref("");

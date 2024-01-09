@@ -8,7 +8,6 @@
       <thead>
         <tr class="relative">
           <th :class="['border', editable ? '' : '']">
-            <!-- <th :class="['border', editable ? '' : 'hover:bg-gray-200']"> -->
             <span :class="[editable ? 'hidden' : 'block']">{{ category.content }}</span>
             <div :class="['grid grid-cols-12 gap-2', editable ? 'block' : 'hidden']">
               <!--- @blurでPOSTする -->
@@ -18,12 +17,6 @@
                 v-model="category.content"
                 class="border-2 col-span-11 text-center"
               />
-              <!---
-                <i
-                  class="fa-solid fa-pen ml-auto"
-                >
-                </i>
-                --->
               <button class="mr-1" @click="deleteCategoryMenu(category.id)">
                 <i class="fa-solid fa-trash mt-2 hover:text-red-600"></i>
               </button>
@@ -84,12 +77,6 @@
                     : 'hover:bg-gray-200',
                 ]"
               />
-              <!---
-                <i
-                  class="fa-solid fa-pen ml-auto"
-                >
-                </i>
-                --->
               <button class="mr-1" @click="deleteMenu(menu.id, category.id)">
                 <i class="fa-solid fa-trash mt-2" :class="hoverRed"></i>
               </button>
@@ -137,7 +124,7 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick, computed, watch, toRef } from "vue";
+import { ref, onMounted, nextTick, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetRecordState from "../../composables/record/useGetRecordState";
@@ -155,7 +142,6 @@ export default {
     //Propsの値はcomputedに入れないとreadOnlyとなり変更できない。
     const editable = computed(() => props.editable);
     const dispHeadText = computed(() => props.dispHeadText);
-    const records = computed(() => props.records);
     const dataMenu = computed(() => props.dataMenu);
 
     const recorded_day = route.params.recordId;
@@ -170,28 +156,7 @@ export default {
 
     //以下の形でデータが入っている。
     const categories = ref([]);
-    // const categories = [
-    //   {
-    //     id: 1,
-    //     name: "胸",
-    //     menus: [
-    //       { id: 1, category_id: 1, category: "胸", content: "ベンチプレス", oneSide: 0 },
-    //     ],
-    //   },
-    //   {
-    //     id: 2,
-    //     name: "背中",
-    //     menus: [
-    //       {
-    //         id: 1,
-    //         category_id: 2,
-    //         category: "背中",
-    //         content: "ワンハンドローイング",
-    //         oneSide: 1,
-    //       },
-    //     ],
-    //   },
-    // ];
+
     const { getLoginUser, loginUser } = useGetLoginUser();
 
     const { getLatestRecordState, latestRecord } = useGetRecordState();
@@ -199,20 +164,10 @@ export default {
     //トレーニング記録画面に遷移
     const toRecordContents = (category, menu) => {
       if (!editable.value) {
-        // axios
-        //   .post("/api/recordMenu/create", {
-        //     user_id: loginUser.value.id,
-        //     category_id: category.id,
-        //     menu_id: menu.id,
-        //     record_state_id: latestRecord.value.id,
-        //   })
-        //   .then((res) => {
-        //     console.log(route);
         if (recorded_day) {
           router.push({
             name: "record",
             params: route.params,
-            // path: `/record/${route.params.recordId}`,
             query: {
               categoryId: category.id,
               menuId: menu.id,
@@ -230,10 +185,6 @@ export default {
             },
           });
         }
-        // })
-        // .catch((err) => {
-        //   console.log(err);
-        // });
       } else {
         return;
       }
@@ -251,16 +202,6 @@ export default {
           },
         })
         .then((res) => {
-          //編集画面でなければ
-          // if (!editable.value) {
-          //   if (res.data.categories.length === 0) {
-          //     dispHeadText.value = "部位・種目を追加してください";
-          //   } else if (res.data.menulist2.length === 0) {
-          //     dispHeadText.value = "種目を追加してください";
-          //   } else {
-          //     dispHeadText.value = "鍛える部位を選択してください";
-          //   }
-          // }
           categories.value = res.data.categorylist;
           if (categories.value.length % 2 === 1) {
             isOdd.value = true;
@@ -318,7 +259,6 @@ export default {
               }
             }
             getMenus();
-            // dispHeadText.value = "編集する部位・種目を選択してください";
           })
           .catch((err) => {
             console.log(err);
@@ -389,7 +329,6 @@ export default {
               }
             }
             getMenus();
-            // dispHeadText.value = "編集する部位・種目を選択してください";
           })
           .catch((err) => {
             console.log(err);

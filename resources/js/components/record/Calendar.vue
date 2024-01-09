@@ -2,12 +2,11 @@
 内で使用することができなかったが、 script setup>内で宣言した場合すべて使用可能となる
 <script setup>
 // https://v2.vcalendar.io/attributes.html#_2-scoped-slot
-import { onMounted, reactive, ref, nextTick, watch, computed } from "vue";
+import { onMounted, ref, nextTick, watch, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
-import useHoldLoginState from "../../composables/certification/useHoldLoginState";
 import useGetRecords from "../../composables/record/useGetRecords";
 
 const router = useRouter();
@@ -19,7 +18,6 @@ const url = "https://holidays-jp.github.io/api/v1/date.json";
 const options = { method: "get" };
 // 当日をハイライト
 const attrs = ref([{ key: "today", highlight: true, dates: new Date() }]);
-const selected_at = ref("");
 
 const holidays = ref([]);
 const data = ref([]);
@@ -30,9 +28,6 @@ const isLoaded = ref(false);
 // /データを送信したか
 const isSendData = ref(false);
 
-const dispMenu = ref([]);
-const dispCategory = ref([]);
-
 const loginState = computed(() => store.getters.isLogined);
 const isLogined = ref(false);
 
@@ -40,9 +35,6 @@ const isLogined = ref(false);
 const calendar = ref(null);
 
 const selected_day = ref(null);
-
-//ログイン状態をリロードしても維持するため
-// const { holdLoginState, isLogined } = useHoldLoginState();
 
 const { getLoginUser, loginUser } = useGetLoginUser();
 
@@ -94,17 +86,6 @@ const changeDayFormat = (day) => {
   day = `${date.getFullYear().toString()}-${(date.getMonth() + 1)
     .toString()
     .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-  // records.value.forEach((record) => {
-  //   if (day === record.recorded_at.recorded_at) {
-  //     ;
-  //     record.menu.forEach((tgtMenu) => {
-  //       dispMenu.value = [...dispMenu.value, tgtMenu.menu_content];
-  //     });
-  //     record.category.forEach((tgtCategorry) => {
-  //       dispCategory.value = [...dispCategory.value, tgtCategorry.category_content];
-  //     });
-  //   }
-  // });
   selected_day.value = day;
   return day;
 };
@@ -114,21 +95,10 @@ const changeDayFormat = (day) => {
 onMounted(async () => {
   await getLoginUser();
   getHolidays();
-  // await holdLoginState();
   if (loginUser.value.id) {
     await getRecords(loginUser.value.id);
   }
   isLoaded.value = true;
-
-  // 画面生成後のタイミングでしかユーザ情報取得できないため
-  // window.onload = () => {
-  //   authUser.value = loginUser;
-  // };
-
-  // nextTickはonMounted内の処理完了後に呼び出されるのでloginUserを取得できる
-  // nextTick(() => {
-  //   authUser.value = loginUser;
-  // });
 
   // getLoginUser()内でnextTickを実行
   authUser.value = loginUser;
@@ -140,7 +110,6 @@ onMounted(async () => {
     isLogined.value = computed(() => store.state.isLogined);
 
     toDetailPage();
-    // selectedDay();
     // クエリパラメータがあればリロード時にその日付が存在するページを表示
     if (route.query.day) {
       calendarDom.move(new Date(route.query.day));
@@ -158,7 +127,6 @@ const selectedDayRecord = async (day) => {
     })
     .then((res) => {
       store.commit("setRecordedAt", day);
-      // isSendData.value = true;
       router.push({ name: "selectMenu", params: { recordId: day } });
     })
     .catch((err) => {
@@ -181,7 +149,6 @@ const selectedDay = (day) => {
     changeDayFormat(day);
     const isRecord = ref(false);
     for (let record of records.value) {
-      // records.value.forEach((record) => {
       if (record.recorded_at.recorded_at === selected_day.value) {
         isRecord.value = true;
       }
@@ -225,8 +192,6 @@ const toDetailPage = async (day) => {
         recording_day: postDay,
       })
       .then((res) => {
-        // console.log(res.data);
-        // isSendData.value = true;
         store.commit("setRecordedAt", day);
         router.push({ name: "selectMenu", params: { recordId: day } });
       });
@@ -255,8 +220,7 @@ const moveToday = () => {
         <template #header-title="props">
           {{ props.yearLabel }}年 {{ props.monthLabel }}
         </template>
-        <!-- day-contentのslot-scopeの中のpropの中にdayがある ← 分割代入 -->
-        <!-- <template #day-content="{ day }"> -->
+        <!-- day-popoverのslot-scopeの中のpropの中にdayがある ← 分割代入 -->
         <template #day-popover="{ day, format, masks }" class="z-50">
           <div class="text-xs text-gray-300 font-semibold text-center">
             {{ format(day.date, masks.L) }}

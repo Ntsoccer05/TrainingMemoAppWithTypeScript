@@ -27,9 +27,6 @@ class RecordController extends Controller
         
         $createdDateTime = new DateTime($latestCreated->created_at);
         
-        // $updatedDateTime=$updatedDateTime->format("Y-m-d H:m:s");
-        // $createdDateTime=$createdDateTime->format("Y-m-d H:m:s");
-        
         if(count($isSetUpdated) !== 0){
             $latestUpdated = $recordState->latest('updated_at')->first();
             $updatedDateTime = new DateTime($latestUpdated->updated_at);
@@ -66,28 +63,6 @@ class RecordController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
@@ -107,17 +82,6 @@ class RecordController extends Controller
         }else{
             return response()->json(["status_code" => 500, "message" => "記録日が存在しません。"]);
         }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**

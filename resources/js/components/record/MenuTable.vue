@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { ref, computed, watch, watchEffect } from "vue";
+import { ref, computed, watchEffect } from "vue";
 export default {
   props: {
     categories: Object,
@@ -45,38 +45,6 @@ export default {
         isOdd.value = false;
       }
     });
-    // watch(categories.value, () => {
-    //   if (categories.value.length % 2 === 1) {
-    //     isOdd.value = true;
-    //   } else {
-    //     isOdd.value = false;
-    //   }
-    // });
-
-    //以下の形でデータが入っている。
-    // const categories = ref([]);
-    // const categories = [
-    //   {
-    //     id: 1,
-    //     name: "胸",
-    //     menus: [
-    //       { id: 1, category_id: 1, category: "胸", content: "ベンチプレス", oneSide: 0 },
-    //     ],
-    //   },
-    //   {
-    //     id: 2,
-    //     name: "背中",
-    //     menus: [
-    //       {
-    //         id: 1,
-    //         category_id: 2,
-    //         category: "背中",
-    //         content: "ワンハンドローイング",
-    //         oneSide: 1,
-    //       },
-    //     ],
-    //   },
-    // ];
 
     return {
       categories,

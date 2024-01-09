@@ -122,11 +122,6 @@
                 >
               </li>
             </template>
-            <!-- <li class="border-b md:border-none">
-              <router-link to="/" class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
-                >お知らせ</router-link
-              >
-            </li> -->
             <li>
               <div class="my-8 text-center md:my-4 md:mr-3">
                 <router-link
@@ -143,14 +138,10 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, computed, watchEffect, nextTick, watch } from "vue";
+import { ref, onMounted, computed, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useHoldLoginState from "../../composables/certification/useHoldLoginState";
-// const props = {
-//   isloaded: Boolean,
-//   isLogined: [Object,Stri]
-// }
 export default {
   setup() {
     const router = useRouter();
@@ -209,7 +200,6 @@ export default {
         .post("/api/logout", {})
         .then((res) => {
           if ((res.data.status_code = 200)) {
-            // router.push("/");
             // ログイン状態を変更するためVuexより呼び出し
             store.commit("LogoutState");
             //ページ再読み込み

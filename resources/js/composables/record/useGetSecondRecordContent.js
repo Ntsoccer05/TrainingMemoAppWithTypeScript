@@ -1,4 +1,4 @@
-import { ref,nextTick } from "vue";
+import { ref } from "vue";
 import axios from "axios";
 
 export default function useGetSecondRecordContent(user_id, category_id, menu_id, record_state_id, recorded_at){

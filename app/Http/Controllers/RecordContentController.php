@@ -155,13 +155,6 @@ class RecordContentController extends Controller
                 return response()->json(["status_code" => 200, "message" => "記録を更新しました。",  "totalSet"=> $totalSet]);
             }
         }else{
-            // updateOrCreateを用いるにはインスタンス化が必要？
-            // $recordMenu->updateOrCreate(
-            //     ['user_id'=>$user_id],
-            //     ['record_state_id'=>$record_state_id],
-            //     ['menu_id'=>$menu_id],
-            //     ['category_id'=>$category_id],
-            // );
             if(!$request->weight && !$request->rep && !$request->right_weight && !$request->right_rep 
                 && !$request->left_weight &&!$request->left_rep){
                     return response()->json(["status_code" => 200, "message" => "データを入力してください。"]);
@@ -199,7 +192,7 @@ class RecordContentController extends Controller
         }
     }
 
-    public function delete(Request $request, RecordMenu $recordMenu,RecordContent $recordContent){
+    public function delete(Request $request, RecordMenu $recordMenu){
         $user_id = $request->user_id;
         $category_id = $request->category_id;
         $menu_id = $request->menu_id;
@@ -219,9 +212,6 @@ class RecordContentController extends Controller
             }else{
                 return response()->json(["status_code" => 200, "message" => "削除データが存在しませんでした。"]);
             }
-            // if(!$tgtRecordContent && ($set === 1)){
-            //     $tgtRecordMenu->delete();
-            // }
         }
         return response()->json(["status_code" => 200, "message" => "削除データが存在しませんでした。"]);
     }

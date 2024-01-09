@@ -216,22 +216,11 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, computed, watch, watchEffect, nextTick } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
 import axios from "axios";
-// const createOrDelete = (tgtVal, canRecord, canDelete) => {
-//   switch (tgtVal) {
-//     case "":
-//       canRecord.value = false;
-//       canDelete.value = true;
-//       break;
-//     default:
-//       canRecord.value = true;
-//       canDelete.value = false;
-//   }
-// };
 // エンターキーを押すと次の要素入力可
 function keydown(e) {
   if (e.keyCode === 13) {
@@ -302,26 +291,6 @@ export default {
 
     //今回記録するデータの値を取得
     const { tgtRecord, hasTgtRecord, getTgtRecords } = useGetTgtRecordContent();
-
-    // 片方ずつ記録するかどうかmenusテーブルのoneSideカラムにて判断<-親側で処理
-    // const getMenuContent = async () => {
-    //   await axios
-    //     .get("api/menus", {
-    //       params: {
-    //         user_id: loginUser.value.id,
-    //         category_id: route.query.categoryId,
-    //         menu_id: route.query.menuId,
-    //       },
-    //     })
-    //     .then((res) => {
-    //       if (res.data.menu.oneSide === 1) {
-    //         hasOneHand.value = true;
-    //       } else {
-    //         hasOneHand.value = false;
-    //       }
-    //     })
-    //     .catch((err) => [console.log(err)]);
-    // };
 
     const contents = ref([
       { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
@@ -402,76 +371,6 @@ export default {
     };
 
     const postRecordContent = (index) => {
-      // createOrDelete(weight.value[index], doRecord, doDelete);
-      // createOrDelete(rep.value[index], doRecord, doDelete);
-      // createOrDelete(rightWeight.value[index], doRecord, doDelete);
-      // createOrDelete(rightRep.value[index], doRecord, doDelete);
-      // createOrDelete(leftWeight.value[index], doRecord, doDelete);
-      // createOrDelete(leftRep.value[index], doRecord, doDelete);
-
-      // switch (weight.value[index]) {
-      //   case "":
-      //     doRecord.value = false;
-      //     doDelete.value = true;
-      //     break;
-      //   default:
-      //     doRecord.value = true;
-      //     doDelete.value = false;
-      // }
-      // switch (weight.value[index]) {
-      //   case "":
-      //     doRecord.value = false;
-      //     doDelete.value = true;
-      //     break;
-      //   default:
-      //     doRecord.value = true;
-      //     doDelete.value = false;
-      // }
-
-      // if (weight.value[index] && rep.value[index]) {
-      //   doRecord.value = true;
-      //   doDelete.value = false;
-      // } else if (!weight.value[index] && !rep.value[index]) {
-      //   doDelete.value = true;
-      // } else {
-      //   doRecord.value = false;
-      //   doDelete.value = false;
-      // }
-      // if (rightWeight.value[index] && rightRep.value[index]) {
-      //   doRecord.value = true;
-      //   doDelete.value = false;
-      // } else if (!rightWeight.value[index] && !rightRep.value[index]) {
-      //   if (!leftWeight.value[index] && !leftRep.value[index]) {
-      //     doDelete.value = true;
-      //   } else {
-      //     doDelete.value = false;
-      //   }
-      // } else {
-      //   if (leftWeight.value[index] && leftRep.value[index]) {
-      //     doRecord.value = true;
-      //   } else {
-      //     doRecord.value = false;
-      //   }
-      //   doDelete.value = false;
-      // }
-      // if (leftWeight.value[index] && leftRep.value[index]) {
-      //   doRecord.value = true;
-      //   doDelete.value = false;
-      // } else if (!leftWeight.value[index] && !leftRep.value[index]) {
-      //   if (!rightWeight.value[index] && !rightRep.value[index]) {
-      //     doDelete.value = true;
-      //   } else {
-      //     doDelete.value = false;
-      //   }
-      // } else {
-      //   if (rightWeight.value[index] && rightRep.value[index]) {
-      //     doRecord.value = true;
-      //   } else {
-      //     doRecord.value = false;
-      //   }
-      //   doDelete.value = false;
-      // }
-      // if (doRecord.value) {
       axios
         .post("/api/recordContent/create", {
           user_id: loginUser.value.id,
@@ -497,29 +396,6 @@ export default {
         .catch((err) => {
           console.log(err);
         });
-      // } else if (doDelete.value) {
-      //   axios
-      //     .post("/api/recordContent/delete", {
-      //       user_id: loginUser.value.id,
-      //       category_id: route.query.categoryId,
-      //       menu_id: route.query.menuId,
-      //       record_state_id: route.query.recordId,
-      //       set: index + 1,
-      //     })
-      //     .then((res) => {
-      //       console.log(res);
-      //       // 今回の合計セット数
-      //       //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
-      //       // if (index === 0) {
-      //       //   emit("totalSet", 0);
-      //       // } else {
-      //       emit("totalSet", res.data.totalSet.length);
-      //       // }
-      //     })
-      //     .catch((err) => {
-      //       console.log(err);
-      //     });
-      // }
     };
 
     //tgtRecordを初期レンダリング時に取得するため、変更を常にwatchする。
@@ -550,7 +426,6 @@ export default {
 
     onMounted(async () => {
       await getLoginUser();
-      // await getMenuContent();
       await getTgtRecords(
         loginUser.value.id,
         props.category_id,

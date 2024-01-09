@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { onMounted, watch, computed, ref } from "vue";
+import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Header from "./components/headerMenu/Header.vue";
 import useHoldLoginState from "./composables/certification/useHoldLoginState";
@@ -23,8 +23,6 @@ export default {
     // async await を使わないとユーザ情報取得する前にMountedサイクルが終了してしまう
     onMounted(async () => {
       await holdLoginState();
-      // isLogined.value = computed(() => store.state.isLogined);
-      // isloaded.value = true;
     });
   },
 };

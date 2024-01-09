@@ -22,10 +22,6 @@ class RecordMenuController extends Controller
         })->orderBy('recorded_at', 'desc')->offset(1)->first();
         if($secondRecordState){
             $secondRecords = $secondRecordState->recordContents()->orderBy('set', 'asc')->get();
-            // $secondRecordState = $hasSomeRecords->offset(1)->first()->record_state_id;
-            // $secondRecords = $recordMenu->where('record_state_id', $secondRecordState)->where(function($query) use($menu_id, $category_id){
-            //     $query->where([['menu_id', $menu_id], ['category_id',$category_id]]);
-            // })->get();
             return response()->json(["status_code" => 200, "message" => "２番目に新しい記録を取得します。",'$secondRecordState'=>$secondRecordState, 'secondRecords' => $secondRecords]);
         }else{
             return response()->json(["status_code" => 200, "message" => "記録が１つしか存在しません。"]);

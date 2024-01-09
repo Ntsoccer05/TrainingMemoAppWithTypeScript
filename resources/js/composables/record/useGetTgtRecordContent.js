@@ -1,4 +1,4 @@
-import { ref,nextTick, watchEffect } from "vue";
+import { ref } from "vue";
 import axios from "axios";
 
 export default function useGetTgtRecordContents(user_id, category_id, menu_id, record_state_id){

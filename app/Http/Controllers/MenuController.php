@@ -27,12 +27,6 @@ class MenuController extends Controller
             $menulist2 = [];
             if(isset($menulist)){
                 foreach($menulist as $menu){
-                    //Modelで設定したのはメソッドだが呼び出す際はプロパティ(category)
-                    //Modelで設定したメソッドが入れ子となりmenulist2に格納される
-                    //menu:{
-                    //     category:{
-                    //     }
-                    // }
                     $categories[] = $menu->category;
                     // 重複削除
                     $categories = array_unique($categories);
@@ -41,12 +35,6 @@ class MenuController extends Controller
     
             if(isset($categorylist)){
                 foreach($categorylist as $cagtegory){
-                    //Modelで設定したのはメソッドだが呼び出す際はプロパティ(menus()→menus)
-                    //Modelで設定したメソッドが入れ子となりmenulist2に格納される
-                    //category:{
-                    //     menus:{
-                    //     }
-                    // }
                     $menulist2[] = $cagtegory->menus;
                     // 重複削除
                     $menulist2 = array_unique($menulist2);
@@ -56,17 +44,7 @@ class MenuController extends Controller
             return response()->json(['status' => 200, "menulist"=>$menulist, "categories"=>$categories, "categorylist" => $categorylist, "menulist2" => $menulist2]);
         }
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
+    
     /**
      * Store a newly created resource in storage.
      *
@@ -121,23 +99,12 @@ class MenuController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, Category $category)
+    public function edit(Request $request)
     {
         $user_id = $request->user_id;
         $category_id = $request->category_id;
@@ -160,7 +127,6 @@ class MenuController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    // 元々３つの引数だが、Vueからはrequestしかないため３つ引数だとエラーが生じる
     public function update(Request $request)
     {
         $user_id = $request->user_id;
@@ -189,11 +155,7 @@ class MenuController extends Controller
         $user_id = $request->user_id;
         $category_id = $request->category_id;
         $menu_id = $request ->menu_id;
-        // firstだとstdClassを返すためdelete()メソッドが存在しない←インスタンス化が必要
-        // $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
-        //     $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
-        // })->get();
-
+        
         // Menu $menuを引数とすることでMenuテーブルに依存関係が生まれるため、インスタンス化(New Menu)をしなくていい
         $menulist= $menu->where(function($query) use($user_id, $category_id, $menu_id){
             $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
@@ -216,11 +178,7 @@ class MenuController extends Controller
     {
         $user_id = $request->user_id;
         $category_id = $request->category_id;
-        // firstだとstdClassを返すためdelete()メソッドが存在しない←インスタンス化が必要
-        // $menulist = Menu::where(function($query) use($user_id, $category_id, $menu_id){
-        //     $query->where([['user_id', $user_id],['category_id', $category_id],['id', $menu_id]]);
-        // })->get();
-
+        
         // Menu $menuを引数とすることでMenuテーブルに依存関係が生まれるため、インスタンス化(New Menu)をしなくていい
         $categorylist= $category->where(function($query) use($user_id, $category_id){
             $query->where([['user_id', $user_id],['id', $category_id]]);

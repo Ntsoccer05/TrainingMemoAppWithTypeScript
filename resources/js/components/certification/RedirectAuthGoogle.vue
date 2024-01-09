@@ -5,7 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 import { onMounted } from "vue";
 import { useStore } from "vuex";
 export default {
-  setup(props) {
+  setup() {
     const route = useRoute();
     const router = useRouter();
     const store = useStore();

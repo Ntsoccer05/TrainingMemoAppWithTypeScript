@@ -11,12 +11,11 @@
 </template>
 
 <script>
-import { onMounted, ref, nextTick, computed } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useSelectedDay from "../../composables/record/useSelectedDay";
-// import useHoldLoginState from "../../composables/certification/useHoldLoginState";
 export default {
   setup() {
     const date = new Date();
@@ -24,37 +23,11 @@ export default {
     const store = useStore();
     const isLogined = ref(false);
 
-    // 現在時刻を取得する場合
-    // const time = `${date
-    //   .getHours()
-    //   .toString()
-    //   .padStart(2, "0")}:${date
-    //   .getMinutes()
-    //   .toString()
-    //   .padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
-
-    //ログイン状態をリロードしても維持するため
-    // const { holdLoginState, isLogined } = useHoldLoginState();
-
     const { getLoginUser, loginUser } = useGetLoginUser();
-    // getLoginUser();
-    //ログインしているかの判別をする場合DOMが生成されていない状態だとログイン状態を判別できないため
-    //getLoginUser はApp.vueで行う
     onMounted(async () => {
-      // onMounted(() => {
       await getLoginUser();
-      // await holdLoginState();
       // ログイン状態をVuexより取得<-このタイミングだとカレンダーの描画が完了しているためVuexの値を取得できる。
       isLogined.value = computed(() => store.state.isLogined);
-      // 画面生成後のタイミングでしかユーザ情報取得できないため
-      // window.onload = () => {
-      //   authUser.value = loginUser;
-      // };
-      // nextTickはonMounted内の処理完了後に呼び出されるのでloginUserを取得できる
-      // nextTick(() => {
-      //   authUser.value = loginUser;
-      // });
-      // getLoginUser()内でnextTickを実行
     });
 
     //ログインしていなかったらメッセージを表示

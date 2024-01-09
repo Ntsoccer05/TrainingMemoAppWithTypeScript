@@ -56,7 +56,7 @@ import { useStore } from "vuex";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
 export default {
-  setup(props) {
+  setup() {
     const route = useRoute();
     const router = useRouter();
     const store = useStore();
@@ -77,7 +77,7 @@ export default {
       await axios
         // CSRF保護
         .get("/sanctum/csrf-cookie")
-        .then((res) => {
+        .then(() => {
           axios
             .post("/api/register/google", {
               name: name.value,

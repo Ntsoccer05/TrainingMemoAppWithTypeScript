@@ -32,7 +32,6 @@
       </div>
     </template>
     <div :class="['text-right mr-5 md:mr-10', editable ? 'block' : 'hidden']">
-      <!---div><i class="fa-solid fa-pen"></i><span>：編集</span></div>--->
       <div><i class="fa-solid fa-trash"></i><span class="font-bold">：削除</span></div>
       <div>
         <span class="font-bold text-red-600">※部位を削除すると種目も削除されます</span>
@@ -64,7 +63,7 @@
 
 <script>
 import EditableMenuTable from "./EditableMenuTable.vue";
-import { ref, onMounted, nextTick, watch } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
 import useGetRecordState from "../../composables/record/useGetRecordState";
@@ -105,19 +104,11 @@ export default {
     watch(records, () => {
       records.value.forEach((record) => {
         if (record.category) {
-          // スプレッド演算子は追加する変数のままだと追加する状態前のまま
-          // dataCategory = [...dataCategory.value, record.category[0].category_id];
           dataCategory.value.push(record.category[0].category_id);
         }
         if (record.menu) {
           hasRecord.value = true;
-          // スプレッド演算子は追加する変数のままだと追加する状態前のまま
-          // dataMenu = [...dataMenu.value, record.menu[0].menu_id];
-
-          //for of でindexを取得したい場合は配列に  .entries()を付ける。
-          // for (const [index, val] of record.menu.entries()) {
           for (const index in record.menu) {
-            // dataMenu.value.push(record.menu[index].menu_id);
             dataMenu.value.push(record.menu[index].menu_id);
           }
         }

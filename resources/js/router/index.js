@@ -11,9 +11,6 @@ import AddMenu from '../views/menu/addMenu.vue';
 import PasswordForget from '../views/certification/passwordForget.vue';
 import ResetPassword from '../views/certification/resetPassword.vue';
 import Inquiry from '../views/inquiry/inquiry.vue';
-import { computed, watch, watchEffect } from 'vue';
-// router.jsでVuexの値を取得したい時はuseStore()ではなく以下の形
-import store from '../store.js';
 
 const routes = [
   {
@@ -123,27 +120,5 @@ const router = createRouter({
     }
   }
 });
-
-// let isLogined = ""
-
-// watchEffect((isLogined),() => {
-//   isLogined = computed(() => store.state.isLogined);
-// });
-// watch((isLogined),()=>{
-//   router.beforeEach((to, from) => {
-//     // ログインの必要あり かつ ログインしていなかったら
-//     if ((to.meta.requiresAuth && !isLogined.value) || (from.meta.requiresAuth && ! isLogined.value)) {
-//       // ホーム画面へ遷移
-//       router.push("/")
-//     }
-//   })
-// })
-// router.beforeEach((to, from) => {
-//   // ログインの必要あり かつ ログインしていなかったら
-//   if ((to.meta.requiresAuth && !isLogined.value) || (from.meta.requiresAuth && ! isLogined.value)) {
-//     // ホーム画面へ遷移
-//     router.push("/")
-//   }
-// })
 
 export default router;

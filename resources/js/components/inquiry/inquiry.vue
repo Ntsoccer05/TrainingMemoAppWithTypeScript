@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, computed } from "vue";
+import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import useValidationMsg from "../../composables/inquiry/useValidationMsg";

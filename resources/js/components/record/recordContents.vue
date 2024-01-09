@@ -4,7 +4,6 @@
       <caption
         class="p-5 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800"
       >
-        <!-- <p class="text-lg" ref="menu">種目：{{ menu.content }}</p> -->
         <button
           class="block w-11/12 bg-blue-500 hover:bg-blue-700 text-white font-bold md:py-2 py-px px-4 border-2 border-black mt-3 mb-3 mx-auto"
           @click="fillBeforeRecord"
@@ -52,7 +51,7 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick, watch } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";

@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { reactive, ref, computed, onMounted } from "vue";
+import { ref } from "vue";
 export default {
   setup() {
     const categories = ref([

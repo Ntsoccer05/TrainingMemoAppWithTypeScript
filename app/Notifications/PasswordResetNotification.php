@@ -56,7 +56,6 @@ class PasswordResetNotification extends Notification
         ->with([
             'url' => route('password.reset', [
                 'token' => $this->token,
-                // 'email' => $notifiable->email,<-エンコードされるため削除
             ]),
             'email' => $notifiable->email,
             'count' => config(
