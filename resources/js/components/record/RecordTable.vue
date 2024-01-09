@@ -236,7 +236,6 @@ import axios from "axios";
 function keydown(e) {
   if (e.keyCode === 13) {
     var obj = document.activeElement;
-    // debugger;
     if (obj.nextElementSibling) {
       obj.nextElementSibling.focus();
     } else if (obj.parentNode.nextSibling) {

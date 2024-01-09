@@ -218,7 +218,6 @@ export default {
           }
         })
         .catch((err) => {
-          debugger;
           console.log(err);
         });
     };

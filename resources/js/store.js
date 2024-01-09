@@ -74,7 +74,7 @@ export default createStore({
             state.latestRecordMenus = res.data.latestRecord
           })
           .catch((err) => {
-            // console.log(err)
+            console.log(err)
           })
         }
     }

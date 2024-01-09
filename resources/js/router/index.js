@@ -127,11 +127,9 @@ const router = createRouter({
 // let isLogined = ""
 
 // watchEffect((isLogined),() => {
-//   debugger
 //   isLogined = computed(() => store.state.isLogined);
 // });
 // watch((isLogined),()=>{
-//   debugger
 //   router.beforeEach((to, from) => {
 //     // ログインの必要あり かつ ログインしていなかったら
 //     if ((to.meta.requiresAuth && !isLogined.value) || (from.meta.requiresAuth && ! isLogined.value)) {
