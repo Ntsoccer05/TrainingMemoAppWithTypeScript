@@ -20,16 +20,14 @@ const categoryContents = computed(() => props.category_contents);
       <div v-for="dispContent in dispContents" :key="dispContent.menu">
         <template v-if="categoryContent === dispContent.category.content">
           <table class="border border-collapse table-fixed mx-auto w-full mt-3">
-            <thead
-              :class="dispContent.category.id === index + 1 ? 'block border' : 'hidden'"
-            >
+            <thead class="block border">
               <tr class="mx-auto w-full grid">
                 <th class="text-center">
                   {{ dispContent.menu.content }}
                 </th>
               </tr>
             </thead>
-            <tbody :class="dispContent.category.id === index + 1 ? 'block' : 'hidden'">
+            <tbody class="block">
               <template
                 v-if="dispContent.menu.oneSide == 1 && dispContent.emptyData === 0"
               >

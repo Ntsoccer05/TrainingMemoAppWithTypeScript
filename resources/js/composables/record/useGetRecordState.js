@@ -6,6 +6,7 @@ export default function useGetRecordState(){
     const router = useRouter();
     const store = useStore();
     const latestRecord = ref("");
+    const compGetData = ref(false);
 
     // async await を使わないとDOM生成後のonMountedのタイミングでも早すぎてユーザ情報を取得できない
     const getLatestRecordState = async ()=>{
@@ -13,9 +14,10 @@ export default function useGetRecordState(){
         // 選択したレコードの日付、ID情報取得
         // nextTickは非同期処理完了後に呼び出されるのでlatestRecordを取得できる
         nextTick(()=>{
+            compGetData.value = true
             latestRecord.value = store.getters.latestRecord;
         })
     }
 
-    return {latestRecord, getLatestRecordState};
+    return {latestRecord, compGetData, getLatestRecordState};
 }

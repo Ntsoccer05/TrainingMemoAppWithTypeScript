@@ -15,8 +15,6 @@ export default function useGetRecords(){
                 user_id,
             }
         }).then((res) =>{
-            console.log(res.data)
-            console.log(res.data.dispContents)
             rankingContents.value = res.data.dispContents
             for(let i=0; i<rankingContents.value.length; i++){
                 if(i>0){
@@ -30,7 +28,6 @@ export default function useGetRecords(){
             compGetData.value = true
             
         }).catch((err)=>{
-            console.log(err)
             useNotLoginedRedirect(err);
         })
     }

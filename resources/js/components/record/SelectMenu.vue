@@ -226,9 +226,9 @@ export default {
       // 数字または小数点以外を無効とする
       val = val.replace(/[^0-9|.]/g, "");
       // val = val.replace(/\D/g, "");
-      if (decPoint !== -1) {
-        val = val / 10 ** (decPoint + 1);
-      }
+      // if (decPoint !== -1) {
+      //   val = val / 10 ** (decPoint + 1);
+      // }
       // parseFloatで整数型へ変換している
       if (val !== "") {
         val = parseFloat(val);
