@@ -6,7 +6,6 @@ use App\Models\RecordMenu;
 use App\Models\RecordContent;
 use App\Models\RecordState;
 use Illuminate\Http\Request;
-use stdClass;
 
 class RecordContentController extends Controller
 {

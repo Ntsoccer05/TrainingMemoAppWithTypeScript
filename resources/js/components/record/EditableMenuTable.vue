@@ -209,9 +209,7 @@ export default {
             isOdd.value = false;
           }
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     };
 
     //「本当に削除しますか？」ダイアログを表示/非表示
@@ -260,9 +258,7 @@ export default {
             }
             getMenus();
           })
-          .catch((err) => {
-            console.log(err);
-          });
+          .catch((err) => {});
       }
     };
 
@@ -287,12 +283,8 @@ export default {
             menu_id: menu.id,
             content: menu.content,
           })
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+          .then((res) => {})
+          .catch((err) => {});
       }
     };
 
@@ -305,12 +297,8 @@ export default {
             category_id: category.id,
             content: category.content,
           })
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+          .then((res) => {})
+          .catch((err) => {});
       }
     };
 
@@ -330,9 +318,7 @@ export default {
             }
             getMenus();
           })
-          .catch((err) => {
-            console.log(err);
-          });
+          .catch((err) => {});
       }
     };
 

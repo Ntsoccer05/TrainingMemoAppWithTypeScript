@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Menu;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 
 class MenuController extends Controller

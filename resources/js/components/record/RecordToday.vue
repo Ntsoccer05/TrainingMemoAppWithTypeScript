@@ -52,9 +52,7 @@ export default {
             store.commit("setRecordedAt", postDay);
             router.push({ name: "selectMenu", params: { recordId: postDay } });
           })
-          .catch((err) => {
-            console.log(err);
-          });
+          .catch((err) => {});
       }
     };
 

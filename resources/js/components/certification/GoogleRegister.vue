@@ -95,12 +95,9 @@ export default {
               // POST時のバリデーションエラー
               const errorMsgs = err.response.data.errors;
               useValidationMsg(errorMsgs, errors, dispErrorMsg);
-              console.log(err);
             });
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     };
 
     return { name, email, errors, dispNameErrMsg, register };

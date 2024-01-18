@@ -129,9 +129,7 @@ const selectedDayRecord = async (day) => {
       store.commit("setRecordedAt", day);
       router.push({ name: "selectMenu", params: { recordId: day } });
     })
-    .catch((err) => {
-      console.log(err);
-    });
+    .catch((err) => {});
 };
 
 // 日付選択時処理

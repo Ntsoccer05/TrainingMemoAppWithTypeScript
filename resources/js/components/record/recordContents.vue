@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick, watch } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";

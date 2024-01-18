@@ -188,9 +188,7 @@ export default {
             }
           }
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     };
 
     //体重を記録する
@@ -201,12 +199,8 @@ export default {
           recording_day: latestRecord.value.recorded_at,
           weight: weight.value,
         })
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        .then((res) => {})
+        .catch((err) => {});
     };
 
     //全角→半角
@@ -225,10 +219,6 @@ export default {
       // replaceは型がStringのもののみ適用できる(replaceはそのものの値自体は変えないので代入する必要あり)
       // 数字または小数点以外を無効とする
       val = val.replace(/[^0-9|.]/g, "");
-      // val = val.replace(/\D/g, "");
-      // if (decPoint !== -1) {
-      //   val = val / 10 ** (decPoint + 1);
-      // }
       // parseFloatで整数型へ変換している
       if (val !== "") {
         val = parseFloat(val);

@@ -12,7 +12,6 @@ import PasswordForget from '../views/certification/passwordForget.vue';
 import ResetPassword from '../views/certification/resetPassword.vue';
 import Inquiry from '../views/inquiry/inquiry.vue';
 import UserRecordRanking from '../views/ranking/userRecordRanking.vue';
-import UsersRanking from '../views/ranking/usersRanking.vue';
 
 const routes = [
   {
@@ -109,13 +108,6 @@ const routes = [
     component: UserRecordRanking,
     // ログインの必要あり
     meta: { requiresAuth: true },
-  },
-  {
-    path: '/ranking',
-    name: 'usersRanking',
-    component: UsersRanking,
-    // ログインの必要あり
-    meta: { requiresAuth: false },
   },
   //指定のないURLの場合ホームにリダイレクト
   {

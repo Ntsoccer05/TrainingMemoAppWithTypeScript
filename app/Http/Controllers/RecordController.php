@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use Illuminate\Http\Request;
-use App\Models\Record;
-use App\Models\RecordContent;
 use App\Models\RecordState;
 use Carbon\Carbon;
 use DateTime;
-use Mockery\Undefined;
 
 class RecordController extends Controller
 {

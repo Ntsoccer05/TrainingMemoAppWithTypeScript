@@ -132,9 +132,7 @@ export default {
               useValidationMsg(errorMsgs, errors, dispErrorMsg);
             });
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     };
 
     const toggleDisplayPass = () => {

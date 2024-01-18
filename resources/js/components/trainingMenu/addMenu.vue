@@ -205,7 +205,6 @@ export default {
         })
         .catch((err) => {
           // POST時のバリデーションエラー
-          console.log(err);
           const errorMsgs = err.response.data.errors;
           useValidationMsg(errorMsgs, errors, dispErrorMsg);
         });
@@ -249,9 +248,7 @@ export default {
         .then((res) => {
           categories.value = res.data.categorylist;
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     };
 
     onMounted(async () => {
