@@ -10,6 +10,7 @@ use App\Http\Controllers\RecordController;
 use App\Http\Controllers\RecordMenuController;
 use App\Http\Controllers\Auth\ForgetPasswordController;
 use App\Http\Controllers\Inquiry\InquiryController;
+use App\Http\Controllers\RecordRankingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,7 +42,9 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/recordContent', [RecordContentController::class, 'index']);
     Route::post('/recordContent/create', [RecordContentController::class, 'create']);
     Route::post('/recordContent/delete', [RecordContentController::class, 'delete']);
+    Route::get('/recordRanking/user', [RecordRankingController::class, 'index']);
 });
+Route::get('/recordRanking/users', [RecordRankingController::class, 'show']);
 
 // ログイン済みのみ
 Route::middleware('auth:sanctum')->get('users', function(Request $request){

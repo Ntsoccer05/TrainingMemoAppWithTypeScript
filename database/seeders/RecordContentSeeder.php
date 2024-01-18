@@ -21,6 +21,8 @@ class RecordContentSeeder extends Seeder
                 'user_id' => 1,
                 'record_state_id' =>rand(1, 10),
                 'record_menu_id' => rand(1, 20),
+                'category_id' => 1,
+                'menu_id' => 1,
                 'weight' => rand(70, 80),
                 'right_weight' => null,
                 'left_weight' => null,

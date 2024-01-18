@@ -38,7 +38,7 @@
       </div>
     </div>
     <div class="mx-auto w-11/12 mt-5 mb-5">
-      <label for="weight block sm:inline"> 今日の体重：</label>
+      <label for="weight block sm:inline"> 体重：</label>
       <input
         class="border border-black text-right w-28"
         name="weight"
