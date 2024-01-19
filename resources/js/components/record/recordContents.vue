@@ -54,6 +54,7 @@
           :category_id="category_id"
           :menu_id="menu_id"
           :record_state_id="record_state_id"
+          :menu_content="menuContent"
           @beforeTotalSet="fillBeforeTodalSet"
           @totalSet="fillThisTodalSet"
           @canClick="ableToClickBefore"
@@ -61,7 +62,7 @@
       </table>
     </template>
     <template v-else>
-      <p class="mx-auto mt-10 md:w-6/12 w-11/12 mb-5 font-bold md:text-center">
+      <p class="mx-auto mt-10 md:w-6/12 w-11/12 mb-5 font-bold text-center">
         データ取得中です。しばらくお待ちください。
       </p>
     </template>
@@ -102,6 +103,8 @@ export default {
     const BeforeBtnTxt = ref("");
     const isDispTxt = ref(false);
 
+    const menuContent = ref("");
+
     //前回データが存在するか？
     const isBeforeData = ref(false);
 
@@ -141,6 +144,7 @@ export default {
           },
         })
         .then((res) => {
+          menuContent.value = res.data.menu.content;
           if (res.data.menu.oneSide === 1) {
             hasOneHand.value = true;
           } else {
@@ -162,7 +166,7 @@ export default {
         isBeforeData.value = true;
         beforeBodyWeight.value = secondRecordState.value.bodyWeight;
       } else {
-        msgNoBeforeData.value = "前回の記録はありません";
+        msgNoBeforeData.value = "記録がありません";
       }
     };
 
@@ -226,6 +230,7 @@ export default {
       secondRecord,
       hasSecondRecord,
       compGetData,
+      menuContent,
       fillBeforeRecord,
       fillThisTodalSet,
       fillBeforeTodalSet,

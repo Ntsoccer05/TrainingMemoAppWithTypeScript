@@ -1,6 +1,10 @@
 <template>
   <div>
     <thead>
+      <tr class="grid grid-cols-2 w-2full">
+        <th class="mx-auto block w-full col-span-2">{{ menuContent }}</th>
+      </tr>
+
       <tr>
         <th class="text-left md:text-center indent-1 md:indent-0">
           <div class="border" ref="todayRecordedAt">今回の記録</div>
@@ -259,11 +263,13 @@ export default {
     category_id: String,
     menu_id: String,
     record_state_id: String,
+    menu_content: String,
   },
   setup(props, { emit }) {
     const route = useRoute();
     const hasOneHand = computed(() => props.hasOneHand);
     const second_record = computed(() => props.second_record);
+    const menuContent = computed(() => props.menu_content);
     const weight = ref([]);
     const rep = ref([]);
     const rightWeight = ref([]);
@@ -466,6 +472,7 @@ export default {
       hasOneHand,
       route,
       maxSet,
+      menuContent,
       validateNumber,
       validateDecimalNumber,
       postRecordContent,
