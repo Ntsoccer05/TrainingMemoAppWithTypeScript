@@ -20,6 +20,15 @@
           >
             ※前回の記録を埋めるためには今回の記録を埋めてください
           </p>
+          <div class="text-center mt-5">
+            <input
+              class="bg-slate-100 border-black border-x border-y mr-2"
+              id="complementContents"
+              type="checkbox"
+              v-model="complementContents"
+            />
+            <label for="complementContents" class="text-base">重量・回数を補完する</label>
+          </div>
           <div class="grid grid-cols-2 w-full">
             <div>
               <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
@@ -55,6 +64,7 @@
           :menu_id="menu_id"
           :record_state_id="record_state_id"
           :menu_content="menuContent"
+          :complementContents="complementContents"
           @beforeTotalSet="fillBeforeTodalSet"
           @totalSet="fillThisTodalSet"
           @canClick="ableToClickBefore"
@@ -104,6 +114,9 @@ export default {
     const isDispTxt = ref(false);
 
     const menuContent = ref("");
+
+    // 自動補完するか
+    const complementContents = ref(false);
 
     //前回データが存在するか？
     const isBeforeData = ref(false);
@@ -231,6 +244,7 @@ export default {
       hasSecondRecord,
       compGetData,
       menuContent,
+      complementContents,
       fillBeforeRecord,
       fillThisTodalSet,
       fillBeforeTodalSet,

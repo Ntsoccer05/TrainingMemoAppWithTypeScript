@@ -28,6 +28,7 @@
               placeholder="重さ(kg)"
               maxlength="6"
               :value="weight[index]"
+              @focus="complementData($event.target.value, weight, index)"
               @change="weight[index] = validateDecimalNumber($event.target.value)"
               @blur="postRecordContent(index)"
             />
@@ -37,6 +38,7 @@
               placeholder="回数"
               maxlength="6"
               :value="rep[index]"
+              @focus="complementData($event.target.value, rep, index)"
               @change="rep[index] = validateNumber($event.target.value)"
               @blur="postRecordContent(index)"
             />
@@ -48,6 +50,7 @@
               placeholder="重さ（右）(kg)"
               maxlength="6"
               :value="rightWeight[index]"
+              @focus="complementData($event.target.value, rightWeight, index)"
               @change="rightWeight[index] = validateDecimalNumber($event.target.value)"
               @blur="postRecordContent(index)"
             />
@@ -57,6 +60,7 @@
               placeholder="回数（右）"
               maxlength="6"
               :value="rightRep[index]"
+              @focus="complementData($event.target.value, rightRep, index)"
               @change="rightRep[index] = validateNumber($event.target.value)"
               @blur="postRecordContent(index)"
             />
@@ -66,6 +70,7 @@
               placeholder="重さ（左）(kg)"
               maxlength="6"
               :value="leftWeight[index]"
+              @focus="complementData($event.target.value, leftWeight, index)"
               @change="leftWeight[index] = validateDecimalNumber($event.target.value)"
               @blur="postRecordContent(index)"
             />
@@ -75,6 +80,7 @@
               placeholder="回数（左）"
               maxlength="6"
               :value="leftRep[index]"
+              @focus="complementData($event.target.value, leftRep, index)"
               @change="leftRep[index] = validateNumber($event.target.value)"
               @blur="postRecordContent(index)"
             />
@@ -264,12 +270,14 @@ export default {
     menu_id: String,
     record_state_id: String,
     menu_content: String,
+    complementContents: Boolean,
   },
   setup(props, { emit }) {
     const route = useRoute();
     const hasOneHand = computed(() => props.hasOneHand);
     const second_record = computed(() => props.second_record);
     const menuContent = computed(() => props.menu_content);
+    const complementContents = computed(() => props.complementContents);
     const weight = ref([]);
     const rep = ref([]);
     const rightWeight = ref([]);
@@ -418,6 +426,21 @@ export default {
         });
     };
 
+    // 重量と回数を自動補完
+    const complementData = (val, tgtVal, index) => {
+      if (
+        index - 1 > -1 &&
+        complementContents.value &&
+        tgtVal[index - 1] &&
+        (tgtVal[index] == "" || tgtVal[index] == undefined)
+      ) {
+        val = tgtVal[index - 1].toString();
+        tgtVal[index] = tgtVal[index - 1];
+      } else {
+        tgtVal[index];
+      }
+    };
+
     //tgtRecordを初期レンダリング時に取得するため、変更を常にwatchする。
     watch(tgtRecord, () => {
       if (hasTgtRecord.value) {
@@ -473,9 +496,11 @@ export default {
       route,
       maxSet,
       menuContent,
+      complementContents,
       validateNumber,
       validateDecimalNumber,
       postRecordContent,
+      complementData,
     };
   },
 };
