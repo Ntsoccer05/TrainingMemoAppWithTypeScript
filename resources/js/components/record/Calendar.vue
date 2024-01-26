@@ -1,54 +1,112 @@
 // setup() 関数内で定義した変数や関数を return しないと template //
 内で使用することができなかったが、 script setup>内で宣言した場合すべて使用可能となる
-<script setup>
+<script setup lang="ts">
 // https://v2.vcalendar.io/attributes.html#_2-scoped-slot
-import { onMounted, ref, nextTick, watch, computed } from "vue";
+import { onMounted, ref, nextTick, watch, computed, ComputedRef, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
-import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
+import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useSelectedDay from "../../composables/record/useSelectedDay";
 import useGetRecords from "../../composables/record/useGetRecords";
+import axios from "axios";
 
 const router = useRouter();
 const route = useRoute();
-const authUser = ref([]);
 const store = useStore();
 // 祝日の情報を取得
 const url = "https://holidays-jp.github.io/api/v1/date.json";
 const options = { method: "get" };
-// 当日をハイライト
-const attrs = ref([{ key: "today", highlight: true, dates: new Date() }]);
 
-const holidays = ref([]);
-const data = ref([]);
+type LoginUser = {
+  created_at: string;
+  email: string;
+  email_verified_at: null;
+  id: number;
+  name: string;
+  updated_at: string;
+};
+
+const authUser = ref<LoginUser>({
+  created_at: "",
+  email: "",
+  email_verified_at: null,
+  id: 0,
+  name: "",
+  updated_at: "",
+});
+
+type Attrs = {
+  key: string;
+  highlight: boolean;
+  dates: Date;
+};
+
+type Holyday = {
+  key: string;
+  highlight: boolean;
+  dates: Date;
+};
+type Popover = {
+  label: string;
+  visibility: string;
+  autoHide: boolean;
+};
+type Bar = {
+  style: {
+    backgroundColor: string;
+  };
+};
+type Event = {
+  popover: Popover;
+  bar: Bar;
+  dates: Date;
+};
+
+type Obj = {
+  dot: boolean;
+  content: string;
+  dates: Date;
+};
+
+type Data = {
+  [key: string]: string;
+};
+
+// 当日をハイライト
+const attrs = ref<(Attrs | Event | Obj)[]>([
+  { key: "today", highlight: true, dates: new Date() },
+]);
+
+const holidays = ref<string[]>([]);
+let data = reactive<Data>({});
 
 // データ取得完了したかどうか
-const isLoaded = ref(false);
+const isLoaded = ref<Boolean>(false);
 
 // /データを送信したか
-const isSendData = ref(false);
+const isSendData = ref<Boolean>(false);
 
 const loginState = computed(() => store.getters.isLogined);
-const isLogined = ref(false);
+const isLogined: ComputedRef<Boolean> = computed(() => store.state.isLogined);
 
-// script setup内だとDom取得はreturnしなくていい
-const calendar = ref(null);
+// script setup内だとDom取得はreturnしなくていい Vueコンポーネントだから型付けると特有のメソッドを使えない
+const calendar = ref();
 
-const selected_day = ref(null);
+const selected_day = ref<String>("");
 
 const { getLoginUser, loginUser } = useGetLoginUser();
 
 const { records, compGetData, getRecords } = useGetRecords();
 
 watch(records, () => {
-  let label = "";
+  let label: string = "";
   records.value.forEach((record) => {
     if (record.menu !== undefined) {
       label = record.menu[0].menu_content;
     } else {
       label = "記録がありません";
     }
-    const event = {
+    const event: Event = {
       popover: {
         label: label,
         visibility: "click",
@@ -59,7 +117,7 @@ watch(records, () => {
           backgroundColor: "red",
         },
       },
-      dates: new Date(record.recorded_at.recorded_at),
+      dates: new Date(record.recorded_at.recorded_at as string),
     };
     attrs.value = [...attrs.value, event];
   });
@@ -67,11 +125,11 @@ watch(records, () => {
 
 watch(holidays.value, () => {
   holidays.value.forEach((holiday) => {
-    const obj = {
+    const obj: Obj = {
       dot: true,
       // Text styles
       content: "red",
-      dates: new Date(holiday),
+      dates: new Date(holiday as string),
     };
     attrs.value = [...attrs.value, obj];
   });
@@ -101,18 +159,19 @@ onMounted(async () => {
   isLoaded.value = true;
 
   // getLoginUser()内でnextTickを実行
-  authUser.value = loginUser;
+  authUser.value = loginUser.value;
   nextTick(() => {
     // DOM取得のため<-script setupではnextTickの中でないとDOM取得できない。
-    const calendarDom = calendar.value;
+    calendar.value !== undefined;
+    const calendarDom = calendar.value !== undefined ? calendar.value : "";
 
     // ログイン状態をVuexより取得<-このタイミングだとカレンダーの描画が完了しているためVuexの値を取得できる。
-    isLogined.value = computed(() => store.state.isLogined);
+    // isLogined.value = computed(() => store.state.isLogined);
 
-    toDetailPage();
+    // toDetailPage();
     // クエリパラメータがあればリロード時にその日付が存在するページを表示
-    if (route.query.day) {
-      calendarDom.move(new Date(route.query.day));
+    if (route.query.day && calendarDom !== "") {
+      calendarDom.move(new Date(route.query.day as string));
       delete route.query.day;
     }
   });
@@ -168,8 +227,9 @@ const selectedDay = (day) => {
 const getHolidays = async () => {
   // 祝日の情報を取得
   await fetch(url, options).then((response) => {
-    data.value = response.json();
-    data.value.then((val) => {
+    // data = response.json();
+    // data.value.then((val) => {
+    response.json().then((val) => {
       for (const days in val) {
         holidays.value.push(days);
       }
@@ -235,25 +295,15 @@ const moveToday = () => {
                   v-for="(category, index) in record.category"
                   :key="category.category_id"
                 >
-                  <template v-if="category.category_content">
-                    <template
-                      v-if="
-                        index !=
-                        Object.keys(record.category)[
-                          Object.keys(record.category).length - 1
-                        ]
-                      "
-                    >
+                  <template
+                    v-if="category.category_content && record.category !== undefined"
+                  >
+                    <template v-if="index != Object.keys(record.category).length - 1">
                       {{ category.category_content }}、
                     </template>
                     <!-- 最後の値を表示 -->
                     <template
-                      v-else-if="
-                        index ==
-                        Object.keys(record.category)[
-                          Object.keys(record.category).length - 1
-                        ]
-                      "
+                      v-else-if="index == Object.keys(record.category).length - 1"
                     >
                       {{ category.category_content }}
                     </template>
@@ -274,22 +324,12 @@ const moveToday = () => {
                 changeDayFormat(format(day.date, masks.L))
               "
               ><span v-for="(menu, index) in record.menu" :key="menu.menu_id">
-                <template v-if="menu.menu_content">
-                  <template
-                    v-if="
-                      index !=
-                      Object.keys(record.menu)[Object.keys(record.menu).length - 1]
-                    "
-                  >
+                <template v-if="menu.menu_content && record.menu !== undefined">
+                  <template v-if="index != Object.keys(record.menu).length - 1">
                     {{ menu.menu_content }}、
                   </template>
                   <!-- 最後の値を表示 -->
-                  <template
-                    v-else-if="
-                      index ==
-                      Object.keys(record.menu)[Object.keys(record.menu).length - 1]
-                    "
-                  >
+                  <template v-else-if="index == Object.keys(record.menu).length - 1">
                     {{ menu.menu_content }}
                   </template>
                 </template>
