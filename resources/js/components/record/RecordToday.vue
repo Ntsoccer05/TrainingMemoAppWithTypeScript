@@ -14,7 +14,7 @@
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
+import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useSelectedDay from "../../composables/record/useSelectedDay";
 export default {
   setup() {

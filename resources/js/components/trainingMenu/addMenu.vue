@@ -86,7 +86,7 @@ import { ref, reactive, onMounted, nextTick, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useValidationMsg from "../../composables/menu/useValidationMsg";
-import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
+import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import dispValidationMsg from "../../composables/menu/useDispValidationMsg";
 import MenuTable from "../record/MenuTable.vue";
 export default {

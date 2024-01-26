@@ -126,7 +126,7 @@
 <script>
 import { ref, onMounted, nextTick, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
+import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 export default {
   props: {

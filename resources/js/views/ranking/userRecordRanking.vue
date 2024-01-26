@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted } from "vue";
 import userRecordRankingTable from "../../components/ranking/userRecordRankingTable.vue";
-import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
+import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordRanking from "../../composables/ranking/useGetRecordRanking";
 
 const { getLoginUser, loginUser } = useGetLoginUser();

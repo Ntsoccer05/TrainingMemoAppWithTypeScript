@@ -10,7 +10,7 @@
           <div class="border" ref="todayRecordedAt">今回の記録</div>
         </th>
         <th class="text-left md:text-center indent-1 md:indent-0">
-          <div class="border" ref="beforeRecordedAt">前回の記録</div>
+          <div class="border" ref="beforeRecordedAt">{{ beforeHeaderTxt }}</div>
         </th>
       </tr>
     </thead>
@@ -29,17 +29,17 @@
               maxlength="6"
               :value="weight[index]"
               @focus="complementData($event.target.value, weight, index)"
-              @change="weight[index] = validateDecimalNumber($event.target.value)"
+              @change="validateDecimalNumber($event.target.value, weight, index)"
               @blur="postRecordContent(index)"
             />
             <input
               class="border w-full"
               type="text"
               placeholder="回数"
-              maxlength="6"
+              maxlength="3"
               :value="rep[index]"
               @focus="complementData($event.target.value, rep, index)"
-              @change="rep[index] = validateNumber($event.target.value)"
+              @change="validateNumber($event.target.value, rep, index)"
               @blur="postRecordContent(index)"
             />
           </div>
@@ -51,17 +51,17 @@
               maxlength="6"
               :value="rightWeight[index]"
               @focus="complementData($event.target.value, rightWeight, index)"
-              @change="rightWeight[index] = validateDecimalNumber($event.target.value)"
+              @change="validateDecimalNumber($event.target.value, rightWeight, index)"
               @blur="postRecordContent(index)"
             />
             <input
               class="border w-full"
               type="text"
               placeholder="回数（右）"
-              maxlength="6"
+              maxlength="3"
               :value="rightRep[index]"
               @focus="complementData($event.target.value, rightRep, index)"
-              @change="rightRep[index] = validateNumber($event.target.value)"
+              @change="validateNumber($event.target.value, rightRep, index)"
               @blur="postRecordContent(index)"
             />
             <input
@@ -71,17 +71,17 @@
               maxlength="6"
               :value="leftWeight[index]"
               @focus="complementData($event.target.value, leftWeight, index)"
-              @change="leftWeight[index] = validateDecimalNumber($event.target.value)"
+              @change="validateDecimalNumber($event.target.value, leftWeight, index)"
               @blur="postRecordContent(index)"
             />
             <input
               class="border w-full"
               type="text"
               placeholder="回数（左）"
-              maxlength="6"
+              maxlength="3"
               :value="leftRep[index]"
               @focus="complementData($event.target.value, leftRep, index)"
-              @change="leftRep[index] = validateNumber($event.target.value)"
+              @change="validateNumber($event.target.value, leftRep, index)"
               @blur="postRecordContent(index)"
             />
           </div>
@@ -229,9 +229,10 @@
 <script>
 import { ref, onMounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import useGetLoginUser from "../../composables/certification/useGetLoginUser.js";
+import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
 import axios from "axios";
+import { useStore } from "vuex";
 // エンターキーを押すと次の要素入力可
 function keydown(e) {
   if (e.keyCode === 13) {
@@ -270,13 +271,18 @@ export default {
     menu_id: String,
     record_state_id: String,
     menu_content: String,
+    beforeHeaderTxt: String,
     complementContents: Boolean,
   },
   setup(props, { emit }) {
     const route = useRoute();
+    const store = useStore();
+    store.commit("compGetData", false);
+
     const hasOneHand = computed(() => props.hasOneHand);
     const second_record = computed(() => props.second_record);
     const menuContent = computed(() => props.menu_content);
+    const beforeHeaderTxt = computed(() => props.beforeHeaderTxt);
     const complementContents = computed(() => props.complementContents);
     const weight = ref([]);
     const rep = ref([]);
@@ -357,7 +363,9 @@ export default {
     };
 
     // valはString
-    const validateDecimalNumber = (val) => {
+    const validateDecimalNumber = (val, tgtVal, index) => {
+      // tgtvalの変更がない場合代入してもvalueの値が変化しないため
+      tgtVal[index] = val;
       val = replaceFullToHalf(val);
       // 小数点を含むか？
       let oldVal = val;
@@ -373,10 +381,12 @@ export default {
         // matchは型がStringのもののみ適用できる
         val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
       }
-      return val;
+      tgtVal[index] = val.toString();
     };
 
-    const validateNumber = (val) => {
+    const validateNumber = (val, tgtVal, index) => {
+      // tgtvalの変更がない場合代入してもvalueの値が変化しないため
+      tgtVal[index] = val;
       val = replaceFullToHalf(val);
       // 数字または小数点以外を無効とする
       val = val.replace(/[^0-9]/g, "");
@@ -388,7 +398,7 @@ export default {
         // matchは型がStringのもののみ適用できる
         val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
       }
-      return val;
+      tgtVal[index] = val.toString();
     };
 
     const postRecordContent = (index) => {
@@ -480,6 +490,7 @@ export default {
         props.menu_id,
         props.record_state_id
       );
+      store.commit("compGetData", true);
     });
 
     return {
@@ -496,6 +507,7 @@ export default {
       route,
       maxSet,
       menuContent,
+      beforeHeaderTxt,
       complementContents,
       validateNumber,
       validateDecimalNumber,
