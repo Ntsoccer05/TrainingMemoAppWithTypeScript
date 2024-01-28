@@ -77,7 +77,7 @@
 <script>
 import { ref, reactive, computed } from "vue";
 import { useRouter } from "vue-router";
-import useValidationMsg from "../../composables/certification/useValidationMsg.js";
+import useValidationMsg from "../../composables/certification/useValidationMsg.ts";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
 export default {
   setup() {

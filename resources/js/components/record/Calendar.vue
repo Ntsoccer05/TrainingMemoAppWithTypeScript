@@ -2,13 +2,13 @@
 内で使用することができなかったが、 script setup>内で宣言した場合すべて使用可能となる
 <script setup lang="ts">
 // https://v2.vcalendar.io/attributes.html#_2-scoped-slot
-import { onMounted, ref, nextTick, watch, computed, ComputedRef, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useSelectedDay from "../../composables/record/useSelectedDay";
 import useGetRecords from "../../composables/record/useGetRecords";
 import axios from "axios";
+import { reactive, ref, computed, ComputedRef, watch, onMounted, nextTick } from "vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -41,11 +41,6 @@ type Attrs = {
   dates: Date;
 };
 
-type Holyday = {
-  key: string;
-  highlight: boolean;
-  dates: Date;
-};
 type Popover = {
   label: string;
   visibility: string;
@@ -263,7 +258,7 @@ const moveToday = () => {
 </script>
 
 <template>
-  <div class="calendar container md:w-11/12 ml:h-2/3 mx-auto h-2/3">
+  <div class="calendar md:w-11/12 ml:h-2/3 mx-auto h-2/3">
     <!-- $event.targetでクリックした要素を取得できる -->
     <template v-if="compGetData && isLoaded">
       <v-calendar
