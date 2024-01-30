@@ -59,11 +59,27 @@
       :dataMenu="dataMenu"
     />
   </div>
+  <Modal
+    v-model="dispAlertModal"
+    title="権限エラー"
+    wrapper-class="modal-wrapper"
+    class="flex align-center"
+    @closing="toHome()"
+  >
+    <p>画面表示するにはログインしてください。</p>
+    <button
+      class="col-12 mt-5 text-center inline-block w-full rounded px-6 pb-2 pt-2.5 text-base font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+      style="background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)"
+      @click="toLogin"
+    >
+      ログイン画面へ
+    </button>
+  </Modal>
 </template>
 
 <script>
 import EditableMenuTable from "./EditableMenuTable.vue";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
@@ -79,6 +95,8 @@ export default {
     const store = useStore();
 
     store.commit("compGetData", false);
+
+    const dispModal = computed(() => store.getters.dispAlertModal);
 
     const dispHeadText = ref("");
 
@@ -96,6 +114,8 @@ export default {
     // DOM取得のため
     const deleteFunc = ref(null);
     const deleteCategory = ref(null);
+
+    const dispAlertModal = ref(false);
 
     const recorded_at = ref("");
 
@@ -128,6 +148,15 @@ export default {
         }
       });
     });
+
+    const toHome = () => {
+      //router.pushが効かない
+      window.location.href = "/";
+    };
+
+    const toLogin = () => {
+      router.push("/login");
+    };
 
     //トレーニングメニュー追加画面に遷移
     const toAddMenu = () => {
@@ -162,8 +191,8 @@ export default {
           },
         })
         .then((res) => {
-          //編集画面でなければ
           store.commit("compGetData", true);
+          //編集画面でなければ
           if (!editable.value) {
             if (res.data.categories.length === 0) {
               dispHeadText.value = "部位・種目を追加してください";
@@ -241,6 +270,9 @@ export default {
       const deleteCategoryDom = deleteCategory.value;
 
       await getLoginUser();
+      if (dispModal.value) {
+        dispAlertModal.value = true;
+      }
       await getLatestRecordState();
       await getMenus();
       if (latestRecord.value.bodyWeight) {
@@ -298,6 +330,9 @@ export default {
       compEditMenu,
       postWeight,
       validateWeight,
+      dispAlertModal,
+      toHome,
+      toLogin,
     };
   },
 };

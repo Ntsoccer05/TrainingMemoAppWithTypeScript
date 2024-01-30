@@ -56,6 +56,7 @@ import { useStore } from "vuex";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
 import axios from "axios";
+import { DispErrorMsg, Errors } from "../../types/certification";
 // export default {
 // setup() {
 const route = useRoute();
@@ -64,17 +65,6 @@ const store = useStore();
 
 const name = ref<string>("");
 const email: string = route.query.email as string;
-
-type DispErrorMsg = {
-  name: boolean;
-  email: boolean;
-  password: boolean;
-};
-type Errors = {
-  name: Array<string>;
-  email: Array<string>;
-  password: Array<string>;
-};
 
 const errors: Errors = reactive({
   name: [],
@@ -110,7 +100,7 @@ const register = async () => {
         })
         .catch((err) => {
           // POST時のバリデーションエラー
-          const errorMsgs = err.response.data.errors;
+          const errorMsgs: Errors = err.response.data.errors;
           useValidationMsg(errorMsgs, errors, dispErrorMsg);
         });
     })

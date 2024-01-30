@@ -45,14 +45,7 @@
               "
               class="text-xl font-semibold md:text-4xl"
             >
-              <template
-                v-if="
-                  route.name != 'selectMenu' &&
-                  route.name != 'record' &&
-                  route.name != 'addMenu'
-                "
-                >トレメモ</template
-              ></router-link
+              トレメモ</router-link
             >
           </h3>
         </template>
@@ -120,10 +113,11 @@
                   class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
                   ><template
                     v-if="
-                      route.name != 'selectMenu' &&
-                      route.name != 'record' &&
-                      route.name != 'addMenu' &&
-                      isloaded
+                      (route.name != 'selectMenu' &&
+                        route.name != 'record' &&
+                        route.name != 'addMenu' &&
+                        isloaded) ||
+                      isOpen
                     "
                     >トレメモ</template
                   ></router-link
@@ -184,6 +178,15 @@
         </div>
       </div>
     </header>
+    <Modal
+      v-model="dispAlertModal"
+      title="ログアウト"
+      wrapper-class="modal-wrapper"
+      class="flex align-center"
+      @closing="toHome()"
+    >
+      <p>{{ dispAlertMessage }}</p>
+    </Modal>
   </div>
 </template>
 <script>
@@ -210,6 +213,9 @@ export default {
     const isOpen = ref(false);
     const user = ref([]);
 
+    const dispAlertModal = ref(false);
+    const dispAlertMessage = ref("");
+
     // ログイン状態をVuexより取得
     const isLogined = computed(() => store.state.isLogined);
 
@@ -228,7 +234,7 @@ export default {
     const toggleNav = () => (isOpen.value = !isOpen.value);
 
     // ホーム画面へ遷移
-    const toHome = () => router.push("/");
+    const toHome = () => (window.location.href = "/");
 
     const closeHumbuger = () => {
       if (isOpen) {
@@ -250,10 +256,16 @@ export default {
         .post("/api/logout", {})
         .then((res) => {
           if ((res.data.status_code = 200)) {
+            dispAlertModal.value = true;
+            if (route.name === "home") {
+              dispAlertMessage.value = "ログアウトしました。";
+            } else {
+              dispAlertMessage.value = "ログアウトしました。ホーム画面へ遷移します。";
+            }
             // ログイン状態を変更するためVuexより呼び出し
             store.commit("LogoutState");
             //ページ再読み込み
-            alert("ログアウトしました。");
+            // alert("ログアウトしました。");
             holdLoginState();
           }
         })
@@ -266,6 +278,8 @@ export default {
       isLogined,
       isloaded,
       user,
+      dispAlertModal,
+      dispAlertMessage,
       recorded_day,
       recordedAt,
       compGetData,

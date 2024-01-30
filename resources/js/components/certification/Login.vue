@@ -76,12 +76,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, ComputedRef } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
 import axios from "axios";
+import { DispErrorMsg, Errors } from "../../types/certification";
+
 // export default {
 //   setup() {
 const router = useRouter();
@@ -89,13 +91,13 @@ const store = useStore();
 const name = ref<string>("");
 const email = ref<string>("");
 const password = ref<string>("");
-const getUserMessage = ref("");
-const errors = reactive({
+const getUserMessage = ref<string>("");
+const errors: Errors = reactive({
   name: [],
   email: [],
   password: [],
 });
-const dispErrorMsg = reactive({
+const dispErrorMsg: DispErrorMsg = reactive({
   name: false,
   email: false,
   password: false,
@@ -103,10 +105,10 @@ const dispErrorMsg = reactive({
 const displayPass = ref(false);
 
 // パスワードの表示／非表示
-const inputType = computed(() => {
+const inputType: ComputedRef<string> = computed(() => {
   return displayPass.value ? "text" : "password";
 });
-const iconType = computed(() => {
+const iconType: ComputedRef<string> = computed(() => {
   return displayPass.value ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
 });
 
@@ -138,7 +140,7 @@ const login = async () => {
         })
         .catch((err) => {
           // POST時のバリデーションエラー
-          const errorMsgs = err.response.data.errors;
+          const errorMsgs: Errors = err.response.data.errors;
           useValidationMsg(errorMsgs, errors, dispErrorMsg);
 
           getUserMessage.value = "ログインに失敗しました。";
@@ -150,7 +152,8 @@ const login = async () => {
 };
 // 学習のため後にfetchを使って実装
 
-const toggleDisplayPass = () => {
+// 戻り値がない場合はvoid
+const toggleDisplayPass = (): void => {
   displayPass.value = !displayPass.value;
 };
 
