@@ -2,13 +2,13 @@
 内で使用することができなかったが、 script setup>内で宣言した場合すべて使用可能となる
 <script setup lang="ts">
 // https://v2.vcalendar.io/attributes.html#_2-scoped-slot
-import { onMounted, ref, nextTick, watch, computed, ComputedRef, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useSelectedDay from "../../composables/record/useSelectedDay";
 import useGetRecords from "../../composables/record/useGetRecords";
 import axios from "axios";
+import { reactive, ref, computed, ComputedRef, watch, onMounted, nextTick } from "vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -41,11 +41,6 @@ type Attrs = {
   dates: Date;
 };
 
-type Holyday = {
-  key: string;
-  highlight: boolean;
-  dates: Date;
-};
 type Popover = {
   label: string;
   visibility: string;
@@ -81,7 +76,9 @@ const holidays = ref<string[]>([]);
 let data = reactive<Data>({});
 
 // データ取得完了したかどうか
-const isLoaded = ref<Boolean>(false);
+const isLoaded = ref<boolean>(false);
+
+const dispAlertModal = ref(false);
 
 // /データを送信したか
 const isSendData = ref<Boolean>(false);
@@ -134,6 +131,10 @@ watch(holidays.value, () => {
     attrs.value = [...attrs.value, obj];
   });
 });
+
+const toLogin = () => {
+  router.push("/login");
+};
 
 //日付フォーマットを修正
 const changeDayFormat = (day) => {
@@ -197,7 +198,7 @@ const selectedDay = (day) => {
   if (day.ariaLabel !== null) {
     //ログインしていなかったらメッセージを表示
     if (loginState.value === false) {
-      alert("ログインしてください");
+      dispAlertModal.value = true;
       return;
     }
     // 年-月-日の形に修正
@@ -263,7 +264,7 @@ const moveToday = () => {
 </script>
 
 <template>
-  <div class="calendar container md:w-11/12 ml:h-2/3 mx-auto h-2/3">
+  <div class="calendar md:w-11/12 ml:h-2/3 mx-auto h-2/3">
     <!-- $event.targetでクリックした要素を取得できる -->
     <template v-if="compGetData && isLoaded">
       <v-calendar
@@ -390,6 +391,21 @@ const moveToday = () => {
     <template v-else>
       <p class="text-center mt-5">データ読み込み中です。少々お待ちください。</p>
     </template>
+    <Modal
+      v-model="dispAlertModal"
+      title="権限エラー"
+      wrapper-class="modal-wrapper"
+      class="flex align-center"
+    >
+      <p>ログインしてください。</p>
+      <button
+        class="col-12 mt-5 text-center inline-block w-full rounded px-6 pb-2 pt-2.5 text-base font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+        style="background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)"
+        @click="toLogin"
+      >
+        ログイン画面へ
+      </button>
+    </Modal>
   </div>
 </template>
 
@@ -434,5 +450,23 @@ const moveToday = () => {
 .vc-container::v-deep(.vc-popover-content-wrapper) {
   /* 背景を押下できなくするため pointer-events: none;だと背景を押下できてしまう。 */
   pointer-events: painted;
+}
+@media (1024px <= width) {
+  .vc-container::v-deep(.vc-popover-content-wrapper) {
+    max-width: 230px;
+  }
+}
+@media (768px <= width < 1024px) {
+  .vc-container::v-deep(.vc-popover-content-wrapper) {
+    max-width: 170px;
+  }
+}
+@media (320px <= width < 768px) {
+  .vc-container::v-deep(.vc-popover-caret) {
+    display: none;
+  }
+  .vc-container::v-deep(.vc-day-content:hover) {
+    background-color: #adff2f;
+  }
 }
 </style>

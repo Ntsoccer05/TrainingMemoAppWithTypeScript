@@ -9,8 +9,11 @@ import VCalendar from 'v-calendar';
 import { Calendar } from 'v-calendar';
 import 'v-calendar/dist/style.css';
 import store from './store'
+import { Modal } from '@kouts/vue-modal'
+import '@kouts/vue-modal/dist/vue-modal.css'
 
 const app = createApp(App);
 app.component('VCalendar', Calendar)
-app.use(VCalendar).use(store).use(router);
+app.component('Modal', Modal);
+app.use(VCalendar).use(store).use(router).use(Modal);
 app.mount("#app");

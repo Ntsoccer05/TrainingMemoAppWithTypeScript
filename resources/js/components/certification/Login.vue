@@ -75,100 +75,104 @@
   </form>
 </template>
 
-<script>
-import { ref, reactive, computed } from "vue";
+<script setup lang="ts">
+import { ref, reactive, computed, ComputedRef } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
-export default {
-  setup() {
-    const router = useRouter();
-    const store = useStore();
-    const name = ref("");
-    const email = ref("");
-    const password = ref("");
-    const getUserMessage = ref("");
-    const errors = reactive({
-      name: [],
-      email: [],
-      password: [],
-    });
-    const dispErrorMsg = reactive({
-      name: false,
-      email: false,
-      password: false,
-    });
-    const displayPass = ref(false);
+import axios from "axios";
+import { DispErrorMsg, Errors } from "../../types/certification";
 
-    // パスワードの表示／非表示
-    const inputType = computed(() => {
-      return displayPass.value ? "text" : "password";
-    });
-    const iconType = computed(() => {
-      return displayPass.value ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
-    });
+// export default {
+//   setup() {
+const router = useRouter();
+const store = useStore();
+const name = ref<string>("");
+const email = ref<string>("");
+const password = ref<string>("");
+const getUserMessage = ref<string>("");
+const errors: Errors = reactive({
+  name: [],
+  email: [],
+  password: [],
+});
+const dispErrorMsg: DispErrorMsg = reactive({
+  name: false,
+  email: false,
+  password: false,
+});
+const displayPass = ref(false);
 
-    //バリデーションエラーメッセージのレイアウト
-    const { dispNameErrMsg, dispEmailErrMsg, dispPassErrMsg } = dispValidationMsg(
-      dispErrorMsg
-    );
+// パスワードの表示／非表示
+const inputType: ComputedRef<string> = computed(() => {
+  return displayPass.value ? "text" : "password";
+});
+const iconType: ComputedRef<string> = computed(() => {
+  return displayPass.value ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+});
 
-    // ログイン処理
-    const login = async () => {
-      await axios
-        // CSRF保護
-        .get("/sanctum/csrf-cookie")
+//バリデーションエラーメッセージのレイアウト
+const { dispNameErrMsg, dispEmailErrMsg, dispPassErrMsg } = dispValidationMsg(
+  dispErrorMsg
+);
+
+// ログイン処理
+const login = async () => {
+  await axios
+    // CSRF保護
+    .get("/sanctum/csrf-cookie")
+    .then((res) => {
+      axios
+        .post("/api/login", {
+          // バリデーションをLoginRequest.phpで行っているため、オブジェクト名を合わせる必要がある。
+          name: name.value,
+          email: email.value,
+          password: password.value,
+        })
         .then((res) => {
-          axios
-            .post("/api/login", {
-              // バリデーションをLoginRequest.phpで行っているため、オブジェクト名を合わせる必要がある。
-              name: name.value,
-              email: email.value,
-              password: password.value,
-            })
-            .then((res) => {
-              if (res.data.status_code == "200") {
-                router.push("/");
-                // ログイン状態を変更するためVuexより呼び出し
-                store.dispatch("loginState");
-              }
-              getUserMessage.value = "ログインに失敗しました。";
-            })
-            .catch((err) => {
-              // POST時のバリデーションエラー
-              const errorMsgs = err.response.data.errors;
-              useValidationMsg(errorMsgs, errors, dispErrorMsg);
-
-              getUserMessage.value = "ログインに失敗しました。";
-            });
+          if (res.data.status_code == "200") {
+            router.push("/");
+            // ログイン状態を変更するためVuexより呼び出し
+            store.dispatch("loginState");
+          }
+          getUserMessage.value = "ログインに失敗しました。";
         })
         .catch((err) => {
+          // POST時のバリデーションエラー
+          const errorMsgs: Errors = err.response.data.errors;
+          useValidationMsg(errorMsgs, errors, dispErrorMsg);
+
           getUserMessage.value = "ログインに失敗しました。";
         });
-    };
-    // 学習のため後にfetchを使って実装
-
-    const toggleDisplayPass = () => {
-      displayPass.value = !displayPass.value;
-    };
-
-    return {
-      name,
-      email,
-      password,
-      errors,
-      inputType,
-      iconType,
-      displayPass,
-      dispNameErrMsg,
-      dispEmailErrMsg,
-      dispPassErrMsg,
-      login,
-      toggleDisplayPass,
-    };
-  },
+    })
+    .catch((err) => {
+      getUserMessage.value = "ログインに失敗しました。";
+    });
 };
+// 学習のため後にfetchを使って実装
+
+// 戻り値がない場合はvoid
+const toggleDisplayPass = (): void => {
+  displayPass.value = !displayPass.value;
+};
+
+// return {
+//   name,
+//   email,
+//   password,
+//   errors,
+//   inputType,
+//   iconType,
+//   displayPass,
+//   dispNameErrMsg,
+//   dispEmailErrMsg,
+//   dispPassErrMsg,
+//   login,
+//   toggleDisplayPass,
+// };
+//   },
+// };
 </script>
 
 <style></style>

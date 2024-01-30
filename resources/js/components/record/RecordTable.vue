@@ -23,7 +23,7 @@
             <!-- changeだとfocusが外れた時、inputは入力したとき -->
             <!-- v-modelは:valueと@changeで表せる -->
             <input
-              class="border w-full"
+              class="border w-full pl-0.5"
               type="text"
               placeholder="重さ(kg)"
               maxlength="6"
@@ -33,7 +33,7 @@
               @blur="postRecordContent(index)"
             />
             <input
-              class="border w-full"
+              class="border w-full pl-0.5"
               type="text"
               placeholder="回数"
               maxlength="3"
@@ -45,7 +45,7 @@
           </div>
           <div :class="hasOneHand ? 'block' : 'hidden'">
             <input
-              class="border w-full"
+              class="border w-full pl-0.5"
               type="text"
               placeholder="重さ（右）(kg)"
               maxlength="6"
@@ -55,7 +55,7 @@
               @blur="postRecordContent(index)"
             />
             <input
-              class="border w-full"
+              class="border w-full pl-0.5"
               type="text"
               placeholder="回数（右）"
               maxlength="3"
@@ -65,7 +65,7 @@
               @blur="postRecordContent(index)"
             />
             <input
-              class="border w-full"
+              class="border w-full pl-0.5"
               type="text"
               placeholder="重さ（左）(kg)"
               maxlength="6"
@@ -75,7 +75,7 @@
               @blur="postRecordContent(index)"
             />
             <input
-              class="border w-full"
+              class="border w-full pl-0.5"
               type="text"
               placeholder="回数（左）"
               maxlength="3"
@@ -87,7 +87,7 @@
           </div>
           <div class="border">
             <textarea
-              class="w-full leading-3"
+              class="w-full leading-4 pl-0.5"
               v-model="memo[index]"
               cols="20"
               rows="4"
@@ -149,7 +149,7 @@
             </div>
             <div class="border">
               <textarea
-                class="w-full leading-3"
+                class="w-full leading-4 pl-0.5"
                 name=""
                 id=""
                 cols="20"
@@ -163,14 +163,14 @@
           <template v-else>
             <div :class="hasOneHand ? 'hidden' : 'block'">
               <input
-                class="border w-full"
+                class="border w-full pl-0.5"
                 type="text"
                 placeholder="重さ(kg)"
                 ref="beforeWeight"
                 disabled
               />
               <input
-                class="border w-full"
+                class="border w-full pl-0.5"
                 type="text"
                 placeholder="回数"
                 ref="beforeReps"
@@ -179,28 +179,28 @@
             </div>
             <div :class="hasOneHand ? 'block' : 'hidden'">
               <input
-                class="border w-full"
+                class="border w-full pl-0.5"
                 type="text"
                 placeholder="重さ（右）(kg)"
                 ref="beforeRightWeight"
                 disabled
               />
               <input
-                class="border w-full"
+                class="border w-full pl-0.5"
                 type="text"
                 placeholder="回数（右）"
                 ref="beforeRightReps"
                 disabled
               />
               <input
-                class="border w-full"
+                class="border w-full pl-0.5"
                 type="text"
                 placeholder="重さ（左）(kg)"
                 ref="beforeLeftWeight"
                 disabled
               />
               <input
-                class="border w-full"
+                class="border w-full pl-0.5"
                 type="text"
                 placeholder="回数（左）"
                 ref="beforeLeftReps"
@@ -209,7 +209,7 @@
             </div>
             <div class="border">
               <textarea
-                class="w-full leading-3"
+                class="w-full leading-4 pl-0.5"
                 name=""
                 id=""
                 cols="20"
@@ -233,6 +233,7 @@ import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
 import axios from "axios";
 import { useStore } from "vuex";
+
 // エンターキーを押すと次の要素入力可
 function keydown(e) {
   if (e.keyCode === 13) {

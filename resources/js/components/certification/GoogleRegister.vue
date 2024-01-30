@@ -49,61 +49,67 @@
   </form>
 </template>
 
-<script>
+<script setup lang="ts">
 import { reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
-export default {
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const store = useStore();
+import axios from "axios";
+import { DispErrorMsg, Errors } from "../../types/certification";
+// export default {
+// setup() {
+const route = useRoute();
+const router = useRouter();
+const store = useStore();
 
-    const name = ref("");
-    const email = route.query.email;
-    const errors = reactive({
-      name: [],
-    });
-    const dispErrorMsg = reactive({
-      name: false,
-    });
+const name = ref<string>("");
+const email: string = route.query.email as string;
 
-    //バリデーションエラーメッセージのレイアウト
-    const { dispNameErrMsg } = dispValidationMsg(dispErrorMsg);
+const errors: Errors = reactive({
+  name: [],
+  email: [],
+  password: [],
+});
+const dispErrorMsg: DispErrorMsg = reactive({
+  name: false,
+  email: false,
+  password: false,
+});
 
-    const register = async () => {
-      await axios
-        // CSRF保護
-        .get("/sanctum/csrf-cookie")
-        .then(() => {
-          axios
-            .post("/api/register/google", {
-              name: name.value,
-              email,
-              // GoogleのURIを用いて登録する場合tokenが必須
-              token: route.query.token,
-            })
-            .then((res) => {
-              if (res.data.status_code === 200) {
-                router.push("/");
-                store.dispatch("loginState");
-              }
-            })
-            .catch((err) => {
-              // POST時のバリデーションエラー
-              const errorMsgs = err.response.data.errors;
-              useValidationMsg(errorMsgs, errors, dispErrorMsg);
-            });
+//バリデーションエラーメッセージのレイアウト
+const { dispNameErrMsg } = dispValidationMsg(dispErrorMsg);
+
+const register = async () => {
+  await axios
+    // CSRF保護
+    .get("/sanctum/csrf-cookie")
+    .then(() => {
+      axios
+        .post("/api/register/google", {
+          name: name.value,
+          email,
+          // GoogleのURIを用いて登録する場合tokenが必須
+          token: route.query.token,
         })
-        .catch((err) => {});
-    };
-
-    return { name, email, errors, dispNameErrMsg, register };
-  },
+        .then((res) => {
+          if (res.data.status_code === 200) {
+            router.push("/");
+            store.dispatch("loginState");
+          }
+        })
+        .catch((err) => {
+          // POST時のバリデーションエラー
+          const errorMsgs: Errors = err.response.data.errors;
+          useValidationMsg(errorMsgs, errors, dispErrorMsg);
+        });
+    })
+    .catch((err) => {});
 };
+
+// return { name, email, errors, dispNameErrMsg, register };
+// },
+// };
 </script>
 
 <style></style>
->

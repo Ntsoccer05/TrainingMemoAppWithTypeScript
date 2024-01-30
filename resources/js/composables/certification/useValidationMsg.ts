@@ -4,7 +4,19 @@
 // msgs：バリデーションメッセージ一覧
 // data：エラーメッセージの格納場所
 // hasMsg：エラーメッセージを表示させるかどうか
-export default function useValidationMsg(msgs, data, hasMsg){
+type Errors = {
+    name: Array<string>;
+    email: Array<string>;
+    password: Array<string>;
+  };
+
+  type DispErrorMsg = {
+    name: boolean;
+    email: boolean;
+    password: boolean;
+  };
+
+export default function useValidationMsg(msgs:Errors, data:Errors, hasMsg:DispErrorMsg){
     // ユーザ名のバリデーションエラー
     if(msgs){
         if (msgs.hasOwnProperty('name')) {

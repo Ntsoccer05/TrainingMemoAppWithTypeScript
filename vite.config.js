@@ -1,11 +1,13 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
+import checker from 'vite-plugin-checker'
 
 export default defineConfig({
   plugins: [
     laravel({
-      input: ['resources/css/app.css', 'resources/js/app.js'],
+      // input: ['resources/css/app.css', 'resources/js/app.js'],
+      input: ['resources/css/app.css', 'resources/js/app.ts'],
       refresh: true,
     }),
     vue({
@@ -16,6 +18,12 @@ export default defineConfig({
         },
       },
     }),
+    checker({
+      vueTsc: true,
+      // オーバーレイを表示しない場合はfalse
+      overlay: true,
+      
+    })
   ],
   server: {
     host: true,

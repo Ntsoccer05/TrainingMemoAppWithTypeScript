@@ -79,6 +79,22 @@
     </div>
     <MenuTable :categories="categories" />
   </div>
+  <Modal
+    v-model="dispAlertModal"
+    title="権限エラー"
+    wrapper-class="modal-wrapper"
+    class="flex align-center"
+    @closing="toHome()"
+  >
+    <p>画面表示するにはログインしてください。</p>
+    <button
+      class="col-12 mt-5 text-center inline-block w-full rounded px-6 pb-2 pt-2.5 text-base font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+      style="background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)"
+      @click="toLogin"
+    >
+      ログイン画面へ
+    </button>
+  </Modal>
 </template>
 
 <script>
@@ -101,6 +117,9 @@ export default {
 
     const editable = ref(false);
 
+    const dispModal = computed(() => store.getters.dispAlertModal);
+    const dispAlertModal = ref(false);
+
     const recorded_day = route.params.recordId;
 
     const errors = reactive({
@@ -111,6 +130,14 @@ export default {
       category_content: false,
       menu: false,
     });
+
+    const toHome = () => {
+      //router.pushが効かない
+      window.location.href = "/";
+    };
+    const toLogin = () => {
+      router.push("/login");
+    };
 
     const post = reactive({});
 
@@ -138,6 +165,9 @@ export default {
 
     onMounted(async () => {
       await getLoginUser();
+      if (dispModal.value) {
+        dispAlertModal.value = true;
+      }
 
       getMenus();
       //動的に要素を追加したものに対する処理にはnextTickを用いる
@@ -280,6 +310,9 @@ export default {
       toggleBtnInput,
       cancelAddMenu,
       addMenuContent,
+      dispAlertModal,
+      toHome,
+      toLogin,
     };
   },
 };
