@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { createStore } from 'vuex';
-import useNotLoginedRedirect from './composables/certification/useNotLoginedRedirect.js';
+import useNotLoginedRedirect from './composables/certification/useNotLoginedRedirect';
 
 export default createStore({
     state:{

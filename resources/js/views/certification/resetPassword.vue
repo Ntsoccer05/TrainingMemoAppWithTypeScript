@@ -1,19 +1,27 @@
-<script setup>
-import { reactive, ref, computed } from "vue";
+<script setup lang="ts">
+import { reactive, ref, computed, ComputedRef } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
+import { DispErrorMsg, Errors } from "../../types/certification";
 
 const router = useRouter();
 
 //パスワードリセットURLのGETパラメータよりトークンとメールアドレスを抽出し変数に保存
-const queryParameters = new URLSearchParams(window.location.search);
-const email = queryParameters.get("email");
-const token = queryParameters.get("token");
+const queryParameters: URLSearchParams = new URLSearchParams(window.location.search);
+const email: string = queryParameters.get("email");
+const token: string = queryParameters.get("token");
+
+type Form = {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+};
 
 // 送信データ
-const form = reactive({
+const form: Form = reactive({
   email,
   token,
   password: "",
@@ -21,37 +29,43 @@ const form = reactive({
 });
 
 // エラーメッセージ格納
-const errors = reactive({
+const errors: Errors = reactive({
   email: [],
   password: [],
 });
 // エラーメッセージを表示するか
-const dispErrorMsg = reactive({
+const dispErrorMsg: DispErrorMsg = reactive({
   email: false,
   password: false,
 });
 
 // パスワードと確認用パスワードのタイプをパスワードかテキストか
-const displayPass = ref(false);
-const displayConfirmPass = ref(false);
+const displayPass = ref<boolean>(false);
+const displayConfirmPass = ref<boolean>(false);
+
+const dispAlertModal = ref<boolean>(false);
+
+const toLogin = (): void => {
+  router.push("/login");
+};
 
 // パスワードの表示／非表示
-const inputType = computed(() => {
+const inputType: ComputedRef<string> = computed(() => {
   return displayPass.value ? "text" : "password";
 });
-const inputConfirmType = computed(() => {
+const inputConfirmType: ComputedRef<string> = computed(() => {
   return displayConfirmPass.value ? "text" : "password";
 });
-const iconType = computed(() => {
+const iconType: ComputedRef<string> = computed(() => {
   return displayPass.value ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
 });
-const iconConfirmType = computed(() => {
+const iconConfirmType: ComputedRef<string> = computed(() => {
   return displayConfirmPass.value ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
 });
-const toggleDisplayPass = () => {
+const toggleDisplayPass = (): void => {
   displayPass.value = !displayPass.value;
 };
-const toggleConfirmlayPass = () => {
+const toggleConfirmlayPass = (): void => {
   displayConfirmPass.value = !displayConfirmPass.value;
 };
 
@@ -70,13 +84,11 @@ const sendForgotPasswordEmail = async () => {
     })
     .then((res) => {
       // 成功時
-      alert("パスワードを変更しました。ログインお願いします。");
-      // アラートにてOK押下後処理
-      router.push("/login");
+      dispAlertModal.value = true;
     })
     .catch((err) => {
       // POST時のバリデーションエラー
-      const errorMsgs = err.response.data.errors;
+      const errorMsgs: Errors = err.response.data.errors;
       useValidationMsg(errorMsgs, errors, dispErrorMsg);
     });
 };
@@ -131,12 +143,12 @@ const sendForgotPasswordEmail = async () => {
       <input
         :type="inputConfirmType"
         class="peer block min-h-[auto] w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
-        id="password"
+        id="password_confirmation"
         v-model="form.password_confirmation"
         placeholder="確認用パスワード"
       />
       <label
-        for="password"
+        for="password_confirmation"
         class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/3 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
         >確認用パスワード
       </label>
@@ -168,6 +180,22 @@ const sendForgotPasswordEmail = async () => {
       </button>
     </div>
   </form>
+  <Modal
+    v-model="dispAlertModal"
+    title="パスワード変更完了"
+    wrapper-class="modal-wrapper"
+    class="flex align-center"
+    @closing="toLogin()"
+  >
+    <p>パスワードを変更しました。ログインお願いします。</p>
+    <button
+      class="col-12 mt-5 text-center inline-block w-full rounded px-6 pb-2 pt-2.5 text-base font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+      style="background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)"
+      @click="toLogin"
+    >
+      ログイン画面へ
+    </button>
+  </Modal>
 </template>
 
 <style scoped></style>

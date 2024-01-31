@@ -2,11 +2,12 @@ import { ref,nextTick } from "vue";
 import { useRouter } from 'vue-router'
 import { useStore } from "vuex";
 import useNotLoginedRedirect from "./useNotLoginedRedirect";
+import axios from "axios";
 
 export default function useHoldLoginState(){
     const router = useRouter();
     const store = useStore();
-    const isLogined = ref(false);
+    const isLogined = ref<boolean>(false);
 
     //ログイン状態保持するため
     const holdLoginState = async () => {

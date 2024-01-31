@@ -1,11 +1,11 @@
 export declare type DispErrorMsg ={
-    name: boolean;
+    name?: boolean;
     email: boolean;
-    password: boolean;
+    password?: boolean;
 }
 
 export declare type Errors = {
-    name: Array<string>;
+    name?: Array<string>;
     email: Array<string>;
-    password: Array<string>;
+    password?: Array<string>;
   };

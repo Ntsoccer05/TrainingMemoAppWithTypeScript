@@ -4,17 +4,7 @@
 // msgs：バリデーションメッセージ一覧
 // data：エラーメッセージの格納場所
 // hasMsg：エラーメッセージを表示させるかどうか
-type Errors = {
-    name: Array<string>;
-    email: Array<string>;
-    password: Array<string>;
-  };
-
-  type DispErrorMsg = {
-    name: boolean;
-    email: boolean;
-    password: boolean;
-  };
+import { DispErrorMsg, Errors } from "../../types/certification";
 
 export default function useValidationMsg(msgs:Errors, data:Errors, hasMsg:DispErrorMsg){
     // ユーザ名のバリデーションエラー
