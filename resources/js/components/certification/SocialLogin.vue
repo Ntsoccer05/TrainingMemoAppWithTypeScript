@@ -15,43 +15,43 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { useRouter, useRoute } from "vue-router";
 import { ref } from "vue";
-export default {
-  setup() {
-    const router = useRouter();
-    const route = useRoute();
+// export default {
+//   setup() {
+const router = useRouter();
+const route = useRoute();
 
-    const dispType = ref("");
+const dispType = ref<string>("");
 
-    if (route.name === "login") {
-      dispType.value = "グーグルでログインする";
-    } else if (route.name === "register") {
-      dispType.value = "グーグルで登録する";
-    }
+if (route.name === "login") {
+  dispType.value = "グーグルでログインする";
+} else if (route.name === "register") {
+  dispType.value = "グーグルで登録する";
+}
 
-    // Googleログインページに遷移
-    const toGoogleLoginPage = () => {
-      // api.webにてroute指定しているため「api/」が必要
-      axios
-        .get(`${import.meta.env.VITE_APP_API_LOGIN_URL}/google`)
-        .then((res) => {
-          // tokenなどがランダムなため直接指定で遷移
-          window.location.href = res.data.redirectUrl;
-        })
-        .catch((err) => {
-          if (route.name === "login") {
-            router.push("/login");
-          } else if (route.name === "register") {
-            router.push("/register");
-          }
-        });
-    };
-
-    return { dispType, toGoogleLoginPage };
-  },
+// Googleログインページに遷移
+const toGoogleLoginPage = () => {
+  // api.webにてroute指定しているため「api/」が必要
+  axios
+    .get(`${import.meta.env.VITE_APP_API_LOGIN_URL}/google`)
+    .then((res) => {
+      // tokenなどがランダムなため直接指定で遷移
+      window.location.href = res.data.redirectUrl;
+    })
+    .catch((err) => {
+      if (route.name === "login") {
+        router.push("/login");
+      } else if (route.name === "register") {
+        router.push("/register");
+      }
+    });
 };
+
+//     return { dispType, toGoogleLoginPage };
+//   },
+// };
 </script>
 
 <style></style>

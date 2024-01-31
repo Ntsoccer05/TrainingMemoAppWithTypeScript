@@ -189,107 +189,104 @@
     </Modal>
   </div>
 </template>
-<script>
-import { ref, onMounted, computed, watchEffect } from "vue";
+<script setup lang="ts">
+import { ref, onMounted, computed, watchEffect, ComputedRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useHoldLoginState from "../../composables/certification/useHoldLoginState";
-export default {
-  setup() {
-    const router = useRouter();
-    const route = useRoute();
-    const store = useStore();
+import axios from "axios";
+// export default {
+//   setup() {
+const router = useRouter();
+const route = useRoute();
+const store = useStore();
 
-    // データ取得できたか
-    const isloaded = ref(false);
+// データ取得できたか
+const isloaded = ref<boolean>(false);
 
-    const recorded_day = ref("");
-    const recordedAt = ref("");
-    const recorded_at = computed(() => store.getters.getRecordedAt);
-    const compGetData = computed(() => store.getters.compGetData);
+const recorded_day = ref<string>("");
+const recordedAt = ref<string>("");
+const recorded_at: ComputedRef<string> = computed(() => store.getters.getRecordedAt);
+const compGetData: ComputedRef<boolean> = computed(() => store.getters.compGetData);
 
-    const paramName = ref("");
+const paramName = ref<string>("");
 
-    const isOpen = ref(false);
-    const user = ref([]);
+const isOpen = ref<boolean>(false);
 
-    const dispAlertModal = ref(false);
-    const dispAlertMessage = ref("");
+const dispAlertModal = ref<boolean>(false);
+const dispAlertMessage = ref<string>("");
 
-    // ログイン状態をVuexより取得
-    const isLogined = computed(() => store.state.isLogined);
+// ログイン状態をVuexより取得
+const isLogined: ComputedRef<boolean> = computed(() => store.state.isLogined);
 
-    //ちらつき防止のためログイン状態取得
-    const { holdLoginState } = useHoldLoginState();
+//ちらつき防止のためログイン状態取得
+const { holdLoginState } = useHoldLoginState();
 
-    watchEffect(() => {
-      paramName.value = route.name;
-      recorded_day.value = route.params.recordId;
-      if (recorded_at) {
-        recordedAt.value = recorded_at.value;
-      }
-    });
+watchEffect(() => {
+  paramName.value = route.name as string;
+  recorded_day.value = route.params.recordId as string;
+  if (recorded_at) {
+    recordedAt.value = recorded_at.value;
+  }
+});
 
-    // ハンバーガーメニューの表示/非表示
-    const toggleNav = () => (isOpen.value = !isOpen.value);
+// ホーム画面へ遷移
+const toHome = (): string => (window.location.href = "/");
 
-    // ホーム画面へ遷移
-    const toHome = () => (window.location.href = "/");
-
-    const closeHumbuger = () => {
-      if (isOpen) {
-        isOpen.value = false;
-      }
-    };
-
-    onMounted(async () => {
-      //ちらつき防止のためログイン状態取得
-      await holdLoginState();
-      if (isLogined.value === false || isLogined.value === true) {
-        isloaded.value = true;
-      }
-    });
-
-    // ログアウト処理
-    const logout = async () => {
-      await axios
-        .post("/api/logout", {})
-        .then((res) => {
-          if ((res.data.status_code = 200)) {
-            dispAlertModal.value = true;
-            if (route.name === "home") {
-              dispAlertMessage.value = "ログアウトしました。";
-            } else {
-              dispAlertMessage.value = "ログアウトしました。ホーム画面へ遷移します。";
-            }
-            // ログイン状態を変更するためVuexより呼び出し
-            store.commit("LogoutState");
-            //ページ再読み込み
-            // alert("ログアウトしました。");
-            holdLoginState();
-          }
-        })
-        .catch((err) => {});
-    };
-    return {
-      paramName,
-      route,
-      isOpen,
-      isLogined,
-      isloaded,
-      user,
-      dispAlertModal,
-      dispAlertMessage,
-      recorded_day,
-      recordedAt,
-      compGetData,
-      toggleNav,
-      toHome,
-      logout,
-      closeHumbuger,
-    };
-  },
+const closeHumbuger = (): void => {
+  if (isOpen) {
+    isOpen.value = false;
+  }
 };
+
+onMounted(async () => {
+  //ちらつき防止のためログイン状態取得
+  await holdLoginState();
+  if (isLogined.value === false || isLogined.value === true) {
+    isloaded.value = true;
+  }
+});
+
+// ログアウト処理
+const logout = async () => {
+  await axios
+    .post("/api/logout", {})
+    .then((res) => {
+      if ((res.data.status_code = 200)) {
+        dispAlertModal.value = true;
+        if (route.name === "home") {
+          dispAlertMessage.value = "ログアウトしました。";
+        } else {
+          dispAlertMessage.value = "ログアウトしました。ホーム画面へ遷移します。";
+        }
+        // ログイン状態を変更するためVuexより呼び出し
+        store.commit("LogoutState");
+        //ページ再読み込み
+        // alert("ログアウトしました。");
+        holdLoginState();
+      }
+    })
+    .catch((err) => {});
+};
+//     return {
+//       paramName,
+//       route,
+//       isOpen,
+//       isLogined,
+//       isloaded,
+//       user,
+//       dispAlertModal,
+//       dispAlertMessage,
+//       recorded_day,
+//       recordedAt,
+//       compGetData,
+//       toggleNav,
+//       toHome,
+//       logout,
+//       closeHumbuger,
+//     };
+//   },
+// };
 </script>
 
 <style></style>

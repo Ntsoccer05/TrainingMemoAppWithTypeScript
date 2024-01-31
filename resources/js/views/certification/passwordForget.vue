@@ -1,21 +1,28 @@
-<script setup>
-import { reactive } from "vue";
+<script setup lang="ts">
+import { reactive, ref } from "vue";
 import axios from "axios";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
+import { DispErrorMsg, Errors } from "../../types/certification";
+
+type Form = {
+  email: string;
+};
 
 // 送信データ
-const form = reactive({
+const form: Form = reactive({
   email: "",
 });
 
 // エラーメッセージ用
-const errors = reactive({
+const errors: Errors = reactive({
   email: [],
 });
-const dispErrorMsg = reactive({
+const dispErrorMsg: DispErrorMsg = reactive({
   email: false,
 });
+
+const dispAlertModal = ref<boolean>(false);
 
 //バリデーションエラーメッセージのレイアウト
 const { dispEmailErrMsg } = dispValidationMsg(dispErrorMsg);
@@ -28,11 +35,11 @@ const sendForgotPasswordEmail = async () => {
     })
     .then((res) => {
       // 成功時
-      alert("メールを送信しました。確認してください。");
+      dispAlertModal.value = true;
     })
     .catch((err) => {
       // POST時のバリデーションエラー
-      const errorMsgs = err.response.data.errors;
+      const errorMsgs: Errors = err.response.data.errors;
       useValidationMsg(errorMsgs, errors, dispErrorMsg);
     });
 };
@@ -70,6 +77,14 @@ const sendForgotPasswordEmail = async () => {
       </button>
     </div>
   </form>
+  <Modal
+    v-model="dispAlertModal"
+    title="パスワード変更メール送信完了"
+    wrapper-class="modal-wrapper"
+    class="flex align-center"
+  >
+    <p>メールを送信しました。確認してください。</p>
+  </Modal>
 </template>
 
 <style scoped></style>

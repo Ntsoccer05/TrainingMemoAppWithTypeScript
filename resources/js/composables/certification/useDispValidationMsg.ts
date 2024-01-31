@@ -3,9 +3,9 @@
 import { ComputedRef, computed } from "vue";// エラーメッセージのレイアウト
 
 type DispErrorMsg = {
-    name: boolean;
+    name?: boolean;
     email: boolean;
-    password: boolean;
+    password?: boolean;
   };
 
 // エラーメッセージのレイアウト指定（エラーメッセージがある場合のみ表示）

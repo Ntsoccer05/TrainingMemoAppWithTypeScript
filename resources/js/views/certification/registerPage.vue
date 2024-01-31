@@ -52,22 +52,22 @@
   </section>
 </template>
 
-<script>
+<script setup lang="ts">
 import Register from "../../components/certification/Register.vue";
 import SocialLogin from "../../components/certification/SocialLogin.vue";
 import { useRouter } from "vue-router";
-export default {
-  components: {
-    Register,
-    SocialLogin,
-  },
-  setup() {
-    const router = useRouter();
-    const toLogin = () => router.push("/login");
+// export default {
+//   components: {
+//     Register,
+//     SocialLogin,
+//   },
+//   setup() {
+const router = useRouter();
+const toLogin = () => router.push("/login");
 
-    return { toLogin };
-  },
-};
+//     return { toLogin };
+//   },
+// };
 </script>
 
 <style></style>
