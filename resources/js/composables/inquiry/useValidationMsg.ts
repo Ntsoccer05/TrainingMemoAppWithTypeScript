@@ -1,10 +1,11 @@
 // 合成関数では必ず変数名の頭にに「use」を付ける
+import { DispErrorMsg, Errors } from "../../types/inquiry";
 
 // エラーメッセージがあれば表示させる判定・エラーメッセージをdataに格納
 // msgs：バリデーションメッセージ一覧
 // data：エラーメッセージの格納場所
 // hasMsg：エラーメッセージを表示させるかどうか
-export default function useValidationMsg(msgs, data, hasMsg){
+export default function useValidationMsg(msgs:Errors, data:Errors, hasMsg:DispErrorMsg){
     // ユーザ名のバリデーションエラー
     if(msgs){
         // メールアドレスのバリデーションエラー
