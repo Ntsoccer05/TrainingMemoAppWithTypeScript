@@ -1,12 +1,7 @@
 // 合成関数では必ず変数名の頭にに「use」を付ける
 
 import { ComputedRef, computed } from "vue";// エラーメッセージのレイアウト
-
-type DispErrorMsg = {
-    name?: boolean;
-    email: boolean;
-    password?: boolean;
-  };
+import { DispErrorMsg, Errors } from "../../types/certification";
 
 // エラーメッセージのレイアウト指定（エラーメッセージがある場合のみ表示）
 // hasMsg：エラーメッセージが存在するかどうか

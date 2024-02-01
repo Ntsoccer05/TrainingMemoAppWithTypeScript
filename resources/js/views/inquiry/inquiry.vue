@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import Inquiry from "../../components/inquiry/inquiry.vue";
 </script>
 

@@ -1,35 +1,45 @@
-<script setup>
-import { reactive } from "vue";
+<script setup lang="ts">
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import useValidationMsg from "../../composables/inquiry/useValidationMsg";
 import dispValidationMsg from "../../composables/inquiry/useDispValidationMsg";
+import { DispErrorMsg, Errors, Form } from "../../types/inquiry";
 
 const router = useRouter();
 
 // 送信データ
-const form = reactive({
+const form: Form = reactive({
   name: "",
   email: "",
   content: "",
 });
 
 // エラーメッセージ格納
-const errors = reactive({
+const errors: Errors = reactive({
   email: [],
   content: [],
 });
 // エラーメッセージを表示するか
-const dispErrorMsg = reactive({
+const dispErrorMsg: DispErrorMsg = reactive({
   email: false,
   content: false,
 });
+
+const dispAlertModal = ref<boolean>(false);
+const btnEnabled = ref<boolean>(false);
+const btnColor = ref<string>(
+  "background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)"
+);
 
 //バリデーションエラーメッセージのレイアウト
 const { dispEmailErrMsg, dispContentErrMsg } = dispValidationMsg(dispErrorMsg);
 
 // 送信するボタン押下処理
 const sendEmail = async () => {
+  btnEnabled.value = true;
+  btnColor.value =
+    "background: linear-gradient(to right, rgb(238 119 36 / 30%), rgb(216 54 58 / 30%), rgb(221 54 117 / 30%), rgb(180 69 147 / 30%))";
   await axios
     .post("/api/inquiry", {
       name: form.name,
@@ -41,11 +51,18 @@ const sendEmail = async () => {
       //エラーメッセージを非表示
       dispEmailErrMsg.value = "hidden";
       dispContentErrMsg.value = "hidden";
-      alert("お問い合わせ内容を送信しました。");
+      dispAlertModal.value = true;
+      btnEnabled.value = false;
+      btnColor.value =
+        "background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)";
+      // alert("お問い合わせ内容を送信しました。");
     })
     .catch((err) => {
+      btnEnabled.value = false;
+      btnColor.value =
+        "background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)";
       // POST時のバリデーションエラー
-      const errorMsgs = err.response.data.errors;
+      const errorMsgs: Errors = err.response.data.errors;
       useValidationMsg(errorMsgs, errors, dispErrorMsg);
     });
 };
@@ -53,27 +70,36 @@ const sendEmail = async () => {
 // エンターキーを押すと次の要素入力可
 function keydown(e) {
   if (e.keyCode === 13) {
-    var obj = document.activeElement;
-    if (obj.nextElementSibling && obj.parentNode.nextElementSibling) {
-      if (
-        obj.parentNode.nextElementSibling.children &&
-        obj.parentNode.nextElementSibling.children[0]
-      ) {
-        if (obj.parentNode.nextElementSibling.children[0].nodeName == "INPUT") {
-          obj.parentNode.nextElementSibling.children[0].focus();
-        }
-      } else if (
-        obj.parentNode.nextElementSibling.nextElementSibling &&
-        obj.parentNode.nextElementSibling.nextElementSibling.children &&
-        obj.parentNode.nextElementSibling.nextElementSibling.children[0]
-      ) {
+    const obj: HTMLTextAreaElement | HTMLInputElement = document.activeElement as
+      | HTMLInputElement
+      | HTMLTextAreaElement;
+    if (obj.parentNode) {
+      const parentNode: HTMLDivElement = obj.parentNode as HTMLDivElement;
+      if (obj.nextElementSibling && parentNode.nextElementSibling) {
         if (
-          obj.parentNode.nextElementSibling.nextElementSibling.children[0].nodeName ==
-          "TEXTAREA"
+          parentNode.nextElementSibling.children &&
+          parentNode.nextElementSibling.children[0]
         ) {
-          obj.parentNode.nextElementSibling.nextElementSibling.children[0].focus();
-          // 1行目指定のため(無いと2行目指定となる)
-          e.returnValue = false;
+          if (parentNode.nextElementSibling.children[0].nodeName == "INPUT") {
+            const input: HTMLInputElement = parentNode.nextElementSibling
+              .children[0] as HTMLInputElement;
+            input.focus();
+          }
+        } else if (
+          parentNode.nextElementSibling.nextElementSibling &&
+          parentNode.nextElementSibling.nextElementSibling.children &&
+          parentNode.nextElementSibling.nextElementSibling.children[0]
+        ) {
+          if (
+            parentNode.nextElementSibling.nextElementSibling.children[0].nodeName ==
+            "TEXTAREA"
+          ) {
+            const textarea: HTMLTextAreaElement = parentNode.nextElementSibling
+              .nextElementSibling.children[0] as HTMLTextAreaElement;
+            textarea.focus();
+            // 1行目指定のため(無いと2行目指定となる)
+            e.returnValue = false;
+          }
         }
       }
     }
@@ -144,13 +170,22 @@ window.onkeydown = keydown;
         type="button"
         data-te-ripple-init
         data-te-ripple-color="light"
-        style="background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)"
+        :style="btnColor"
         @click.prevent="sendEmail"
+        :disabled="btnEnabled"
       >
         送信する
       </button>
     </div>
   </form>
+  <Modal
+    v-model="dispAlertModal"
+    title="お問い合わせ送信完了"
+    wrapper-class="modal-wrapper"
+    class="flex align-center"
+  >
+    <p>お問い合わせ内容を送信しました。</p>
+  </Modal>
 </template>
 
 <style scoped></style>
