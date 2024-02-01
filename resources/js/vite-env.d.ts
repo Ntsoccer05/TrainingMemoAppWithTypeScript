@@ -1,3 +1,5 @@
+// import.meta.env　対策
+
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
