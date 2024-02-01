@@ -3,11 +3,7 @@ import { reactive, ref } from "vue";
 import axios from "axios";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
-import { DispErrorMsg, Errors } from "../../types/certification";
-
-type Form = {
-  email: string;
-};
+import { DispErrorMsg, Errors, Form } from "../../types/certification";
 
 // 送信データ
 const form: Form = reactive({

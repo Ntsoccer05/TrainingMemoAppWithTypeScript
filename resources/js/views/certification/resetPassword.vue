@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
-import { DispErrorMsg, Errors } from "../../types/certification";
+import { DispErrorMsg, Errors, Form } from "../../types/certification";
 
 const router = useRouter();
 
@@ -12,13 +12,6 @@ const router = useRouter();
 const queryParameters: URLSearchParams = new URLSearchParams(window.location.search);
 const email: string = queryParameters.get("email");
 const token: string = queryParameters.get("token");
-
-type Form = {
-  email: string;
-  token: string;
-  password: string;
-  password_confirmation: string;
-};
 
 // 送信データ
 const form: Form = reactive({
