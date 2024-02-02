@@ -1,12 +1,15 @@
-<script setup>
-import { computed } from "vue";
+<script setup lang="ts">
+import { ComputedRef, computed } from "vue";
+import { dispRecordContents } from "../../types/recordRanking";
 
-const props = defineProps({
-  ranking_contents: [Object, String],
-  category_contents: Array,
-});
-const dispContents = computed(() => props.ranking_contents);
-const categoryContents = computed(() => props.category_contents);
+const props = defineProps<{
+  ranking_contents: dispRecordContents;
+  category_contents: Array<string>;
+}>();
+const dispContents: ComputedRef<dispRecordContents> = computed(
+  () => props.ranking_contents
+);
+const categoryContents: ComputedRef<string[]> = computed(() => props.category_contents);
 </script>
 
 <template>
@@ -17,7 +20,7 @@ const categoryContents = computed(() => props.category_contents);
       class="mx-auto mt-3 md:w-6/12 w-11/12 text-center"
     >
       <p class="text-lg font-bold">{{ categoryContent }}</p>
-      <div v-for="dispContent in dispContents" :key="dispContent.menu">
+      <div v-for="(dispContent, index) in dispContents" :key="index">
         <template v-if="categoryContent === dispContent.category.content">
           <table class="border border-collapse table-fixed mx-auto w-full mt-3">
             <thead class="block border">

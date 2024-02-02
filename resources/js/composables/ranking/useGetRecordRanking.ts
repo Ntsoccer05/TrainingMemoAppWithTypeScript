@@ -1,11 +1,12 @@
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import axios from "axios";
 import useNotLoginedRedirect from "../certification/useNotLoginedRedirect";
+import { dispRecordContents } from "../../types/recordRanking";
 
 export default function useGetRecords(){
-    const rankingContents = ref("");
-    const compGetData = ref(false);
-    const categoryContents = ref([])
+    const rankingContents = ref<dispRecordContents>([]);
+    const compGetData = ref<boolean>(false);
+    const categoryContents = ref<string[]>([])
     
     const getRecords = async(user_id)=>{
         await axios.get("/api/recordRanking/user", {

@@ -1,5 +1,5 @@
-<script setup>
-import { onMounted, computed, ref } from "vue";
+<script setup lang="ts">
+import { onMounted, computed, ref, ComputedRef } from "vue";
 import userRecordRankingTable from "../../components/ranking/userRecordRankingTable.vue";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordRanking from "../../composables/ranking/useGetRecordRanking";
@@ -10,8 +10,8 @@ const router = useRouter();
 const store = useStore();
 
 const { getLoginUser, loginUser } = useGetLoginUser();
-const dispModal = computed(() => store.getters.dispAlertModal);
-const dispAlertModal = ref(false);
+const dispModal: ComputedRef<boolean> = computed(() => store.getters.dispAlertModal);
+const dispAlertModal = ref<boolean>(false);
 
 // メニュー別ランキングを取得
 const {
@@ -22,16 +22,16 @@ const {
 } = useGetRecordRanking();
 
 //前の画面へ戻る
-const toBeforeScreen = () => {
+const toBeforeScreen = (): void => {
   history.back();
 };
 
-const toHome = () => {
+const toHome = (): void => {
   //router.pushが効かない
   window.location.href = "/";
 };
 
-const toLogin = () => {
+const toLogin = (): void => {
   router.push("/login");
 };
 

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import SelectMenu from "../../components/record/SelectMenu.vue";
 </script>
 
