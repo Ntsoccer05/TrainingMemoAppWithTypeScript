@@ -28,30 +28,32 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { ref, computed, watchEffect } from "vue";
-export default {
-  props: {
-    categories: Object,
-  },
-  setup(props) {
-    const categories = ref(computed(() => props.categories));
-    const isOdd = ref(false);
-    // watchEffectを使用すると中で使っている定義の値が変わった時、また初回レンダリング時に実行される。
-    watchEffect(() => {
-      if (categories.value.length % 2 === 1) {
-        isOdd.value = true;
-      } else {
-        isOdd.value = false;
-      }
-    });
-
-    return {
-      categories,
-      isOdd,
-    };
-  },
+import { Category } from "../../types/trainingMenu";
+// export default {
+type props = {
+  categories: Category;
 };
+
+const props = defineProps<props>();
+const categories = ref(computed(() => props.categories));
+const isOdd = ref<boolean>(false);
+// watchEffectを使用すると中で使っている定義の値が変わった時、また初回レンダリング時に実行される。
+watchEffect(() => {
+  if (categories.value.length % 2 === 1) {
+    isOdd.value = true;
+  } else {
+    isOdd.value = false;
+  }
+});
+
+//   return {
+//     categories,
+//     isOdd,
+//   };
+// },
+// };
 </script>
 
 <style></style>

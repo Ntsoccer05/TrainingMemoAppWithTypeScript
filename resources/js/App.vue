@@ -5,27 +5,25 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { onMounted } from "vue";
-import { useRouter } from "vue-router";
 import Header from "./components/headerMenu/Header.vue";
 import useHoldLoginState from "./composables/certification/useHoldLoginState";
 
-export default {
-  components: {
-    Header,
-  },
-  setup() {
-    const router = useRouter();
-    //ログイン状態をリロードしても維持するため
-    const { holdLoginState } = useHoldLoginState();
+// export default {
+//   components: {
+//     Header,
+//   },
+//   setup() {
+//ログイン状態をリロードしても維持するため
+const { holdLoginState } = useHoldLoginState();
 
-    // async await を使わないとユーザ情報取得する前にMountedサイクルが終了してしまう
-    onMounted(async () => {
-      await holdLoginState();
-    });
-  },
-};
+// async await を使わないとユーザ情報取得する前にMountedサイクルが終了してしまう
+onMounted(async () => {
+  await holdLoginState();
+});
+//   },
+// };
 </script>
 
 <style>

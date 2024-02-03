@@ -13,19 +13,19 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { useStore } from "vuex";
 import Calendar from "../components/record/Calendar.vue";
 import RecordToday from "../components/record/RecordToday.vue";
-export default {
-  components: {
-    RecordToday,
-    Calendar,
-  },
-  setup() {
-    const store = useStore();
-    // 記録日を初期化
-    store.commit("setRecordedAt", "");
-  },
-};
+// export default {
+//   components: {
+//     RecordToday,
+//     Calendar,
+//   },
+//   setup() {
+const store = useStore();
+// 記録日を初期化
+store.commit("setRecordedAt", "");
+//   },
+// };
 </script>

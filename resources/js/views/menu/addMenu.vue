@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import addMenu from "../../components/trainingMenu/addMenu.vue";
 </script>
 

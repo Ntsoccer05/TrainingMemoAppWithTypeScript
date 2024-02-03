@@ -97,172 +97,140 @@
   </Modal>
 </template>
 
-<script>
-import { ref, reactive, onMounted, nextTick, computed } from "vue";
+<script setup lang="ts">
+import { ref, reactive, onMounted, nextTick, computed, ComputedRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useValidationMsg from "../../composables/menu/useValidationMsg";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import dispValidationMsg from "../../composables/menu/useDispValidationMsg";
 import MenuTable from "../record/MenuTable.vue";
-export default {
-  components: {
-    MenuTable,
-  },
-  setup() {
-    const router = useRouter();
-    const route = useRoute();
-    const store = useStore();
-    const recordedAt = ref("");
+import { Errors, DispErrorMsg, Post, Category } from "../../types/trainingMenu";
+import axios from "axios";
+// export default {
+//   components: {
+//     MenuTable,
+//   },
+//   setup() {
+const router = useRouter();
+const route = useRoute();
+const store = useStore();
+const recordedAt = ref<string>("");
 
-    const editable = ref(false);
+const editable = ref<boolean>(false);
 
-    const dispModal = computed(() => store.getters.dispAlertModal);
-    const dispAlertModal = ref(false);
+const dispModal: ComputedRef<boolean> = computed(() => store.getters.dispAlertModal);
+const dispAlertModal = ref<boolean>(false);
 
-    const recorded_day = route.params.recordId;
+const recorded_day: string = route.params.recordId as string;
 
-    const errors = reactive({
-      category_content: [],
-      menu: [],
-    });
-    const dispErrorMsg = reactive({
-      category_content: false,
-      menu: false,
-    });
+const errors = reactive<Errors>({
+  category_content: [],
+  menu: [],
+});
+const dispErrorMsg = reactive<DispErrorMsg>({
+  category_content: false,
+  menu: false,
+});
 
-    const toHome = () => {
-      //router.pushが効かない
-      window.location.href = "/";
-    };
-    const toLogin = () => {
-      router.push("/login");
-    };
+const toHome = (): void => {
+  //router.pushが効かない
+  window.location.href = "/";
+};
+const toLogin = (): void => {
+  router.push("/login");
+};
 
-    const post = reactive({});
+const post = reactive<Post>({
+  user_id: -1,
+  category_content: "",
+  category_id: "",
+  menu: "",
+  oneSide: false,
+});
 
-    //以下の形でデータが入っている。
-    const categories = ref([]);
+//以下の形でデータが入っている。
+const categories = ref<Category>([]);
 
-    const selectedCategory = ref("");
-    const addCategory = ref("");
-    const addMenu = ref("");
-    const sepereteRecord = ref(false);
-    const isInputMenu = ref(false);
+const selectedCategory = ref<string>("");
+const addCategory = ref<string>("");
+const addMenu = ref<string>("");
+const sepereteRecord = ref<boolean>(false);
+const isInputMenu = ref<boolean>(false);
 
-    // DOM取得(Returnに追記しないとDOM取得できない)
-    const addPart = ref(null);
-    const addPartBtn = ref(null);
+// DOM取得(Returnに追記しないとDOM取得できない)
+const addPart = ref<HTMLElement>(null);
+const addPartBtn = ref<HTMLElement>(null);
 
-    // computedはreturnする必要がある
-    const recorded_at = computed(() => store.getters.getRecordedAt);
-    if (recorded_at) {
-      recordedAt.value = recorded_at.value;
-    }
+// computedはreturnする必要がある
+const recorded_at: ComputedRef<string> = computed(() => store.getters.getRecordedAt);
+if (recorded_at) {
+  recordedAt.value = recorded_at.value;
+}
 
+//バリデーションエラーメッセージのレイアウト
+const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
+
+onMounted(async () => {
+  await getLoginUser();
+  if (dispModal.value) {
+    dispAlertModal.value = true;
+  }
+
+  getMenus();
+  //動的に要素を追加したものに対する処理にはnextTickを用いる
+  nextTick(() => {
+    getLoginUser();
+  });
+});
+
+const toggleBtnInput = () => {
+  if (selectedCategory.value == "新規追加する") {
+    isInputMenu.value = true;
+
+    //バリデーションメッセージを初期化
+    dispErrorMsg.category_content = false;
+    dispErrorMsg.menu = false;
     //バリデーションエラーメッセージのレイアウト
     const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
+    return { dispCategoryErrMsg, dispMenuErrMsg };
+  }
+};
 
-    onMounted(async () => {
-      await getLoginUser();
-      if (dispModal.value) {
-        dispAlertModal.value = true;
-      }
-
-      getMenus();
-      //動的に要素を追加したものに対する処理にはnextTickを用いる
-      nextTick(() => {
-        getLoginUser();
-      });
-    });
-
-    const toggleBtnInput = () => {
-      if (selectedCategory.value == "新規追加する") {
-        isInputMenu.value = true;
-
-        //バリデーションメッセージを初期化
-        dispErrorMsg.category_content = false;
-        dispErrorMsg.menu = false;
+// 追加するボタン押下時
+const addMenuContent = async () => {
+  if (isInputMenu.value === true) {
+    post.user_id = loginUser.value.id;
+    if (addCategory.value === "") {
+      post.category_content = false;
+    } else {
+      post.category_content = addCategory.value;
+    }
+  } else {
+    post.user_id = loginUser.value.id;
+    post.category_content = "";
+    post.category_id = selectedCategory.value;
+    post.menu = addMenu.value;
+    post.oneSide = sepereteRecord.value;
+  }
+  await axios
+    .post("/api/menus/store", post)
+    .then((res) => {
+      if (res.data.status === 400) {
+        // POST時のバリデーションエラー
+        const errorMsgs = res.data.errors;
+        useValidationMsg(errorMsgs, errors, dispErrorMsg);
         //バリデーションエラーメッセージのレイアウト
         const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
         return { dispCategoryErrMsg, dispMenuErrMsg };
       }
-    };
-
-    // 追加するボタン押下時
-    const addMenuContent = async () => {
-      if (isInputMenu.value === true) {
-        post.user_id = loginUser.value.id;
-        if (addCategory.value === "") {
-          post.category_content = false;
-        } else {
-          post.category_content = addCategory.value;
-        }
-      } else {
-        post.user_id = loginUser.value.id;
-        post.category_content = "";
-        post.category_id = selectedCategory.value;
-        post.menu = addMenu.value;
-        post.oneSide = sepereteRecord.value;
-      }
-      await axios
-        .post("/api/menus/store", post)
-        .then((res) => {
-          if (res.data.status === 400) {
-            // POST時のバリデーションエラー
-            const errorMsgs = res.data.errors;
-            useValidationMsg(errorMsgs, errors, dispErrorMsg);
-            //バリデーションエラーメッセージのレイアウト
-            const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(
-              dispErrorMsg
-            );
-            return { dispCategoryErrMsg, dispMenuErrMsg };
-          }
-          if (selectedCategory.value == "新規追加する") {
-            isInputMenu.value = false;
-            // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
-            selectedCategory.value = "";
-            addCategory.value = "";
-            getMenus();
-            alert("部位を追加しました。");
-            //バリデーションメッセージを初期化
-            dispErrorMsg.category_content = false;
-            dispErrorMsg.menu = false;
-            //バリデーションエラーメッセージのレイアウト
-            const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(
-              dispErrorMsg
-            );
-            return { dispCategoryErrMsg, dispMenuErrMsg };
-          } else {
-            if (addMenu.value !== "") {
-              addMenu.value = "";
-              getMenus();
-              alert("種目を追加しました。");
-              //バリデーションメッセージを初期化
-              dispErrorMsg.category_content = false;
-              dispErrorMsg.menu = false;
-              //バリデーションエラーメッセージのレイアウト
-              const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(
-                dispErrorMsg
-              );
-              return { dispCategoryErrMsg, dispMenuErrMsg };
-            }
-          }
-        })
-        .catch((err) => {
-          // POST時のバリデーションエラー
-          const errorMsgs = err.response.data.errors;
-          useValidationMsg(errorMsgs, errors, dispErrorMsg);
-        });
-    };
-
-    // キャンセルボタン押下時
-    const cancelAddMenu = () => {
       if (selectedCategory.value == "新規追加する") {
         isInputMenu.value = false;
         // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
         selectedCategory.value = "";
-
+        addCategory.value = "";
+        getMenus();
+        alert("部位を追加しました。");
         //バリデーションメッセージを初期化
         dispErrorMsg.category_content = false;
         dispErrorMsg.menu = false;
@@ -270,68 +238,102 @@ export default {
         const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
         return { dispCategoryErrMsg, dispMenuErrMsg };
       } else {
-        addMenu.value = "";
-        if (isInputMenu.value) {
-          //前の画面へ戻りたいため
-          history.back();
-        } else {
-          router.push({ name: "selectMenu", params: { recordId: recorded_day } });
+        if (addMenu.value !== "") {
+          addMenu.value = "";
+          getMenus();
+          alert("種目を追加しました。");
+          //バリデーションメッセージを初期化
+          dispErrorMsg.category_content = false;
+          dispErrorMsg.menu = false;
+          //バリデーションエラーメッセージのレイアウト
+          const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
+          return { dispCategoryErrMsg, dispMenuErrMsg };
         }
       }
-    };
-
-    const { getLoginUser, loginUser } = useGetLoginUser();
-
-    //メニュー内容を取得
-    const getMenus = async () => {
-      await axios
-        .get("/api/menus", {
-          // get時にパラメータを渡す際はparamsで指定が必要
-          params: {
-            user_id: loginUser.value.id,
-          },
-        })
-        .then((res) => {
-          categories.value = res.data.categorylist;
-        })
-        .catch((err) => {});
-    };
-
-    onMounted(async () => {
-      // DOM取得のため
-      const addPartDom = addPart.value;
-
-      await getLoginUser();
-
-      getMenus();
-      //動的に要素を追加したものに対する処理にはnextTickを用いる
-      nextTick(() => {
-        const addPartBtnDom = addPartBtn.value;
-        toggleBtnInput();
-      });
+    })
+    .catch((err) => {
+      // POST時のバリデーションエラー
+      const errorMsgs: Errors = err.response.data.errors;
+      useValidationMsg(errorMsgs, errors, dispErrorMsg);
     });
-
-    return {
-      categories,
-      selectedCategory,
-      errors,
-      addMenu,
-      sepereteRecord,
-      addCategory,
-      addPart,
-      addPartBtn,
-      isInputMenu,
-      dispCategoryErrMsg,
-      dispMenuErrMsg,
-      toggleBtnInput,
-      cancelAddMenu,
-      addMenuContent,
-      dispAlertModal,
-      toHome,
-      toLogin,
-    };
-  },
 };
+
+// キャンセルボタン押下時
+const cancelAddMenu = () => {
+  if (selectedCategory.value == "新規追加する") {
+    isInputMenu.value = false;
+    // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
+    selectedCategory.value = "";
+
+    //バリデーションメッセージを初期化
+    dispErrorMsg.category_content = false;
+    dispErrorMsg.menu = false;
+    //バリデーションエラーメッセージのレイアウト
+    const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
+    return { dispCategoryErrMsg, dispMenuErrMsg };
+  } else {
+    addMenu.value = "";
+    if (isInputMenu.value) {
+      //前の画面へ戻りたいため
+      history.back();
+    } else {
+      router.push({ name: "selectMenu", params: { recordId: recorded_day } });
+    }
+  }
+};
+
+const { getLoginUser, loginUser } = useGetLoginUser();
+
+//メニュー内容を取得
+const getMenus = async () => {
+  await axios
+    .get("/api/menus", {
+      // get時にパラメータを渡す際はparamsで指定が必要
+      params: {
+        user_id: loginUser.value.id,
+      },
+    })
+    .then((res) => {
+      categories.value = res.data.categorylist;
+    })
+    .catch((err) => {});
+};
+
+onMounted(async () => {
+  // DOM取得のため
+  const addPartDom: HTMLElement = addPart.value;
+
+  await getLoginUser();
+
+  getMenus();
+  //動的に要素を追加したものに対する処理にはnextTickを用いる
+  nextTick(() => {
+    const addPartBtnDom: HTMLElement = addPartBtn.value;
+    toggleBtnInput();
+  });
+});
+
+// return {
+//   categories,
+//   selectedCategory,
+//   errors,
+//   addMenu,
+//   sepereteRecord,
+//   addCategory,
+//   addPart,
+//   addPartBtn,
+//   isInputMenu,
+//   dispCategoryErrMsg,
+//   dispMenuErrMsg,
+//   toggleBtnInput,
+//   cancelAddMenu,
+//   addMenuContent,
+//   dispAlertModal,
+//   toHome,
+//   toLogin,
+// };
+//   },
+// };
 </script>
 
 <style></style>
