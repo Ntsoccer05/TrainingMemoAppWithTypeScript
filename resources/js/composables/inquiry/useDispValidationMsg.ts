@@ -1,6 +1,6 @@
 // 合成関数では必ず変数名の頭にに「use」を付ける
 
-import { computed } from "vue";// エラーメッセージのレイアウト
+import { ComputedRef, computed } from "vue";// エラーメッセージのレイアウト
 import { DispErrorMsg, Errors } from "../../types/inquiry";
 
 // エラーメッセージのレイアウト指定（エラーメッセージがある場合のみ表示）

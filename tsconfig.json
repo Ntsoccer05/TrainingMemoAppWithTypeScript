@@ -5,6 +5,7 @@
       "strict": false,
       "jsx": "preserve",
       "moduleResolution": "node",
+      "esModuleInterop" : true
   },
   "include": ["./resources/js/**/*"]
 }

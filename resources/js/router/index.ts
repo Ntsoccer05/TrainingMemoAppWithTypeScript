@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { RouteRecordRaw, createRouter, createWebHistory } from 'vue-router';
 //遅延ローディング
 const Login = () =>import('../views/certification/loginPage.vue');
 const Register = () =>import('../views/certification/registerPage.vue');
@@ -7,7 +7,6 @@ const googleRegister = () =>import('../views/certification/googleRegister.vue');
 const Home = () =>import('../views/home.vue');
 const SelectMenu = () =>import('../views/record/selectMenu.vue');
 const Record = () =>import('../views/record/recordContents.vue');
-const trainingMenuList = () =>import('../views/trainingMenuList.vue');
 const AddMenu = () =>import('../views/menu/addMenu.vue');
 const PasswordForget = () =>import('../views/certification/passwordForget.vue');
 const ResetPassword = () =>import('../views/certification/resetPassword.vue');
@@ -98,15 +97,6 @@ const routes = [
     path: '/record/:recordId',
     name: 'record',
     component: Record,
-    props: true,
-    // ログインの必要あり
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/menu/:user_id?/:recordId?',
-    name: 'menu',
-    component: trainingMenuList,
-    props: true,
     // ログインの必要あり
     meta: { requiresAuth: true },
   },
@@ -134,7 +124,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes: routes as RouteRecordRaw[],
   scrollBehavior(to, from, savedPosition){
     if (savedPosition && to.path === '/selectMenu' && from.path === '/record') {
       return savedPosition
