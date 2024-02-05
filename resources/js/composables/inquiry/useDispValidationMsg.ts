@@ -8,12 +8,12 @@ import { DispErrorMsg, Errors } from "../../types/inquiry";
 export default function useDispValidationMsg(hasMsg:DispErrorMsg){
     // メールアドレスのバリデーションエラー
     const dispEmailErrMsg:ComputedRef<string> = computed(() => {
-        return hasMsg.email ? "text-red-500 text-sm italic mt-1 mb-2" : "hidden";
+        return hasMsg.email ? "absolute text-red-500 text-sm italic mt-1 mb-2" : "hidden";
     });
 
     // お問い合わせ内容のバリデーションエラー
     const dispContentErrMsg:ComputedRef<string> = computed(() => {
-        return hasMsg.content ? "text-red-500 text-sm italic mt-1 mb-2" : "hidden";
+        return hasMsg.content ? "absolute text-red-500 text-sm italic mt-1 mb-2" : "hidden";
     });
 
     return {dispEmailErrMsg, dispContentErrMsg};

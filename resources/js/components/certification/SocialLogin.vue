@@ -18,6 +18,7 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from "vue-router";
 import { ref } from "vue";
+import axios from "axios";
 // export default {
 //   setup() {
 const router = useRouter();

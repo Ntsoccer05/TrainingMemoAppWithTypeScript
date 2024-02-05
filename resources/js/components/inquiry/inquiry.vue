@@ -48,13 +48,16 @@ const sendEmail = async () => {
     })
     .then((res) => {
       // 成功時
-      //エラーメッセージを非表示
-      dispEmailErrMsg.value = "hidden";
-      dispContentErrMsg.value = "hidden";
       dispAlertModal.value = true;
       btnEnabled.value = false;
       btnColor.value =
         "background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)";
+      //エラーメッセージを非表示
+      //バリデーションメッセージを初期化
+      dispErrorMsg.email = false;
+      dispErrorMsg.content = false;
+      //バリデーションエラーメッセージのレイアウト
+      const { dispEmailErrMsg, dispContentErrMsg } = dispValidationMsg(dispErrorMsg);
       // alert("お問い合わせ内容を送信しました。");
     })
     .catch((err) => {
