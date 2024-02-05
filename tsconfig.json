@@ -5,7 +5,8 @@
       "strict": false,
       "jsx": "preserve",
       "moduleResolution": "node",
-      "esModuleInterop" : true
+      "esModuleInterop" : true,
+      "allowSyntheticDefaultImports": true,
   },
   "include": ["./resources/js/**/*"]
 }
