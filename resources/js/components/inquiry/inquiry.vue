@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import useValidationMsg from "../../composables/inquiry/useValidationMsg";
 import dispValidationMsg from "../../composables/inquiry/useDispValidationMsg";
-import { DispErrorMsg, Errors, Form } from "../../types/inquiry";
+import { DispErrorMsg, Errors, FormData } from "../../types/inquiry";
 
 const router = useRouter();
 
 // 送信データ
-const form: Form = reactive({
+const form: FormData = reactive({
   name: "",
   email: "",
   content: "",
 });
+
+// 送信ボタン表示文字
+const btnText = ref<string>("送信する");
+
+const btnStyle = ref<string>("");
 
 // エラーメッセージ格納
 const errors: Errors = reactive({
@@ -27,10 +32,25 @@ const dispErrorMsg: DispErrorMsg = reactive({
 });
 
 const dispAlertModal = ref<boolean>(false);
-const btnEnabled = ref<boolean>(false);
+const btnEnabled = ref<boolean>(true);
 const btnColor = ref<string>(
-  "background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)"
+  "background: linear-gradient(to right, rgb(238 119 36 / 30%), rgb(216 54 58 / 30%), rgb(221 54 117 / 30%), rgb(180 69 147 / 30%))"
 );
+
+watch(form, () => {
+  if (form.email !== "" && form.content !== "") {
+    btnEnabled.value = false;
+    btnColor.value =
+      "background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)";
+    btnStyle.value =
+      "hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]";
+  } else {
+    btnEnabled.value = true;
+    btnColor.value =
+      "background: linear-gradient(to right, rgb(238 119 36 / 30%), rgb(216 54 58 / 30%), rgb(221 54 117 / 30%), rgb(180 69 147 / 30%)); pointer-events: none";
+    btnStyle.value = "";
+  }
+});
 
 //バリデーションエラーメッセージのレイアウト
 const { dispEmailErrMsg, dispContentErrMsg } = dispValidationMsg(dispErrorMsg);
@@ -40,6 +60,8 @@ const sendEmail = async () => {
   btnEnabled.value = true;
   btnColor.value =
     "background: linear-gradient(to right, rgb(238 119 36 / 30%), rgb(216 54 58 / 30%), rgb(221 54 117 / 30%), rgb(180 69 147 / 30%))";
+  btnText.value = "送信中です。。。";
+  btnStyle.value = "";
   await axios
     .post("/api/inquiry", {
       name: form.name,
@@ -52,6 +74,9 @@ const sendEmail = async () => {
       btnEnabled.value = false;
       btnColor.value =
         "background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)";
+      btnText.value = "送信する";
+      btnStyle.value =
+        "hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]";
       //エラーメッセージを非表示
       //バリデーションメッセージを初期化
       dispErrorMsg.email = false;
@@ -64,6 +89,9 @@ const sendEmail = async () => {
       btnEnabled.value = false;
       btnColor.value =
         "background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)";
+      btnText.value = "送信する";
+      btnStyle.value =
+        "hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]";
       // POST時のバリデーションエラー
       const errorMsgs: Errors = err.response.data.errors;
       useValidationMsg(errorMsgs, errors, dispErrorMsg);
@@ -118,14 +146,14 @@ window.onkeydown = keydown;
     <div class="relative mb-6" data-te-input-wrapper-init>
       <input
         type="text"
-        class="peer block min-h-[auto] w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
+        class="peer block min-h-[auto] w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-600 dark:placeholder:text-neutral-600 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
         id="name"
         v-model="form.name"
-        placeholder="お名前"
+        placeholder=""
       />
       <label
         for="name"
-        class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
+        class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-600 dark:peer-focus:text-primary"
         >お名前
       </label>
     </div>
@@ -134,14 +162,15 @@ window.onkeydown = keydown;
     <div class="relative mb-6" data-te-input-wrapper-init>
       <input
         type="text"
-        class="peer block min-h-[auto] w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
+        class="peer block min-h-[auto] w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-600 dark:placeholder:text-neutral-600 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
         id="email"
         v-model="form.email"
-        placeholder="メールアドレス"
+        placeholder=""
+        required
       />
       <label
         for="email"
-        class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
+        class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-600 dark:peer-focus:text-primary"
         >メールアドレス<span class="text-sm text-red-600">(※必須)</span>
       </label>
       <p :class="dispEmailErrMsg">{{ errors.email[0] }}</p>
@@ -153,14 +182,15 @@ window.onkeydown = keydown;
     </p>
     <div class="relative h-2/3 mb-6" data-te-input-wrapper-init>
       <textarea
-        class="peer block h-full w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
+        class="peer block h-full w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-600 dark:placeholder:text-neutral-600 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
         id="content"
         v-model="form.content"
-        placeholder="追加してほしい機能や相談ごとなど承ります"
+        placeholder=""
+        required
       />
       <label
         for="content"
-        class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/3 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-200 dark:peer-focus:text-primary"
+        class="pointer-events-none absolute duration-300 bg-white scale-[0.8] transform -translate-y-[1.15rem] top-2 origin-[0] text-neutral-500 px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/3 peer-focus:top-2 peer-focus:scale-[0.8] peer-focus:-translate-y-[1.15rem] left-1 dark:text-neutral-600 dark:peer-focus:text-primary"
         >お問い合わせ内容<span class="text-sm text-red-600">(※必須)</span>
       </label>
       <p :class="dispContentErrMsg">{{ errors.content[0] }}</p>
@@ -169,15 +199,17 @@ window.onkeydown = keydown;
     <!--Submit button-->
     <div class="mb-6 mt-10 md:mb-0 pb-1 pt-1 text-center">
       <button
-        class="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-base font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
-        type="button"
+        :class="[
+          btnStyle,
+          'mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-base font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out',
+        ]"
+        type="submit"
         data-te-ripple-init
         data-te-ripple-color="light"
         :style="btnColor"
-        @click.prevent="sendEmail"
         :disabled="btnEnabled"
       >
-        送信する
+        {{ btnText }}
       </button>
     </div>
   </form>

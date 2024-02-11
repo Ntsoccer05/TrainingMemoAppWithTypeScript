@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Record;
 use App\Models\RecordContent;
+use App\Models\RecordMenu;
 use App\Models\RecordState;
 use Carbon\Carbon;
 use Illuminate\Console\Command;

@@ -5,7 +5,7 @@ module.exports = {
     './resources/**/*.js',
     './resources/**/*.ts',
     './resources/**/*.vue',
-  ],
+      ],
   theme: {
     extend: {
       width:{

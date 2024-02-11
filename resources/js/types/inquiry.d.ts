@@ -8,7 +8,7 @@ export declare type Errors = {
     content: Array<string>;
 };
 
-export declare type Form = {
+export declare type FormData = {
     name: string;
     email: string;
     content: string;

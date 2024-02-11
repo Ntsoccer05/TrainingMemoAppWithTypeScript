@@ -129,7 +129,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { useRoute, onBeforeRouteLeave } from "vue-router";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { useStore } from "vuex";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
@@ -146,6 +146,7 @@ import useGetHistoryRecordContent from "../../composables/record/useGetHistoryRe
 //   setup() {
 const route = useRoute();
 const store = useStore();
+const router = useRouter();
 
 const hasOneHand = ref(false);
 
@@ -258,9 +259,9 @@ const fillBeforeRecord = async () => {
     BeforeTotalSetTxt.value = "前回の合計セット数";
     BeforeHeaderTxt.value = "前回の記録";
   } else {
-    BeforeWeightTxt.value = "前々回の体重";
-    BeforeTotalSetTxt.value = "前々回の合計セット数";
-    BeforeHeaderTxt.value = "前々回の記録";
+    // BeforeWeightTxt.value = "前々回の体重";
+    // BeforeTotalSetTxt.value = "前々回の合計セット数";
+    // BeforeHeaderTxt.value = "前々回の記録";
   }
 };
 
@@ -278,8 +279,8 @@ const ableToClickBefore = (e) => {
     BeforeBtnTxt.value = "前回の記録を埋める";
     isDispTxt.value = false;
   } else {
-    BeforeBtnTxt.value = "前々回の記録を埋める";
-    isDispTxt.value = true;
+    // BeforeBtnTxt.value = "前々回の記録を埋める";
+    // isDispTxt.value = true;
   }
 };
 
@@ -332,6 +333,7 @@ const firstRecord = async () => {
 
 onMounted(async () => {
   await getLoginUser();
+  debugger;
   if (dispModal.value) {
     dispAlertModal.value = true;
   }
@@ -347,12 +349,12 @@ onMounted(async () => {
     isDispTxt.value = false;
     compGetData.value = true;
   } else {
-    BeforeBtnTxt.value = "前々回の記録を埋める";
-    BeforeWeightTxt.value = "前々回の体重";
-    BeforeTotalSetTxt.value = "前々回の合計セット数";
-    BeforeHeaderTxt.value = "前々回の記録";
-    isDispTxt.value = true;
-    compGetData.value = true;
+    // BeforeBtnTxt.value = "前々回の記録を埋める";
+    // BeforeWeightTxt.value = "前々回の体重";
+    // BeforeTotalSetTxt.value = "前々回の合計セット数";
+    // BeforeHeaderTxt.value = "前々回の記録";
+    // isDispTxt.value = true;
+    // compGetData.value = true;
   }
   const fillBeforeBtnDom = fillBeforeBtn.value;
 
@@ -365,13 +367,9 @@ onMounted(async () => {
 
 //遷移前処理
 onBeforeRouteLeave(async (to, from, next) => {
-  if (to.name === "selectMenu") {
-    if (thisTotalSet.value === 0) {
-      await deleteFirstRecord();
-      next();
-    } else {
-      next();
-    }
+  if (thisTotalSet.value === 0) {
+    await deleteFirstRecord();
+    next();
   } else {
     next();
   }
