@@ -43,6 +43,7 @@ class LoginController extends Controller
                 $msg = ['password'=>'パスワードが間違っています'];
                 return response()->json(['status_code' => $status,'errors' => $msg], 401);
             }
+            // 第二引数がtrueの場合、vendor/laravel/framework/src/Illuminate/Auth/SessionGuard.phpにてクッキーを発行する
             Auth::guard()->login($user, true);
             $request->session()->regenerate();
             return response()->json(['status_code' => $status,'message' => 'ログインしました'], 200);

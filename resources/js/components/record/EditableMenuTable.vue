@@ -123,259 +123,267 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted, nextTick, computed } from "vue";
+<script setup lang="ts">
+import { ref, onMounted, nextTick, computed, ComputedRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordState from "../../composables/record/useGetRecordState";
-export default {
-  props: {
-    editable: Boolean,
-    dispHeadText: String,
-    records: [Array, String],
-    dataMenu: Array,
-  },
-  setup(props) {
-    const router = useRouter();
-    const route = useRoute();
+import { Records, Categories, Category, Menu } from "../../types/record";
+import axios from "axios";
+// export default {
+//   props: {
+//     editable: Boolean,
+//     dispHeadText: String,
+//     records: [Array, String],
+//     dataMenu: Array,
+//   },
+//   setup(props) {
+const props = defineProps<{
+  editable: boolean;
+  dispHeadText: string;
+  records: [Records[], string];
+  dataMenu: Array<number>;
+}>();
 
-    //Propsの値はcomputedに入れないとreadOnlyとなり変更できない。
-    const editable = computed(() => props.editable);
-    const dispHeadText = computed(() => props.dispHeadText);
-    const dataMenu = computed(() => props.dataMenu);
+const router = useRouter();
+const route = useRoute();
 
-    const recorded_day = route.params.recordId;
+//Propsの値はcomputedに入れないとreadOnlyとなり変更できない。
+const editable: ComputedRef<boolean> = computed(() => props.editable);
+const dispHeadText: ComputedRef<string> = computed(() => props.dispHeadText);
+const dataMenu: ComputedRef<number[]> = computed(() => props.dataMenu);
 
-    const isOdd = ref(false);
+const recorded_day: string = route.params.recordId as string;
 
-    // DOM取得のため
-    const deleteFunc = ref(null);
-    const deleteCategory = ref(null);
+const isOdd = ref<boolean>(false);
 
-    const hoverRed = ref("hover:text-red-600");
+// DOM取得のため
+const deleteFunc = ref(null);
+const deleteCategory = ref(null);
 
-    //以下の形でデータが入っている。
-    const categories = ref([]);
+const hoverRed = ref<string>("hover:text-red-600");
 
-    const { getLoginUser, loginUser } = useGetLoginUser();
+const categories = ref<Categories>([]);
 
-    const { getLatestRecordState, latestRecord } = useGetRecordState();
+const { getLoginUser, loginUser } = useGetLoginUser();
 
-    //トレーニング記録画面に遷移
-    const toRecordContents = (category, menu) => {
-      if (!editable.value) {
-        if (recorded_day) {
-          router.push({
-            name: "record",
-            params: route.params,
-            query: {
-              categoryId: category.id,
-              menuId: menu.id,
-              recordId: latestRecord.value.id,
-            },
-          });
-        } else {
-          router.push({
-            name: "record",
-            params: route.params,
-            query: {
-              categoryId: category.id,
-              menuId: menu.id,
-              recordId: latestRecord.value.id,
-            },
-          });
-        }
+const { getLatestRecordState, latestRecord } = useGetRecordState();
+
+//トレーニング記録画面に遷移
+const toRecordContents = (category: Category, menu: Menu): void => {
+  if (!editable.value) {
+    if (recorded_day) {
+      router.push({
+        name: "record",
+        params: route.params,
+        query: {
+          categoryId: category.id,
+          menuId: menu.id,
+          recordId: latestRecord.value.id,
+        },
+      });
+    } else {
+      router.push({
+        name: "record",
+        params: route.params,
+        query: {
+          categoryId: category.id,
+          menuId: menu.id,
+          recordId: latestRecord.value.id,
+        },
+      });
+    }
+  } else {
+    return;
+  }
+};
+
+// 記録したレコードがあれば
+
+//メニュー内容を取得
+const getMenus = async () => {
+  await axios
+    .get("/api/menus", {
+      // get時にパラメータを渡す際はparamsで指定が必要
+      params: {
+        user_id: loginUser.value.id,
+      },
+    })
+    .then((res) => {
+      categories.value = res.data.categorylist;
+      if (categories.value.length % 2 === 1) {
+        isOdd.value = true;
       } else {
-        return;
+        isOdd.value = false;
       }
-    };
+    })
+    .catch((err) => {});
+};
 
-    // 記録したレコードがあれば
+//「本当に削除しますか？」ダイアログを表示/非表示
+const deleteMenu = (menuId: number, categoryId: number): void => {
+  const menu_id: number = menuId;
+  const category_id: number = categoryId;
+  for (const menu of deleteFunc.value) {
+    if (
+      menu_id == menu.attributes.menu_id.value &&
+      category_id == menu.attributes.category_id.value
+    ) {
+      menu.className = "block";
+    } else {
+      menu.className = "hidden";
+    }
+  }
+};
 
-    //メニュー内容を取得
-    const getMenus = async () => {
-      await axios
-        .get("/api/menus", {
-          // get時にパラメータを渡す際はparamsで指定が必要
-          params: {
-            user_id: loginUser.value.id,
-          },
-        })
-        .then((res) => {
-          categories.value = res.data.categorylist;
-          if (categories.value.length % 2 === 1) {
-            isOdd.value = true;
-          } else {
-            isOdd.value = false;
-          }
-        })
-        .catch((err) => {});
-    };
+//「本当に削除しますか？」ダイアログを表示/非表示
+const deleteCategoryMenu = (categoryId: number): void => {
+  const category_id: number = categoryId;
+  for (const category of deleteCategory.value) {
+    if (category_id == category.attributes.category_id.value) {
+      category.className = "block";
+    } else {
+      category.className = "hidden";
+    }
+  }
+};
 
-    //「本当に削除しますか？」ダイアログを表示/非表示
-    const deleteMenu = (menuId, categoryId) => {
-      const menu_id = menuId;
-      const category_id = categoryId;
-      for (const menu of deleteFunc.value) {
-        if (
-          menu_id == menu.attributes.menu_id.value &&
-          category_id == menu.attributes.category_id.value
-        ) {
-          menu.className = "block";
-        } else {
-          menu.className = "hidden";
-        }
-      }
-    };
-
-    //「本当に削除しますか？」ダイアログを表示/非表示
-    const deleteCategoryMenu = (categoryId) => {
-      const category_id = categoryId;
-      for (const category of deleteCategory.value) {
-        if (category_id == category.attributes.category_id.value) {
-          category.className = "block";
-        } else {
-          category.className = "hidden";
-        }
-      }
-    };
-
-    // メニュー内容を削除
-    const deleteMenuContent = async (category, menu) => {
-      if (category !== undefined && menu !== undefined) {
-        await axios
-          .post("/api/menus/delete", {
-            user_id: loginUser.value.id,
-            category_id: category.id,
-            menu_id: menu.id,
-            content: menu.content,
-          })
-          .then((res) => {
-            for (const menu of deleteFunc.value) {
-              if (menu.className == "block") {
-                menu.className = "hidden";
-              }
-            }
-            getMenus();
-          })
-          .catch((err) => {});
-      }
-    };
-
-    // 削除するのをキャンセルする
-    const cancelClick = (category, menu) => {
-      if (category !== undefined && menu !== undefined) {
+// メニュー内容を削除
+const deleteMenuContent = async (category: Category, menu: Menu) => {
+  if (category !== undefined && menu !== undefined) {
+    await axios
+      .post("/api/menus/delete", {
+        user_id: loginUser.value.id,
+        category_id: category.id,
+        menu_id: menu.id,
+        content: menu.content,
+      })
+      .then((res) => {
         for (const menu of deleteFunc.value) {
           if (menu.className == "block") {
             menu.className = "hidden";
           }
         }
-      }
-    };
+        getMenus();
+      })
+      .catch((err) => {});
+  }
+};
 
-    //メニュー内容を編集する
-    const postEditMenu = async (category, menu) => {
-      if (category !== undefined && menu !== undefined) {
-        await axios
-          .post("/api/menus/update", {
-            user_id: loginUser.value.id,
-            category_id: category.id,
-            menu_id: menu.id,
-            content: menu.content,
-          })
-          .then((res) => {})
-          .catch((err) => {});
+// 削除するのをキャンセルする
+const cancelClick = (category: Category, menu: Menu): void => {
+  if (category !== undefined && menu !== undefined) {
+    for (const menu of deleteFunc.value) {
+      if (menu.className == "block") {
+        menu.className = "hidden";
       }
-    };
+    }
+  }
+};
 
-    //カテゴリー内容を編集する
-    const postEditCategory = async (category) => {
-      if (category !== undefined) {
-        await axios
-          .post("/api/category/update", {
-            user_id: loginUser.value.id,
-            category_id: category.id,
-            content: category.content,
-          })
-          .then((res) => {})
-          .catch((err) => {});
-      }
-    };
+//メニュー内容を編集する
+const postEditMenu = async (category: Category, menu: Menu) => {
+  if (category !== undefined && menu !== undefined) {
+    await axios
+      .post("/api/menus/update", {
+        user_id: loginUser.value.id,
+        category_id: category.id,
+        menu_id: menu.id,
+        content: menu.content,
+      })
+      .then((res) => {})
+      .catch((err) => {});
+  }
+};
 
-    // メニュー内容を削除
-    const deleteCategoryContent = async (category) => {
-      if (category !== undefined) {
-        await axios
-          .post("/api/category/delete", {
-            user_id: loginUser.value.id,
-            category_id: category.id,
-          })
-          .then((res) => {
-            for (const category of deleteCategory.value) {
-              if (category.className == "block") {
-                category.className = "hidden";
-              }
-            }
-            getMenus();
-          })
-          .catch((err) => {});
-      }
-    };
+//カテゴリー内容を編集する
+const postEditCategory = async (category: Category) => {
+  if (category !== undefined) {
+    await axios
+      .post("/api/category/update", {
+        user_id: loginUser.value.id,
+        category_id: category.id,
+        content: category.content,
+      })
+      .then((res) => {})
+      .catch((err) => {});
+  }
+};
 
-    // 削除するのをキャンセルする
-    const cancelEditCategoryClick = (category) => {
-      if (category !== undefined) {
+// メニュー内容を削除
+const deleteCategoryContent = async (category: Category) => {
+  if (category !== undefined) {
+    await axios
+      .post("/api/category/delete", {
+        user_id: loginUser.value.id,
+        category_id: category.id,
+      })
+      .then((res) => {
         for (const category of deleteCategory.value) {
           if (category.className == "block") {
             category.className = "hidden";
           }
         }
-      }
-    };
-
-    onMounted(async () => {
-      // DOM取得のため
-      const deleteFuncDom = deleteFunc.value;
-      const deleteCategoryDom = deleteCategory.value;
-
-      await getLoginUser();
-      await getLatestRecordState();
-
-      getMenus();
-      //動的に要素を追加したものに対する処理にはnextTickを用いる
-      nextTick(() => {
-        cancelClick();
-        cancelEditCategoryClick();
-        postEditMenu();
-        postEditCategory();
-        deleteMenuContent();
-        deleteCategoryContent();
-      });
-    });
-
-    return {
-      isOdd,
-      categories,
-      editable,
-      dispHeadText,
-      hoverRed,
-      dataMenu,
-      // DOM取得のため
-      deleteFunc,
-      deleteCategory,
-      // メソッド
-      toRecordContents,
-      deleteMenu,
-      deleteCategoryMenu,
-      postEditMenu,
-      deleteMenuContent,
-      deleteCategoryContent,
-      postEditCategory,
-      cancelClick,
-      cancelEditCategoryClick,
-    };
-  },
+        getMenus();
+      })
+      .catch((err) => {});
+  }
 };
+
+// 削除するのをキャンセルする
+const cancelEditCategoryClick = (category: Category): void => {
+  if (category !== undefined) {
+    for (const category of deleteCategory.value) {
+      if (category.className == "block") {
+        category.className = "hidden";
+      }
+    }
+  }
+};
+
+onMounted(async () => {
+  // DOM取得のため
+  const deleteFuncDom = deleteFunc.value;
+  const deleteCategoryDom = deleteCategory.value;
+
+  await getLoginUser();
+  await getLatestRecordState();
+
+  getMenus();
+  //動的に要素を追加したものに対する処理にはnextTickを用いる
+  // nextTick(() => {
+  //   cancelClick();
+  //   cancelEditCategoryClick();
+  //   postEditMenu();
+  //   postEditCategory();
+  //   deleteMenuContent();
+  //   deleteCategoryContent();
+  // });
+});
+
+//   return {
+//     isOdd,
+//     categories,
+//     editable,
+//     dispHeadText,
+//     hoverRed,
+//     dataMenu,
+//     // DOM取得のため
+//     deleteFunc,
+//     deleteCategory,
+//     // メソッド
+//     toRecordContents,
+//     deleteMenu,
+//     deleteCategoryMenu,
+//     postEditMenu,
+//     deleteMenuContent,
+//     deleteCategoryContent,
+//     postEditCategory,
+//     cancelClick,
+//     cancelEditCategoryClick,
+//   };
+// },
+// };
 </script>
 
 <style></style>

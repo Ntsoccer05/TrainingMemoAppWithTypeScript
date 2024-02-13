@@ -86,24 +86,23 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, computed, watch, watchEffect } from "vue";
-import { useRoute } from "vue-router";
-import useGetLoginUser from "../../composables/certification/useGetLoginUser";
-import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
-import axios from "axios";
-import { useStore } from "vuex";
-const props = defineProps({
-  historyMenus: [Object, String],
-  historyRecords: [Object, String],
-  hasHistoryRecord: Boolean,
-  hasOneHand: Boolean,
-});
+<script setup lang="ts">
+import { computed, ComputedRef } from "vue";
+import { HistoryMenu, HistoryRecord } from "../../types/record";
+type props = {
+  historyMenus: HistoryMenu[];
+  historyRecords: HistoryRecord[][];
+  hasHistoryRecord: boolean;
+  hasOneHand: boolean;
+};
+const props = defineProps<props>();
 
-const historyMenus = computed(() => props.historyMenus);
-const historyRecords = computed(() => props.historyRecords);
-const hasHistoryRecord = computed(() => props.hasHistoryRecord);
-const hasOneHand = computed(() => props.hasOneHand);
+const historyMenus: ComputedRef<HistoryMenu[]> = computed(() => props.historyMenus);
+const historyRecords: ComputedRef<HistoryRecord[][]> = computed(
+  () => props.historyRecords
+);
+const hasHistoryRecord: ComputedRef<boolean> = computed(() => props.hasHistoryRecord);
+const hasOneHand: ComputedRef<boolean> = computed(() => props.hasOneHand);
 </script>
 
 <style></style>

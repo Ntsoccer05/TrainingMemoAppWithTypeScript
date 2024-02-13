@@ -22,6 +22,7 @@ class RecordContentController extends Controller
         $menu=[];
         $category=[];
 
+        // ホーム画面で記録の詳細表示
         if(!$category_id && !$recorded_at){
             //親テーブルがあると子供のデータ取得時に呼び出した親のデータも一緒に取得できる。
             //load()によってN+1問題対応 load()の引数はModels/RecordState.phpの関数名
@@ -69,6 +70,7 @@ class RecordContentController extends Controller
             }
             return response()->json(["status_code" => 200, "message" => "記録した全てのデータを取得", 'records'=>$recordContents]);
         }
+        // メニュー選択画面にて記録済みメニューをマーキング
         if(isset($recorded_at)){
             $record = $recordState->where('user_id', $user_id)->where('recorded_at', $recorded_at)->first()->load(['recordMenus']);
             // 初期化
@@ -105,6 +107,7 @@ class RecordContentController extends Controller
             $recordContents[] = $recordContent;
             return response()->json(["status_code" => 200, "message" => "選択した日付のデータを取得", 'records'=>$recordContents]);
         }
+        // 筋トレ記録画面にて記録済み内容を表示
         $tgtRecord=$recordMenu->where(function($query) use($user_id, $category_id, $menu_id,$record_state_id){
             $query->where([['user_id', $user_id], ['category_id', $category_id], ['menu_id', $menu_id],['record_state_id', $record_state_id]]);
         })->first();
