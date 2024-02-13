@@ -147,8 +147,6 @@ export default {
             formatRecord.value[2];
         }
       });
-      console.log(records);
-      console.log(dataMenu);
     });
 
     const toHome = () => {
