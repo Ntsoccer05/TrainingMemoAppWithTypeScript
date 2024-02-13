@@ -333,7 +333,6 @@ const firstRecord = async () => {
 
 onMounted(async () => {
   await getLoginUser();
-  debugger;
   if (dispModal.value) {
     dispAlertModal.value = true;
   }
