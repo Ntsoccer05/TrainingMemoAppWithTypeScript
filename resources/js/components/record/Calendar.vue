@@ -386,7 +386,7 @@ const moveToday = () => {
               class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold w-full px-3 py-1 rounded-md"
               @click="moveToday"
             >
-              今日のカレンダー表示
+              今月のカレンダー表示
             </button>
           </div>
         </template>

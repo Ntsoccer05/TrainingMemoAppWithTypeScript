@@ -21,7 +21,6 @@ export default function useGetTgtRecordContents(){
             }
         }).then((res) =>{
             if(res.data.tgtRecords){
-                console.log(res.data.tgtRecords)
                 tgtRecord.value = res.data.tgtRecords
                 hasTgtRecord.value = true
             }else{

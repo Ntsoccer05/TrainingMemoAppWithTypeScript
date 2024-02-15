@@ -386,7 +386,6 @@ const replaceFullToHalf = (str: string) => {
 
 // valはString
 const validateDecimalNumber = (val: string, tgtVal: string[], index: number) => {
-  debugger;
   // tgtvalの変更がない場合代入してもvalueの値が変化しないため
   tgtVal[index] = val;
   val = replaceFullToHalf(val);

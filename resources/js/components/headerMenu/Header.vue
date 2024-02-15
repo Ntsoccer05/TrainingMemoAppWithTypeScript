@@ -37,15 +37,25 @@
         </template>
         <template v-else-if="isloaded">
           <h3 class="md:mr-auto md:border-none">
-            <router-link
-              :to="
-                recorded_day
-                  ? { name: 'home', query: { day: recorded_day } }
-                  : { name: 'home' }
+            <template
+              v-if="
+                (route.name != 'selectMenu' &&
+                  route.name != 'record' &&
+                  route.name != 'addMenu' &&
+                  isloaded) ||
+                isOpen
               "
-              class="text-xl font-semibold md:text-4xl"
             >
-              トレメモ</router-link
+              <router-link
+                :to="
+                  recorded_day
+                    ? { name: 'home', query: { day: recorded_day } }
+                    : { name: 'home' }
+                "
+                class="text-xl font-semibold md:text-4xl"
+              >
+                トレメモ</router-link
+              ></template
             >
           </h3>
         </template>
@@ -104,23 +114,24 @@
             </template>
             <template v-else-if="isloaded">
               <li class="border-b border-t top- md:mr-auto md:border-none">
-                <router-link
-                  :to="
-                    recorded_day
-                      ? { name: 'home', query: { day: recorded_day } }
-                      : { name: 'home' }
+                <template
+                  v-if="
+                    (route.name != 'selectMenu' &&
+                      route.name != 'record' &&
+                      route.name != 'addMenu' &&
+                      isloaded) ||
+                    isOpen
                   "
-                  class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
-                  ><template
-                    v-if="
-                      (route.name != 'selectMenu' &&
-                        route.name != 'record' &&
-                        route.name != 'addMenu' &&
-                        isloaded) ||
-                      isOpen
+                >
+                  <router-link
+                    :to="
+                      recorded_day
+                        ? { name: 'home', query: { day: recorded_day } }
+                        : { name: 'home' }
                     "
-                    >トレメモ</template
-                  ></router-link
+                    class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
+                    >トレメモ</router-link
+                  ></template
                 >
               </li>
             </template>

@@ -132,7 +132,7 @@ class RecordContentController extends Controller
 
         // loadで特定のカラムのみ取得する場合リレーションに必要な主キーや外部キーは必ず指定する必要がある
         $historyTgtMenus = $recordMenu->where(function($query) use($user_id, $category_id, $menu_id, $recorded_at){
-            $query->where([['user_id', $user_id], ['category_id', $category_id], ['menu_id', $menu_id], ['recorded_at', '<>', $recorded_at]]);
+            $query->where([['user_id', $user_id], ['category_id', $category_id], ['menu_id', $menu_id], ['recorded_at', '<', $recorded_at]]);
         })->orderBy('recorded_at', 'desc')->take(5)->get()->load('recordState:id,bodyWeight');
 
         if($historyTgtMenus){

@@ -126,7 +126,7 @@ const { getLoginUser, loginUser } = useGetLoginUser();
 
 const { getLatestRecordState, latestRecord } = useGetRecordState();
 
-const { records, getRecords } = useGetRecords();
+const { records, compGetData, getRecords } = useGetRecords();
 
 watch(records, () => {
   records.value.forEach((record) => {
@@ -189,7 +189,6 @@ const getMenus = async () => {
       },
     })
     .then((res) => {
-      store.commit("compGetData", true);
       //編集画面でなければ
       if (!editable.value) {
         if (res.data.categories.length === 0) {
@@ -271,15 +270,19 @@ onMounted(async () => {
   if (dispModal.value) {
     dispAlertModal.value = true;
   }
+  if (route.params.recordId) {
+    await getRecords(loginUser.value.id, recorded_day).then((res) => {
+      store.commit("compGetData", true);
+    });
+  } else if (loginUser.value.id) {
+    await getRecords(loginUser.value.id).then((res) => {
+      store.commit("compGetData", true);
+    });
+  }
   await getLatestRecordState();
   await getMenus();
   if (latestRecord.value.bodyWeight) {
     weight.value = latestRecord.value.bodyWeight.toString();
-  }
-  if (route.params.recordId) {
-    await getRecords(loginUser.value.id, recorded_day);
-  } else if (loginUser.value.id) {
-    await getRecords(loginUser.value.id);
   }
 });
 

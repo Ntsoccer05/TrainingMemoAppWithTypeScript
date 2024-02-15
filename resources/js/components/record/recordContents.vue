@@ -129,7 +129,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, ComputedRef } from "vue";
-import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+import {
+  useRoute,
+  useRouter,
+  onBeforeRouteLeave,
+  NavigationGuardNext,
+  RouteLocationNormalized,
+} from "vue-router";
 import { useStore } from "vuex";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
@@ -354,14 +360,20 @@ onMounted(async () => {
 });
 
 //遷移前処理
-onBeforeRouteLeave(async (to, from, next) => {
-  if (thisTotalSet.value == "0") {
-    await deleteFirstRecord();
-    next();
-  } else {
-    next();
+onBeforeRouteLeave(
+  async (
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized,
+    next: NavigationGuardNext
+  ) => {
+    if (Number(thisTotalSet.value) === 0) {
+      await deleteFirstRecord();
+      next();
+    } else {
+      next();
+    }
   }
-});
+);
 </script>
 
 // vue-modalのレイアウト作成
