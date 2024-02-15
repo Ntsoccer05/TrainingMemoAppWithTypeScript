@@ -107,11 +107,7 @@ import dispValidationMsg from "../../composables/menu/useDispValidationMsg";
 import MenuTable from "../record/MenuTable.vue";
 import { Errors, DispErrorMsg, Post, Category } from "../../types/trainingMenu";
 import axios from "axios";
-// export default {
-//   components: {
-//     MenuTable,
-//   },
-//   setup() {
+
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
@@ -312,28 +308,6 @@ onMounted(async () => {
     toggleBtnInput();
   });
 });
-
-// return {
-//   categories,
-//   selectedCategory,
-//   errors,
-//   addMenu,
-//   sepereteRecord,
-//   addCategory,
-//   addPart,
-//   addPartBtn,
-//   isInputMenu,
-//   dispCategoryErrMsg,
-//   dispMenuErrMsg,
-//   toggleBtnInput,
-//   cancelAddMenu,
-//   addMenuContent,
-//   dispAlertModal,
-//   toHome,
-//   toLogin,
-// };
-//   },
-// };
 </script>
 
 <style></style>

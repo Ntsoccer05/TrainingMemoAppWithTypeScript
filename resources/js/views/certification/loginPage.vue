@@ -58,21 +58,11 @@
 import Login from "../../components/certification/Login.vue";
 import SocialLogin from "../../components/certification/SocialLogin.vue";
 import { useRouter } from "vue-router";
-// export default {
-// components: {
-//   Login,
-//   SocialLogin,
-// },
-// setup() {
+
 const router = useRouter();
 const toRegister = () => {
   router.push("/register");
 };
-
-//     return { toRegister };
-//   },
-// };
-//
 </script>
 
 <style></style>

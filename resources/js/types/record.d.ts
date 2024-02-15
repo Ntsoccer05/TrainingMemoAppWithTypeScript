@@ -45,6 +45,7 @@ export declare type Menu = {
 export declare type HistoryMenu = {
     category_id: number,
     record_state_id: number,
+    record_state: RecordState
     recorded_at: string,
     created_at: string,
     updated_at: string,
@@ -74,6 +75,41 @@ export declare type HistoryRecord = {
     weight?: number|null,
 };
 
+export declare type TgtRecordContent = {
+    category_id: number,
+    created_at: string,
+    id: number,
+    left_rep?: string|null,
+    left_volume?: string|null,
+    left_weight?: string|null,
+    memo?: string|null,
+    menu_id: string,
+    record_menu_id: string,
+    record_state_id: string,
+    rep?: string|null,
+    right_rep?: string|null,
+    right_volume?: string|null,
+    right_weight?: string|null,
+    set: number,
+    updated_at: string,
+    user_id: number,
+    volume?: string|null,
+    weight?: string|null,
+};
+
+export declare type LatestRecord = {
+    id: number,
+    user_id: number,
+    bodyWeight: number,
+    recorded_at: string,
+    created_at: string,
+    updated_at: string,
+};
+
+type RecordState={
+    id: number,
+    bodyWeight: number
+}
 
 type RecordedAt = {
     record_id: number,
@@ -101,3 +137,19 @@ type RecordContents ={
     volume?: number|null,
     weight?: number|null,
 }
+
+type DispCategory = {
+    category_id: number;
+    category_content: string;
+}
+type DispMenu = {
+    menu_id: number;
+    menu_content: string;
+}
+
+// ?はオプション、ない場合を考慮
+export declare type DispRecords = {
+    menu?: Array<DispMenu>;
+    category?: Array<DispCategory>;
+    recorded_at: RecordedAt;
+};

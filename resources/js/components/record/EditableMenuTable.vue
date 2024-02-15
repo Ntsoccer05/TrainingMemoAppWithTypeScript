@@ -128,20 +128,13 @@ import { ref, onMounted, nextTick, computed, ComputedRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordState from "../../composables/record/useGetRecordState";
-import { Records, Categories, Category, Menu } from "../../types/record";
+import { DispRecords, Categories, Category, Menu } from "../../types/record";
 import axios from "axios";
-// export default {
-//   props: {
-//     editable: Boolean,
-//     dispHeadText: String,
-//     records: [Array, String],
-//     dataMenu: Array,
-//   },
-//   setup(props) {
+
 const props = defineProps<{
   editable: boolean;
   dispHeadText: string;
-  records: [Records[], string];
+  records: DispRecords[];
   dataMenu: Array<number>;
 }>();
 
@@ -350,40 +343,7 @@ onMounted(async () => {
   await getLatestRecordState();
 
   getMenus();
-  //動的に要素を追加したものに対する処理にはnextTickを用いる
-  // nextTick(() => {
-  //   cancelClick();
-  //   cancelEditCategoryClick();
-  //   postEditMenu();
-  //   postEditCategory();
-  //   deleteMenuContent();
-  //   deleteCategoryContent();
-  // });
 });
-
-//   return {
-//     isOdd,
-//     categories,
-//     editable,
-//     dispHeadText,
-//     hoverRed,
-//     dataMenu,
-//     // DOM取得のため
-//     deleteFunc,
-//     deleteCategory,
-//     // メソッド
-//     toRecordContents,
-//     deleteMenu,
-//     deleteCategoryMenu,
-//     postEditMenu,
-//     deleteMenuContent,
-//     deleteCategoryContent,
-//     postEditCategory,
-//     cancelClick,
-//     cancelEditCategoryClick,
-//   };
-// },
-// };
 </script>
 
 <style></style>

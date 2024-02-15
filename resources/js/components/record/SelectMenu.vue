@@ -46,7 +46,7 @@
         placeholder="kg"
         maxlength="6"
         :value="weight"
-        @change="weight = validateWeight($event.target.value)"
+        @change="weight = validateWeight(($event.target as HTMLInputElement).value)"
         @blur="postWeight"
       />
     </div>
@@ -77,264 +77,246 @@
   </Modal>
 </template>
 
-<script>
+<script setup lang="ts">
 import EditableMenuTable from "./EditableMenuTable.vue";
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, ComputedRef } from "vue";
 import { useStore } from "vuex";
-import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+import {
+  useRoute,
+  useRouter,
+  onBeforeRouteLeave,
+  NavigationGuardNext,
+  RouteLocationNormalized,
+} from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetRecords from "../../composables/record/useGetRecords";
-export default {
-  components: {
-    EditableMenuTable,
-  },
-  setup() {
-    const router = useRouter();
-    const route = useRoute();
-    const store = useStore();
+import axios from "axios";
 
-    store.commit("compGetData", false);
+const router = useRouter();
+const route = useRoute();
+const store = useStore();
 
-    const dispModal = computed(() => store.getters.dispAlertModal);
+store.commit("compGetData", false);
 
-    const dispHeadText = ref("");
+const dispModal: ComputedRef<boolean> = computed(() => store.getters.dispAlertModal);
 
-    const recorded_day = route.params.recordId;
+const dispHeadText = ref<string>("");
 
-    const weight = ref(null);
+const recorded_day: string = route.params.recordId as string;
 
-    let dataCategory = ref([]);
-    let dataMenu = ref([]);
+const weight = ref<string>(null);
 
-    const editable = ref(false);
-    const hasCategory = ref(true);
-    const hasMenu = ref(true);
-    const hasRecord = ref(false);
-    // DOM取得のため
-    const deleteFunc = ref(null);
-    const deleteCategory = ref(null);
+let dataCategory = ref([]);
+let dataMenu = ref([]);
 
-    const dispAlertModal = ref(false);
+const editable = ref<boolean>(false);
+const hasCategory = ref<boolean>(true);
+const hasMenu = ref<boolean>(true);
+const hasRecord = ref<boolean>(false);
+// DOM取得のため
+const deleteFunc = ref(null);
+const deleteCategory = ref(null);
 
-    const recorded_at = ref("");
+const dispAlertModal = ref<boolean>(false);
 
-    const { getLoginUser, loginUser } = useGetLoginUser();
+const recorded_at = ref<string>("");
 
-    const { getLatestRecordState, latestRecord } = useGetRecordState();
+const { getLoginUser, loginUser } = useGetLoginUser();
 
-    const { records, getRecords } = useGetRecords();
+const { getLatestRecordState, latestRecord } = useGetRecordState();
 
-    watch(records, () => {
-      records.value.forEach((record) => {
-        if (record.category) {
-          dataCategory.value.push(record.category[0].category_id);
-        }
-        if (record.menu) {
-          hasRecord.value = true;
-          for (const index in record.menu) {
-            dataMenu.value.push(record.menu[index].menu_id);
-          }
-        }
-        if (record.recorded_at.recorded_at) {
-          let formatRecord = ref("");
-          formatRecord.value = record.recorded_at.recorded_at.split("-");
-          recorded_at.value =
-            formatRecord.value[0] &
-            "年" &
-            formatRecord.value[1] &
-            "月" &
-            formatRecord.value[2];
-        }
-      });
-    });
+const { records, compGetData, getRecords } = useGetRecords();
 
-    const toHome = () => {
-      //router.pushが効かない
-      window.location.href = "/";
-    };
-
-    const toLogin = () => {
-      router.push("/login");
-    };
-
-    //トレーニングメニュー追加画面に遷移
-    const toAddMenu = () => {
-      router.push({ name: "addMenu", params: { recordId: recorded_day } });
-    };
-
-    const editMenu = () => {
-      editable.value = true;
-      dispHeadText.value = "編集する部位・種目を選択してください";
-    };
-
-    const compEditMenu = () => {
-      editable.value = false;
-      dispHeadText.value = "";
-      getMenus();
-      if (hasCategory.value === false) {
-        dispHeadText.value = "部位・種目を追加してください";
-      } else if (hasMenu.value === false) {
-        dispHeadText.value = "種目を追加してください";
-      } else {
-        dispHeadText.value = "鍛える部位を選択してください";
+watch(records, () => {
+  records.value.forEach((record) => {
+    if (record.category) {
+      dataCategory.value.push(record.category[0].category_id);
+    }
+    if (record.menu) {
+      hasRecord.value = true;
+      for (const index in record.menu) {
+        dataMenu.value.push(record.menu[index].menu_id);
       }
-    };
+    }
+    if (record.recorded_at.recorded_at) {
+      let formatRecord = ref<string[]>([]);
+      formatRecord.value = record.recorded_at.recorded_at.split("-");
+      recorded_at.value = `${formatRecord.value[0]}年${formatRecord.value[1]}月${formatRecord.value[2]}`;
+    }
+  });
+});
 
-    //メニュー内容を取得
-    const getMenus = async () => {
-      await axios
-        .get("/api/menus", {
-          // get時にパラメータを渡す際はparamsで指定が必要
-          params: {
-            user_id: loginUser.value.id,
-          },
-        })
-        .then((res) => {
-          store.commit("compGetData", true);
-          //編集画面でなければ
-          if (!editable.value) {
-            if (res.data.categories.length === 0) {
-              dispHeadText.value = "部位・種目を追加してください";
-              hasCategory.value = false;
-              hasMenu.value = false;
-            } else if (res.data.menulist.length === 0) {
-              dispHeadText.value = "種目を追加してください";
-              hasMenu.value = false;
-              hasCategory.value = true;
-            } else {
-              dispHeadText.value = "鍛える部位を選択してください";
-              hasCategory.value = true;
-              hasMenu.value = true;
-            }
-            if (res.data.categorylist.length === 0) {
-              dispHeadText.value = "部位・種目を追加してください";
-              hasCategory.value = false;
-              hasMenu.value = false;
-            } else if (res.data.menulist2[0].length === 0) {
-              dispHeadText.value = "種目を追加してください";
-              hasMenu.value = false;
-              hasCategory.value = true;
-            } else {
-              dispHeadText.value = "鍛える部位を選択してください";
-              hasCategory.value = true;
-              hasMenu.value = true;
-            }
-          }
-        })
-        .catch((err) => {});
-    };
+const toHome = (): void => {
+  //router.pushが効かない
+  window.location.href = "/";
+};
 
-    //体重を記録する
-    const postWeight = async () => {
-      await axios
-        .post("/api/record/edit", {
-          user_id: loginUser.value.id,
-          recording_day: latestRecord.value.recorded_at,
-          weight: weight.value,
-        })
-        .then((res) => {})
-        .catch((err) => {});
-    };
+const toLogin = (): void => {
+  router.push("/login");
+};
 
-    //全角→半角
-    const replaceFullToHalf = (str) => {
-      return str.replace(/[！-～]/g, function (s) {
-        return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
-      });
-    };
+//トレーニングメニュー追加画面に遷移
+const toAddMenu = (): void => {
+  router.push({ name: "addMenu", params: { recordId: recorded_day } });
+};
 
-    // valはString
-    const validateWeight = (val) => {
-      val = replaceFullToHalf(val);
-      // 小数点を含むか？
-      let oldVal = val;
-      const decPoint = oldVal.indexOf(".");
-      // replaceは型がStringのもののみ適用できる(replaceはそのものの値自体は変えないので代入する必要あり)
-      // 数字または小数点以外を無効とする
-      val = val.replace(/[^0-9|.]/g, "");
-      // parseFloatで整数型へ変換している
-      if (val !== "") {
-        val = parseFloat(val);
-        // toFixedで小数第一位で四捨五入する
-        val = parseFloat(val.toFixed(1));
-        // matchは型がStringのもののみ適用できる
-        val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
-      }
-      return val;
-    };
+const editMenu = (): void => {
+  editable.value = true;
+  dispHeadText.value = "編集する部位・種目を選択してください";
+};
 
-    onMounted(async () => {
-      // DOM取得のため
-      const deleteFuncDom = deleteFunc.value;
-      const deleteCategoryDom = deleteCategory.value;
+const compEditMenu = (): void => {
+  editable.value = false;
+  dispHeadText.value = "";
+  getMenus();
+  if (hasCategory.value === false) {
+    dispHeadText.value = "部位・種目を追加してください";
+  } else if (hasMenu.value === false) {
+    dispHeadText.value = "種目を追加してください";
+  } else {
+    dispHeadText.value = "鍛える部位を選択してください";
+  }
+};
 
-      await getLoginUser();
-      if (dispModal.value) {
-        dispAlertModal.value = true;
-      }
-      await getLatestRecordState();
-      await getMenus();
-      if (latestRecord.value.bodyWeight) {
-        weight.value = latestRecord.value.bodyWeight;
-      }
-      if (route.params.recordId) {
-        await getRecords(loginUser.value.id, recorded_day);
-      } else if (loginUser.value.id) {
-        await getRecords(loginUser.value.id);
-      }
-    });
-
-    const deleteMenu = async (next) => {
-      await axios
-        .post("/api/record/destroy", {
-          user_id: loginUser.value.id,
-          recorded_at: recorded_day,
-        })
-        .then((res) => {
-          next();
-        })
-        .catch(() => {});
-    };
-
-    //遷移前処理
-    onBeforeRouteLeave((to, from, next) => {
-      store.commit("compGetData", false);
-      if (to.name === "home") {
-        if (records.value.length === 0) {
-          deleteMenu(next);
-        } else if (records.value.length === 1 && !records.value[0].category) {
-          deleteMenu(next);
+//メニュー内容を取得
+const getMenus = async () => {
+  await axios
+    .get("/api/menus", {
+      // get時にパラメータを渡す際はparamsで指定が必要
+      params: {
+        user_id: loginUser.value.id,
+      },
+    })
+    .then((res) => {
+      //編集画面でなければ
+      if (!editable.value) {
+        if (res.data.categories.length === 0) {
+          dispHeadText.value = "部位・種目を追加してください";
+          hasCategory.value = false;
+          hasMenu.value = false;
+        } else if (res.data.menulist.length === 0) {
+          dispHeadText.value = "種目を追加してください";
+          hasMenu.value = false;
+          hasCategory.value = true;
         } else {
-          next();
+          dispHeadText.value = "鍛える部位を選択してください";
+          hasCategory.value = true;
+          hasMenu.value = true;
         }
+        if (res.data.categorylist.length === 0) {
+          dispHeadText.value = "部位・種目を追加してください";
+          hasCategory.value = false;
+          hasMenu.value = false;
+        } else if (res.data.menulist2[0].length === 0) {
+          dispHeadText.value = "種目を追加してください";
+          hasMenu.value = false;
+          hasCategory.value = true;
+        } else {
+          dispHeadText.value = "鍛える部位を選択してください";
+          hasCategory.value = true;
+          hasMenu.value = true;
+        }
+      }
+    })
+    .catch((err) => {});
+};
+
+//体重を記録する
+const postWeight = async () => {
+  await axios
+    .post("/api/record/edit", {
+      user_id: loginUser.value.id,
+      recording_day: latestRecord.value.recorded_at,
+      weight: weight.value,
+    })
+    .then((res) => {})
+    .catch((err) => {});
+};
+
+//全角→半角
+const replaceFullToHalf = (str: string) => {
+  return str.replace(/[！-～]/g, function (s) {
+    return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
+  });
+};
+
+// valはString
+const validateWeight = (val: string) => {
+  val = replaceFullToHalf(val);
+  // 小数点を含むか？
+  let oldVal = val;
+  const decPoint = oldVal.indexOf(".");
+  // replaceは型がStringのもののみ適用できる(replaceはそのものの値自体は変えないので代入する必要あり)
+  // 数字または小数点以外を無効とする
+  val = val.replace(/[^0-9|.]/g, "");
+  // parseFloatで整数型へ変換している
+  if (val !== "") {
+    val = parseFloat(val).toString();
+    // toFixedで小数第一位で四捨五入する
+    val = parseFloat(Number(val).toFixed(1)).toString();
+    // matchは型がStringのもののみ適用できる
+    val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
+  }
+  return val;
+};
+
+onMounted(async () => {
+  // DOM取得のため
+  const deleteFuncDom = deleteFunc.value;
+  const deleteCategoryDom = deleteCategory.value;
+
+  await getLoginUser();
+  if (dispModal.value) {
+    dispAlertModal.value = true;
+  }
+  if (route.params.recordId) {
+    await getRecords(loginUser.value.id, recorded_day).then((res) => {
+      store.commit("compGetData", true);
+    });
+  } else if (loginUser.value.id) {
+    await getRecords(loginUser.value.id).then((res) => {
+      store.commit("compGetData", true);
+    });
+  }
+  await getLatestRecordState();
+  await getMenus();
+  if (latestRecord.value.bodyWeight) {
+    weight.value = latestRecord.value.bodyWeight.toString();
+  }
+});
+
+const deleteMenu = async (next: NavigationGuardNext) => {
+  await axios
+    .post("/api/record/destroy", {
+      user_id: loginUser.value.id,
+      recorded_at: recorded_day,
+    })
+    .then((res) => {
+      next();
+    })
+    .catch(() => {});
+};
+
+//遷移前処理
+onBeforeRouteLeave(
+  (
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized,
+    next: NavigationGuardNext
+  ) => {
+    store.commit("compGetData", false);
+    if (to.name === "home") {
+      if (records.value.length === 0) {
+        deleteMenu(next);
+      } else if (records.value.length === 1 && !records.value[0].category) {
+        deleteMenu(next);
       } else {
         next();
       }
-    });
-
-    return {
-      dispHeadText,
-      editable,
-      weight,
-      records,
-      recorded_at,
-      dataMenu,
-      dataCategory,
-      hasRecord,
-      // DOM取得のため
-      deleteFunc,
-      deleteCategory,
-      // メソッド
-      toAddMenu,
-      editMenu,
-      compEditMenu,
-      postWeight,
-      validateWeight,
-      dispAlertModal,
-      toHome,
-      toLogin,
-    };
-  },
-};
+    } else {
+      next();
+    }
+  }
+);
 </script>

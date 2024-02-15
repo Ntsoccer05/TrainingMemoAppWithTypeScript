@@ -10,11 +10,6 @@ import { onMounted } from "vue";
 import Header from "./components/headerMenu/Header.vue";
 import useHoldLoginState from "./composables/certification/useHoldLoginState";
 
-// export default {
-//   components: {
-//     Header,
-//   },
-//   setup() {
 //ログイン状態をリロードしても維持するため
 const { holdLoginState } = useHoldLoginState();
 
@@ -22,8 +17,6 @@ const { holdLoginState } = useHoldLoginState();
 onMounted(async () => {
   await holdLoginState();
 });
-//   },
-// };
 </script>
 
 <style>

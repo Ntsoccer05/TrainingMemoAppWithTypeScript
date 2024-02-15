@@ -127,9 +127,15 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from "vue";
-import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+<script setup lang="ts">
+import { ref, onMounted, computed, ComputedRef } from "vue";
+import {
+  useRoute,
+  useRouter,
+  onBeforeRouteLeave,
+  NavigationGuardNext,
+  RouteLocationNormalized,
+} from "vue-router";
 import { useStore } from "vuex";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
@@ -138,61 +144,48 @@ import RecordTable from "./RecordTable.vue";
 import HistoryRecordContents from "./HistoryRecordContents.vue";
 import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
 import useGetHistoryRecordContent from "../../composables/record/useGetHistoryRecordContent.js";
-// export default {
-//   components: {
-//     RecordTable,
-//     HistoryRecordContents,
-//   },
-//   setup() {
+import axios from "axios";
+
 const route = useRoute();
 const store = useStore();
 const router = useRouter();
 
-const hasOneHand = ref(false);
+const hasOneHand = ref<boolean>(false);
 
-const bodyWeight = ref("");
-const beforeBodyWeight = ref("");
+const bodyWeight = ref<string>("");
+const beforeBodyWeight = ref<string>("");
 
-const category_id = route.query.categoryId;
-const menu_id = route.query.menuId;
-const record_state_id = route.query.recordId;
+const category_id: string = route.query.categoryId as string;
+const menu_id: string = route.query.menuId as string;
+const record_state_id: string = route.query.recordId as string;
 
-const thisTotalSet = ref("");
-const beforeTotalSet = ref("");
+const thisTotalSet = ref<string>("");
+const beforeTotalSet = ref<string>("");
 
-const msgNoBeforeData = ref("");
+const msgNoBeforeData = ref<string>("");
 
-const fillBeforeBtn = ref("");
-const compGetData = ref(false);
+const fillBeforeBtn = ref<string>("");
+const compGetData = ref<boolean>(false);
 
-const showModal = ref(false);
+const showModal = ref<boolean>(false);
 
 // 前回か前々回か
-const BeforeBtnTxt = ref("");
-const isDispTxt = ref(false);
-const BeforeWeightTxt = ref("");
-const BeforeTotalSetTxt = ref("");
-const BeforeHeaderTxt = ref("");
+const BeforeBtnTxt = ref<string>("");
+const isDispTxt = ref<boolean>(false);
+const BeforeWeightTxt = ref<string>("");
+const BeforeTotalSetTxt = ref<string>("");
+const BeforeHeaderTxt = ref<string>("");
 
-const menuContent = ref("");
+const menuContent = ref<string>("");
 
-const dispModal = computed(() => store.getters.dispAlertModal);
-const dispAlertModal = ref(false);
+const dispModal: ComputedRef<boolean> = computed(() => store.getters.dispAlertModal);
+const dispAlertModal = ref<boolean>(false);
 
 // 自動補完するか
-const complementContents = ref(false);
+const complementContents = ref<boolean>(false);
 
 //前回データが存在するか？
-const isBeforeData = ref(false);
-
-// メニューはセレクトボックス、休憩時間はタイムピッカー
-const header = {
-  set: "セット数",
-  menu: "メニュー",
-  weight: "重量(kg)",
-  rep: "回数",
-  rest: "休憩時間",
-};
+const isBeforeData = ref<boolean>(false);
 
 // 最新のレコード状態を取得
 const { getLatestRecordState, latestRecord } = useGetRecordState();
@@ -210,11 +203,11 @@ const {
   getSecondRecord,
 } = useGetSecondRecordContent();
 
-const toHome = () => {
+const toHome = (): void => {
   //router.pushが効かない
   window.location.href = "/";
 };
-const toLogin = () => {
+const toLogin = (): void => {
   router.push("/login");
 };
 
@@ -236,7 +229,7 @@ const getMenuContent = async () => {
         hasOneHand.value = false;
       }
     })
-    .catch((err) => [console.log(err)]);
+    .catch((err) => {});
 };
 
 const fillBeforeRecord = async () => {
@@ -245,12 +238,14 @@ const fillBeforeRecord = async () => {
     category_id,
     menu_id,
     record_state_id,
-    route.params.recordId,
+    route.params.recordId as string,
     thisTotalSet
   );
   if (hasSecondRecord.value) {
     isBeforeData.value = true;
-    beforeBodyWeight.value = secondRecordState.value.bodyWeight;
+    beforeBodyWeight.value = secondRecordState.value.bodyWeight
+      ? secondRecordState.value.bodyWeight.toString()
+      : "";
   } else {
     msgNoBeforeData.value = "記録がありません";
   }
@@ -266,15 +261,15 @@ const fillBeforeRecord = async () => {
 };
 
 //第一引数に子供の値が入っている。
-const fillThisTodalSet = (e) => {
+const fillThisTodalSet = (e: string): void => {
   thisTotalSet.value = e;
 };
 
-const fillBeforeTodalSet = (e) => {
+const fillBeforeTodalSet = (e: string) => {
   beforeTotalSet.value = e;
 };
 
-const ableToClickBefore = (e) => {
+const ableToClickBefore = (e: boolean) => {
   if (e) {
     BeforeBtnTxt.value = "前回の記録を埋める";
     isDispTxt.value = false;
@@ -298,7 +293,7 @@ const confirmHistory = async () => {
     category_id,
     menu_id,
     record_state_id,
-    route.params.recordId
+    route.params.recordId as string
   );
   showModal.value = true;
 };
@@ -355,7 +350,7 @@ onMounted(async () => {
     // isDispTxt.value = true;
     // compGetData.value = true;
   }
-  const fillBeforeBtnDom = fillBeforeBtn.value;
+  const fillBeforeBtnDom: string = fillBeforeBtn.value;
 
   if (latestRecord.value.bodyWeight) {
     bodyWeight.value = `${latestRecord.value.bodyWeight} kg`;
@@ -365,52 +360,20 @@ onMounted(async () => {
 });
 
 //遷移前処理
-onBeforeRouteLeave(async (to, from, next) => {
-  if (thisTotalSet.value === 0) {
-    await deleteFirstRecord();
-    next();
-  } else {
-    next();
+onBeforeRouteLeave(
+  async (
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized,
+    next: NavigationGuardNext
+  ) => {
+    if (Number(thisTotalSet.value) === 0) {
+      await deleteFirstRecord();
+      next();
+    } else {
+      next();
+    }
   }
-});
-
-//   return {
-//     header,
-//     thisTotalSet,
-//     beforeTotalSet,
-//     isBeforeData,
-//     msgNoBeforeData,
-//     hasOneHand,
-//     bodyWeight,
-//     fillBeforeBtn,
-//     BeforeBtnTxt,
-//     isDispTxt,
-//     beforeBodyWeight,
-//     BeforeWeightTxt,
-//     BeforeTotalSetTxt,
-//     BeforeHeaderTxt,
-//     category_id,
-//     menu_id,
-//     record_state_id,
-//     secondRecord,
-//     hasSecondRecord,
-//     compGetData,
-//     menuContent,
-//     historyRecords,
-//     historyMenus,
-//     hasHistoryRecord,
-//     complementContents,
-//     fillBeforeRecord,
-//     fillThisTodalSet,
-//     fillBeforeTodalSet,
-//     ableToClickBefore,
-//     dispAlertModal,
-//     toHome,
-//     toLogin,
-//     confirmHistory,
-//   };
-// },
-// };
+);
 </script>
 
 // vue-modalのレイアウト作成

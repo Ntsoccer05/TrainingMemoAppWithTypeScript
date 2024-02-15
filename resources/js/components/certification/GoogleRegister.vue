@@ -53,8 +53,7 @@ import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
 import axios from "axios";
 import { DispErrorMsg, Errors } from "../../types/certification";
-// export default {
-// setup() {
+
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
@@ -102,10 +101,6 @@ const register = async () => {
     })
     .catch((err) => {});
 };
-
-// return { name, email, errors, dispNameErrMsg, register };
-// },
-// };
 </script>
 
 <style></style>

@@ -28,8 +28,8 @@
               placeholder="重さ(kg)"
               maxlength="6"
               :value="weight[index]"
-              @focus="complementData($event.target.value, weight, index)"
-              @change="validateDecimalNumber($event.target.value, weight, index)"
+              @focus="complementData(($event.target as HTMLInputElement).value, weight, index)"
+              @change="validateDecimalNumber(($event.target as HTMLInputElement).value, weight, index)"
               @blur="postRecordContent(index)"
             />
             <input
@@ -38,8 +38,8 @@
               placeholder="回数"
               maxlength="3"
               :value="rep[index]"
-              @focus="complementData($event.target.value, rep, index)"
-              @change="validateNumber($event.target.value, rep, index)"
+              @focus="complementData(($event.target as HTMLInputElement).value, rep, index)"
+              @change="validateNumber(($event.target as HTMLInputElement).value, rep, index)"
               @blur="postRecordContent(index)"
             />
           </div>
@@ -50,8 +50,8 @@
               placeholder="重さ（右）(kg)"
               maxlength="6"
               :value="rightWeight[index]"
-              @focus="complementData($event.target.value, rightWeight, index)"
-              @change="validateDecimalNumber($event.target.value, rightWeight, index)"
+              @focus="complementData(($event.target as HTMLInputElement).value, rightWeight, index)"
+              @change="validateDecimalNumber(($event.target as HTMLInputElement).value, rightWeight, index)"
               @blur="postRecordContent(index)"
             />
             <input
@@ -60,8 +60,8 @@
               placeholder="回数（右）"
               maxlength="3"
               :value="rightRep[index]"
-              @focus="complementData($event.target.value, rightRep, index)"
-              @change="validateNumber($event.target.value, rightRep, index)"
+              @focus="complementData(($event.target as HTMLInputElement).value, rightRep, index)"
+              @change="validateNumber(($event.target as HTMLInputElement).value, rightRep, index)"
               @blur="postRecordContent(index)"
             />
             <input
@@ -70,8 +70,8 @@
               placeholder="重さ（左）(kg)"
               maxlength="6"
               :value="leftWeight[index]"
-              @focus="complementData($event.target.value, leftWeight, index)"
-              @change="validateDecimalNumber($event.target.value, leftWeight, index)"
+              @focus="complementData(($event.target as HTMLInputElement).value, leftWeight, index)"
+              @change="validateDecimalNumber(($event.target as HTMLInputElement).value, leftWeight, index)"
               @blur="postRecordContent(index)"
             />
             <input
@@ -80,8 +80,8 @@
               placeholder="回数（左）"
               maxlength="3"
               :value="leftRep[index]"
-              @focus="complementData($event.target.value, leftRep, index)"
-              @change="validateNumber($event.target.value, leftRep, index)"
+              @focus="complementData(($event.target as HTMLInputElement).value, leftRep, index)"
+              @change="validateNumber(($event.target as HTMLInputElement).value, leftRep, index)"
               @blur="postRecordContent(index)"
             />
           </div>
@@ -226,34 +226,45 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted, computed, watch } from "vue";
+<script setup lang="ts">
+import { ref, onMounted, computed, watch, ComputedRef } from "vue";
 import { useRoute } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
 import axios from "axios";
 import { useStore } from "vuex";
+import { LatestRecord, HistoryRecord } from "../../types/record";
 
 // エンターキーを押すと次の要素入力可
 function keydown(e) {
   if (e.keyCode === 13) {
-    var obj = document.activeElement;
-    if (obj.nextElementSibling) {
-      obj.nextElementSibling.focus();
-    } else if (obj.parentNode.nextSibling) {
-      if (obj.parentNode.nextSibling.children) {
-        if (obj.parentNode.nextSibling.children[0].nodeName == "TEXTAREA") {
-          obj.parentNode.nextSibling.children[0].focus();
-        }
-        if (obj.parentNode.nextSibling.children[2]) {
-          if (obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children) {
-            if (
-              obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children[0]
-                .nodeName == "TEXTAREA"
-            ) {
-              obj.parentNode.nextSibling.children[2].parentNode.nextSibling.children[0].focus();
-              // 1行目指定のため(無いと2行目指定となる)
-              e.returnValue = false;
+    var obj: HTMLTextAreaElement | HTMLInputElement = document.activeElement as
+      | HTMLInputElement
+      | HTMLTextAreaElement;
+    if (obj.parentNode) {
+      const parentNode: HTMLDivElement = obj.parentNode as HTMLDivElement;
+      if (obj.nextElementSibling && parentNode.nextElementSibling) {
+        const input: HTMLInputElement = obj.nextElementSibling as HTMLInputElement;
+        input.focus();
+      } else if (obj.parentNode.nextSibling) {
+        const nextSibling: HTMLDivElement = obj.parentNode.nextSibling as HTMLDivElement;
+        if (nextSibling.children) {
+          if (nextSibling.children[0].nodeName == "TEXTAREA") {
+            const nextSiblingChild0: HTMLInputElement = nextSibling
+              .children[0] as HTMLInputElement;
+            nextSiblingChild0.focus();
+          }
+          if (nextSibling.children[2]) {
+            const grandNextSibling: HTMLDivElement = nextSibling.children[2].parentNode
+              .nextSibling as HTMLDivElement;
+            if (grandNextSibling.children) {
+              if (grandNextSibling.children[0].nodeName == "TEXTAREA") {
+                const grandNextSiblingChild0: HTMLInputElement = grandNextSibling
+                  .children[0] as HTMLInputElement;
+                grandNextSiblingChild0.focus();
+                // 1行目指定のため(無いと2行目指定となる)
+                e.returnValue = false;
+              }
             }
           }
         }
@@ -263,260 +274,245 @@ function keydown(e) {
 }
 
 window.onkeydown = keydown;
-export default {
-  props: {
-    second_record: [Object, String],
-    hasSecondRecord: Boolean,
-    hasOneHand: Boolean,
-    category_id: String,
-    menu_id: String,
-    record_state_id: String,
-    menu_content: String,
-    beforeHeaderTxt: String,
-    complementContents: Boolean,
-  },
-  setup(props, { emit }) {
-    const route = useRoute();
-    const store = useStore();
-    store.commit("compGetData", false);
 
-    const hasOneHand = computed(() => props.hasOneHand);
-    const second_record = computed(() => props.second_record);
-    const menuContent = computed(() => props.menu_content);
-    const beforeHeaderTxt = computed(() => props.beforeHeaderTxt);
-    const complementContents = computed(() => props.complementContents);
-    const weight = ref([]);
-    const rep = ref([]);
-    const rightWeight = ref([]);
-    const rightRep = ref([]);
-    const leftWeight = ref([]);
-    const leftRep = ref([]);
-    const memo = ref([]);
-    const doRecord = ref(false);
-    const doDelete = ref(false);
-    const maxSet = Array(10)
-      .fill(0)
-      .map((_, i) => i);
+const props = defineProps<{
+  second_record: HistoryRecord[];
+  hasSecondRecord: boolean;
+  hasOneHand: boolean;
+  category_id: string;
+  menu_id: string;
+  record_state_id: string;
+  menu_content: string;
+  beforeHeaderTxt: string;
+  complementContents: boolean;
+}>();
+const route = useRoute();
+const store = useStore();
+store.commit("compGetData", false);
 
-    const maxBeforeLength = ref("");
+const hasOneHand: ComputedRef<boolean> = computed(() => props.hasOneHand);
+const second_record: ComputedRef<HistoryRecord[]> = computed(() => props.second_record);
+const menuContent: ComputedRef<string> = computed(() => props.menu_content);
+const beforeHeaderTxt: ComputedRef<string> = computed(() => props.beforeHeaderTxt);
+const complementContents: ComputedRef<boolean> = computed(() => props.complementContents);
+const weight = ref<string[]>([]);
+const rep = ref<string[]>([]);
+const rightWeight = ref<string[]>([]);
+const rightRep = ref<string[]>([]);
+const leftWeight = ref<string[]>([]);
+const leftRep = ref<string[]>([]);
+const memo = ref<string[]>([]);
+const doRecord = ref<boolean>(false);
+const doDelete = ref<boolean>(false);
+const maxSet: number[] = Array(10)
+  .fill(0)
+  .map((_, i) => i);
 
-    const canClickFillBefore = ref(false);
+const maxBeforeLength = ref<string>("");
 
-    // メニューはセレクトボックス、休憩時間はタイムピッカー
-    const header = {
-      set: "セット数",
-      menu: "メニュー",
-      weight: "重量(kg)",
-      rep: "回数",
-      rest: "休憩時間",
-    };
+const canClickFillBefore = ref<boolean>(false);
 
-    const isDisabled = ref(false);
+// メニューはセレクトボックス、休憩時間はタイムピッカー
+type DispContents = {
+  set: number;
+  menu?: string;
+  weight?: number;
+  rep?: number;
+  rest?: number;
+  left_rep?: number | null;
+  left_volume?: number | null;
+  left_weight?: number | null;
+  memo?: string | null;
+  right_rep?: number | null;
+  right_volume?: number | null;
+  right_weight?: number | null;
+  volume?: number | null;
+};
 
-    //ログインユーザー情報取得
-    const { getLoginUser, loginUser } = useGetLoginUser();
+const isDisabled = ref<boolean>(false);
 
-    //今回記録するデータの値を取得
-    const { tgtRecord, hasTgtRecord, getTgtRecords } = useGetTgtRecordContent();
+//ログインユーザー情報取得
+const { getLoginUser, loginUser } = useGetLoginUser();
 
-    const contents = ref([
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-      { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
-    ]);
-    // watchは引数を二つ持つ(一つ目：監視対象、二つ目：新しい値と古い値)
-    watch(second_record, () => {
-      if (props.hasSecondRecord) {
-        maxBeforeLength.value = 0;
-        second_record.value.forEach((record) => {
-          const index = record.set - 1;
-          contents.value[index] = record;
-          if (maxBeforeLength.value < record.set) {
-            maxBeforeLength.value = record.set;
-          }
-        });
-        //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
-        emit("beforeTotalSet", second_record.value.length);
-        if (maxBeforeLength.value < 5) {
-          const tempObj = ref([]);
-          for (let i = 1; i <= 5 - maxBeforeLength.value; i++) {
-            tempObj.value[i] = { set: maxBeforeLength.value };
-            contents.value = [...contents.value, tempObj.value[i]];
-          }
-        } else {
-          contents.value.set = contents.value.set;
+//今回記録するデータの値を取得
+const { tgtRecord, hasTgtRecord, getTgtRecords } = useGetTgtRecordContent();
+
+const contents = ref<DispContents[]>([
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+  { set: 0, menu: "", weight: 0, rep: 0, rest: 0 },
+]);
+
+const emits = defineEmits<{
+  (e: "totalSet", value: string): void;
+  (e: "beforeTotalSet", value: string): void;
+  (e: "canClick", value: boolean): void;
+}>();
+
+// watchは引数を二つ持つ(一つ目：監視対象、二つ目：新しい値と古い値)
+watch(second_record, () => {
+  if (props.hasSecondRecord) {
+    maxBeforeLength.value = "0";
+    second_record.value.forEach((record) => {
+      const index: number = record.set - 1;
+      contents.value[index] = record;
+      if (Number(maxBeforeLength.value) < record.set) {
+        maxBeforeLength.value = record.set.toString();
+      }
+    });
+    //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
+    emits("beforeTotalSet", second_record.value.length.toString());
+    const tempObj = ref<DispContents[]>([]);
+    for (let i = 1; i <= 5 - Number(maxBeforeLength.value); i++) {
+      tempObj.value[i] = { set: Number(maxBeforeLength.value) };
+      contents.value = [...contents.value, tempObj.value[i]];
+    }
+  }
+});
+
+//全角→半角
+const replaceFullToHalf = (str: string) => {
+  return str.replace(/[！-～]/g, function (s) {
+    return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
+  });
+};
+
+// valはString
+const validateDecimalNumber = (val: string, tgtVal: string[], index: number) => {
+  // tgtvalの変更がない場合代入してもvalueの値が変化しないため
+  tgtVal[index] = val;
+  val = replaceFullToHalf(val);
+  // 小数点を含むか？
+  let oldVal = val;
+  const decPoint: number = oldVal.indexOf(".");
+  // replaceは型がStringのもののみ適用できる(replaceはそのものの値自体は変えないので代入する必要あり)
+  // 数字または小数点以外を無効とする
+  val = val.replace(/[^0-9|.]/g, "");
+  // parseFloatで少数型へ変換している
+  if (val !== "") {
+    val = parseFloat(val).toString();
+    // toFixedで小数第一位で四捨五入する
+    val = parseFloat(Number(val).toFixed(1)).toString();
+    // matchは型がStringのもののみ適用できる
+    val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
+  }
+  tgtVal[index] = val.toString();
+};
+
+const validateNumber = (val, tgtVal, index) => {
+  // tgtvalの変更がない場合代入してもvalueの値が変化しないため
+  tgtVal[index] = val;
+  val = replaceFullToHalf(val);
+  // 数字または小数点以外を無効とする
+  val = val.replace(/[^0-9]/g, "");
+  // parseFloatで少数型へ変換している
+  if (val !== "") {
+    val = parseFloat(val);
+    // toFixedで小数第一位で四捨五入する
+    val = parseFloat(val.toFixed(1));
+    // matchは型がStringのもののみ適用できる
+    val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
+  }
+  tgtVal[index] = val.toString();
+};
+
+const postRecordContent = (index: number) => {
+  axios
+    .post("/api/recordContent/create", {
+      user_id: loginUser.value.id,
+      category_id: route.query.categoryId,
+      menu_id: route.query.menuId,
+      record_state_id: route.query.recordId,
+      recorded_at: route.params.recordId,
+      weight: weight.value[index],
+      right_weight: rightWeight.value[index],
+      right_rep: rightRep.value[index],
+      left_weight: leftWeight.value[index],
+      left_rep: leftRep.value[index],
+      rep: rep.value[index],
+      set: index + 1,
+      memo: memo.value[index],
+    })
+    .then((res) => {
+      // 今回の合計セット数
+      canClickFillBefore.value = true;
+      // emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
+      emits("totalSet", res.data.totalSet);
+      if (res.data.totalSet > 0) {
+        canClickFillBefore.value = true;
+      } else {
+        canClickFillBefore.value = false;
+      }
+      emits("canClick", canClickFillBefore.value);
+    })
+    .catch((err) => {
+      canClickFillBefore.value = false;
+      emits("canClick", canClickFillBefore.value);
+    });
+};
+
+// 重量と回数を自動補完
+const complementData = (val: string, tgtVal: string[], index: number) => {
+  if (
+    index - 1 > -1 &&
+    complementContents.value &&
+    tgtVal[index - 1] &&
+    (tgtVal[index] == "" || tgtVal[index] == undefined)
+  ) {
+    val = tgtVal[index - 1].toString();
+    tgtVal[index] = tgtVal[index - 1];
+  } else {
+    tgtVal[index];
+  }
+};
+
+//tgtRecordを初期レンダリング時に取得するため、変更を常にwatchする。
+watch(tgtRecord, () => {
+  if (hasTgtRecord.value) {
+    canClickFillBefore.value = true;
+    emits("canClick", canClickFillBefore.value);
+    //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
+    emits("totalSet", tgtRecord.value.length.toString());
+    tgtRecord.value.forEach((record) => {
+      const index: number = record.set - 1;
+      weight.value[index] = record.weight !== null ? record.weight : "";
+      rep.value[index] = record.rep !== null ? record.rep : "";
+      rightWeight.value[index] = record.right_weight !== null ? record.right_weight : "";
+      rightRep.value[index] = record.right_rep !== null ? record.right_rep : "";
+      leftWeight.value[index] = record.left_weight !== null ? record.left_weight : "";
+      leftRep.value[index] = record.left_rep !== null ? record.left_rep : "";
+      memo.value[index] = record.memo !== null ? record.memo : "";
+      if (record.set > 5) {
+        const tempObj = ref([]);
+        for (let i = 6; i <= record.set; i++) {
+          tempObj.value[i] = { set: record.set + i };
+          contents.value = [...contents.value, tempObj.value[i]];
         }
       }
     });
+  } else {
+    canClickFillBefore.value = false;
+    emits("canClick", canClickFillBefore.value);
+  }
+});
 
-    //全角→半角
-    const replaceFullToHalf = (str) => {
-      return str.replace(/[！-～]/g, function (s) {
-        return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
-      });
-    };
-
-    // valはString
-    const validateDecimalNumber = (val, tgtVal, index) => {
-      // tgtvalの変更がない場合代入してもvalueの値が変化しないため
-      tgtVal[index] = val;
-      val = replaceFullToHalf(val);
-      // 小数点を含むか？
-      let oldVal = val;
-      const decPoint = oldVal.indexOf(".");
-      // replaceは型がStringのもののみ適用できる(replaceはそのものの値自体は変えないので代入する必要あり)
-      // 数字または小数点以外を無効とする
-      val = val.replace(/[^0-9|.]/g, "");
-      // parseFloatで少数型へ変換している
-      if (val !== "") {
-        val = parseFloat(val);
-        // toFixedで小数第一位で四捨五入する
-        val = parseFloat(val.toFixed(1));
-        // matchは型がStringのもののみ適用できる
-        val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
-      }
-      tgtVal[index] = val.toString();
-    };
-
-    const validateNumber = (val, tgtVal, index) => {
-      // tgtvalの変更がない場合代入してもvalueの値が変化しないため
-      tgtVal[index] = val;
-      val = replaceFullToHalf(val);
-      // 数字または小数点以外を無効とする
-      val = val.replace(/[^0-9]/g, "");
-      // parseFloatで少数型へ変換している
-      if (val !== "") {
-        val = parseFloat(val);
-        // toFixedで小数第一位で四捨五入する
-        val = parseFloat(val.toFixed(1));
-        // matchは型がStringのもののみ適用できる
-        val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
-      }
-      tgtVal[index] = val.toString();
-    };
-
-    const postRecordContent = (index) => {
-      axios
-        .post("/api/recordContent/create", {
-          user_id: loginUser.value.id,
-          category_id: route.query.categoryId,
-          menu_id: route.query.menuId,
-          record_state_id: route.query.recordId,
-          recorded_at: route.params.recordId,
-          weight: weight.value[index],
-          right_weight: rightWeight.value[index],
-          right_rep: rightRep.value[index],
-          left_weight: leftWeight.value[index],
-          left_rep: leftRep.value[index],
-          rep: rep.value[index],
-          set: index + 1,
-          memo: memo.value[index],
-        })
-        .then((res) => {
-          // 今回の合計セット数
-          canClickFillBefore.value = true;
-          // emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
-          emit("totalSet", res.data.totalSet);
-          if (res.data.totalSet > 0) {
-            canClickFillBefore.value = true;
-          } else {
-            canClickFillBefore.value = false;
-          }
-          emit("canClick", canClickFillBefore.value);
-        })
-        .catch((err) => {
-          canClickFillBefore.value = false;
-          emit("canClick", canClickFillBefore.value);
-        });
-    };
-
-    // 重量と回数を自動補完
-    const complementData = (val, tgtVal, index) => {
-      if (
-        index - 1 > -1 &&
-        complementContents.value &&
-        tgtVal[index - 1] &&
-        (tgtVal[index] == "" || tgtVal[index] == undefined)
-      ) {
-        val = tgtVal[index - 1].toString();
-        tgtVal[index] = tgtVal[index - 1];
-      } else {
-        tgtVal[index];
-      }
-    };
-
-    //tgtRecordを初期レンダリング時に取得するため、変更を常にwatchする。
-    watch(tgtRecord, () => {
-      if (hasTgtRecord.value) {
-        canClickFillBefore.value = true;
-        emit("canClick", canClickFillBefore.value);
-        //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
-        emit("totalSet", tgtRecord.value.length);
-        tgtRecord.value.forEach((record) => {
-          const index = record.set - 1;
-          weight.value[index] = record.weight !== null ? record.weight : "";
-          rep.value[index] = record.rep !== null ? record.rep : "";
-          rightWeight.value[index] =
-            record.right_weight !== null ? record.right_weight : "";
-          rightRep.value[index] = record.right_rep !== null ? record.right_rep : "";
-          leftWeight.value[index] = record.left_weight !== null ? record.left_weight : "";
-          leftRep.value[index] = record.left_rep !== null ? record.left_rep : "";
-          memo.value[index] = record.memo !== null ? record.memo : "";
-          if (record.set > 5) {
-            const tempObj = ref([]);
-            for (let i = 6; i <= record.set; i++) {
-              tempObj.value[i] = { set: record.set + i };
-              contents.value = [...contents.value, tempObj.value[i]];
-            }
-          }
-        });
-      } else {
-        canClickFillBefore.value = false;
-        emit("canClick", canClickFillBefore.value);
-      }
-    });
-
-    onMounted(async () => {
-      await getLoginUser();
-      await getTgtRecords(
-        loginUser.value.id,
-        props.category_id,
-        props.menu_id,
-        props.record_state_id
-      );
-      store.commit("compGetData", true);
-    });
-
-    return {
-      weight,
-      rep,
-      rightWeight,
-      rightRep,
-      leftWeight,
-      leftRep,
-      memo,
-      header,
-      contents,
-      hasOneHand,
-      route,
-      maxSet,
-      menuContent,
-      beforeHeaderTxt,
-      complementContents,
-      validateNumber,
-      validateDecimalNumber,
-      postRecordContent,
-      complementData,
-    };
-  },
-};
+onMounted(async () => {
+  await getLoginUser();
+  await getTgtRecords(
+    loginUser.value.id,
+    props.category_id,
+    props.menu_id,
+    props.record_state_id
+  );
+  store.commit("compGetData", true);
+});
 </script>
 
 <style></style>
