@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import axios, { AxiosResponse } from "axios";
 import useNotLoginedRedirect from "../certification/useNotLoginedRedirect";
-
+import { DispRecords } from "../../types/record";
 
 type Data = {
     records: Records[];
@@ -29,7 +29,7 @@ type Records = {
 
 export default function useGetRecords(){
     // 配列はArray<>もしくは、変数[]
-    const records = ref<Records[]>([]);
+    const records = ref<DispRecords[]>([]);
     const compGetData = ref<Boolean>(false);
 
     const getRecords = async(user_id:Number, recorded_at:String="")=>{

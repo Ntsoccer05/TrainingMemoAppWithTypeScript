@@ -16,7 +16,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('command:deleteRecords')->everyMinute();
+        $schedule->command('command:deleteRecords')->dailyAt('4:00');
+        $schedule->command('command:deleteNothingRecords')->dailyAt('4:00');
         // $schedule->command('command:deleteRecords')->daily();
         // $schedule->command('command:updateRanking')->everyMinute();
         // 毎週月曜日の3時に実行

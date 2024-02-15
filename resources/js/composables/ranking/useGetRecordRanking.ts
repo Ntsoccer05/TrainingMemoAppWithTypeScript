@@ -8,7 +8,7 @@ export default function useGetRecords(){
     const compGetData = ref<boolean>(false);
     const categoryContents = ref<string[]>([])
     
-    const getRecords = async(user_id)=>{
+    const getRecords = async(user_id: number)=>{
         await axios.get("/api/recordRanking/user", {
             // get時にパラメータを渡す際はparamsで指定が必要
             params:{

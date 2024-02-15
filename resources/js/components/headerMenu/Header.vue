@@ -195,8 +195,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useHoldLoginState from "../../composables/certification/useHoldLoginState";
 import axios from "axios";
-// export default {
-//   setup() {
+
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
@@ -268,25 +267,6 @@ const logout = async () => {
     })
     .catch((err) => {});
 };
-//     return {
-//       paramName,
-//       route,
-//       isOpen,
-//       isLogined,
-//       isloaded,
-//       user,
-//       dispAlertModal,
-//       dispAlertMessage,
-//       recorded_day,
-//       recordedAt,
-//       compGetData,
-//       toggleNav,
-//       toHome,
-//       logout,
-//       closeHumbuger,
-//     };
-//   },
-// };
 </script>
 
 <style></style>

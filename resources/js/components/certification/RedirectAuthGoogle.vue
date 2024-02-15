@@ -5,8 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 import { onMounted } from "vue";
 import { useStore } from "vuex";
 import axios from "axios";
-// export default {?
-// setup() {
+
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
@@ -44,8 +43,6 @@ onMounted(() => {
       });
   });
 });
-// },
-// };
 </script>
 
 <style></style>

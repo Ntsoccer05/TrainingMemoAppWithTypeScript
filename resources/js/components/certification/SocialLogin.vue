@@ -19,8 +19,7 @@
 import { useRouter, useRoute } from "vue-router";
 import { ref } from "vue";
 import axios from "axios";
-// export default {
-//   setup() {
+
 const router = useRouter();
 const route = useRoute();
 
@@ -49,10 +48,6 @@ const toGoogleLoginPage = () => {
       }
     });
 };
-
-//     return { dispType, toGoogleLoginPage };
-//   },
-// };
 </script>
 
 <style></style>

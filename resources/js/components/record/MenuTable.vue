@@ -31,7 +31,6 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect } from "vue";
 import { Category } from "../../types/trainingMenu";
-// export default {
 type props = {
   categories: Category;
 };
@@ -47,13 +46,6 @@ watchEffect(() => {
     isOdd.value = false;
   }
 });
-
-//   return {
-//     categories,
-//     isOdd,
-//   };
-// },
-// };
 </script>
 
 <style></style>

@@ -84,8 +84,6 @@ import dispValidationMsg from "../../composables/certification/useDispValidation
 import axios from "axios";
 import { DispErrorMsg, Errors } from "../../types/certification";
 
-// export default {
-//   setup() {
 const router = useRouter();
 const store = useStore();
 const name = ref<string>("");
@@ -156,23 +154,6 @@ const login = async () => {
 const toggleDisplayPass = (): void => {
   displayPass.value = !displayPass.value;
 };
-
-// return {
-//   name,
-//   email,
-//   password,
-//   errors,
-//   inputType,
-//   iconType,
-//   displayPass,
-//   dispNameErrMsg,
-//   dispEmailErrMsg,
-//   dispPassErrMsg,
-//   login,
-//   toggleDisplayPass,
-// };
-//   },
-// };
 </script>
 
 <style></style>

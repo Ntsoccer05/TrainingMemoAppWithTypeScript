@@ -1,14 +1,15 @@
 import { ref } from "vue";
 import axios from "axios";
+import { HistoryMenu, HistoryRecord } from "../../types/record";
 
 export default function useGetHistoryRecordContent(){
-    const historyRecords = ref("")
-    const historyMenus = ref("")
+    const historyRecords:HistoryRecord[][] = ref("")
+    const historyMenus:HistoryMenu[] = ref("")
     // 既にデータが存在するか
-    const hasHistoryRecord = ref(false)
+    const hasHistoryRecord = ref<boolean>(false)
 
     //既にデータが存在していれば取得
-    const getHistoryRecords = async(user_id, category_id, menu_id, record_state_id, recorded_at)=>{
+    const getHistoryRecords = async(user_id:number, category_id:string, menu_id:string, record_state_id:string, recorded_at:string)=>{
         await axios.get("/api/recordContent/show", {
             // get時にパラメータを渡す際はparamsで指定が必要
             params:{

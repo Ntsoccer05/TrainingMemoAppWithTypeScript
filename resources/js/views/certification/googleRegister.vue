@@ -44,12 +44,6 @@
 
 <script setup lang="ts">
 import GoogleRegister from "../../components/certification/GoogleRegister.vue";
-// export default {
-//   components: {
-//     GoogleRegister,
-//   },
-//   setup() {},
-// };
 </script>
 
 <style></style>

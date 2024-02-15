@@ -119,6 +119,8 @@ class RecordContentController extends Controller
             return response()->json(["status_code" => 200, "message" => "記録日のデータはありません", 'tgtRecords'=>$tgtRecords]);
         }
     }
+
+    // 履歴を確認時に使用
     public function show(Request $request, RecordMenu $recordMenu){
         $historyTgtRecords = null;
 
@@ -128,9 +130,10 @@ class RecordContentController extends Controller
         $record_state_id = $request->record_state_id;
         $recorded_at = $request->recorded_at;
 
+        // loadで特定のカラムのみ取得する場合リレーションに必要な主キーや外部キーは必ず指定する必要がある
         $historyTgtMenus = $recordMenu->where(function($query) use($user_id, $category_id, $menu_id, $recorded_at){
             $query->where([['user_id', $user_id], ['category_id', $category_id], ['menu_id', $menu_id], ['recorded_at', '<>', $recorded_at]]);
-        })->orderBy('recorded_at', 'desc')->take(5)->get();
+        })->orderBy('recorded_at', 'desc')->take(5)->get()->load('recordState:id,bodyWeight');
 
         if($historyTgtMenus){
             foreach($historyTgtMenus as $historyTgtMenu){
@@ -140,6 +143,7 @@ class RecordContentController extends Controller
         }
     }
 
+    // 筋トレ内容を記録
     public function create(Request $request, RecordMenu $recordMenu,RecordContent $recordContent){
         $user_id = $request->user_id;
         $category_id = $request->category_id;
@@ -262,6 +266,7 @@ class RecordContentController extends Controller
         }
     }
 
+    // 筋トレ内容を削除
     public function delete(Request $request, RecordMenu $recordMenu){
         $user_id = $request->user_id;
         $category_id = $request->category_id;

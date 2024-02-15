@@ -1,14 +1,15 @@
 import { ref } from "vue";
 import axios from "axios";
+import { LatestRecord, HistoryRecord } from "../../types/record";
 
 export default function useGetSecondRecordContent(){
-    const secondRecord = ref("")
-    const secondRecordState = ref("")
+    const secondRecord = ref<HistoryRecord[]>("")
+    const secondRecordState = ref<LatestRecord>("")
     // ２番目に新しい記録が存在するか
-    const hasSecondRecord = ref(false)
+    const hasSecondRecord = ref<boolean>(false)
 
     //２番目に新しい記録を取得する
-    const getSecondRecord = async(user_id, category_id, menu_id, record_state_id, recorded_at, thisTotalSet)=>{
+    const getSecondRecord = async(user_id:number, category_id:string, menu_id:string, record_state_id:string, recorded_at:string, thisTotalSet:Ref<srting>)=>{
         await axios.get("/api/recordMenu", {
             // get時にパラメータを渡す際はparamsで指定が必要
             params:{

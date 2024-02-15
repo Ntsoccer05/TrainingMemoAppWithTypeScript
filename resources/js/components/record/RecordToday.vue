@@ -25,73 +25,56 @@
   </Modal>
 </template>
 
-<script>
-import { onMounted, ref, computed } from "vue";
+<script setup lang="ts">
+import { onMounted, ref, computed, ComputedRef } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useSelectedDay from "../../composables/record/useSelectedDay";
-export default {
-  setup() {
-    const date = new Date();
-    const router = useRouter();
-    const store = useStore();
+import axios from "axios";
 
-    const isLogined = ref(false);
-    const dispAlertModal = ref(false);
+const date = new Date();
+const router = useRouter();
+const store = useStore();
 
-    const { getLoginUser, loginUser } = useGetLoginUser();
-    onMounted(async () => {
-      await getLoginUser();
-      // ログイン状態をVuexより取得<-このタイミングだとカレンダーの描画が完了しているためVuexの値を取得できる。
-      isLogined.value = computed(() => store.state.isLogined);
-    });
+const isLogined = ref<boolean | ComputedRef>(false);
+const dispAlertModal = ref<boolean>(false);
 
-    const toLogin = () => {
-      router.push("/login");
-    };
+const { getLoginUser, loginUser } = useGetLoginUser();
+onMounted(async () => {
+  await getLoginUser();
+  // ログイン状態をVuexより取得<-このタイミングだとカレンダーの描画が完了しているためVuexの値を取得できる。
+  isLogined.value = computed(() => store.state.isLogined);
+});
 
-    //ログインしていなかったらメッセージを表示
-    const alertLogin = () => {
-      if (isLogined.value.value === false) {
-        dispAlertModal.value = true;
-      }
-    };
+const toLogin = (): void => {
+  router.push("/login");
+};
 
-    const { selectedDay, recordingDay, postDay } = useSelectedDay(date);
+//ログインしていなかったらメッセージを表示
+const alertLogin = (): void => {
+  if (isLogined.value.value === false) {
+    dispAlertModal.value = true;
+  }
+};
 
-    selectedDay();
+const { selectedDay, postDay } = useSelectedDay(date);
 
-    const record = async () => {
-      if (isLogined.value.value) {
-        await axios
-          .post("/api/record/create", {
-            user_id: loginUser.value.id,
-            recording_day: postDay,
-          })
-          .then((res) => {
-            store.commit("setRecordedAt", postDay);
-            router.push({ name: "selectMenu", params: { recordId: postDay } });
-          })
-          .catch((err) => {});
-      }
-    };
+selectedDay();
 
-    const toSelectMenu = () => {
-      // トレーニング記録画面へ遷移
-      store.commit("setRecordedAt", postDay);
-      router.push({ name: "selectMenu", params: { recordId: postDay } });
-    };
-    return {
-      recordingDay,
-      dispAlertModal,
-      loginUser,
-      toSelectMenu,
-      record,
-      alertLogin,
-      toLogin,
-    };
-  },
+const record = async () => {
+  if (isLogined.value.value) {
+    await axios
+      .post("/api/record/create", {
+        user_id: loginUser.value.id,
+        recording_day: postDay,
+      })
+      .then((res) => {
+        store.commit("setRecordedAt", postDay);
+        router.push({ name: "selectMenu", params: { recordId: postDay } });
+      })
+      .catch((err) => {});
+  }
 };
 </script>
 
