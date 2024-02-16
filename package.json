@@ -5,6 +5,7 @@
         "build": "vite build"
     },
     "devDependencies": {
+        "@babel/types": "^7.23.9",
         "@types/bootstrap": "^5.2.10",
         "@types/node": "^20.11.16",
         "@vitejs/plugin-vue": "^3.2.0",

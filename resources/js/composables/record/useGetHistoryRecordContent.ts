@@ -3,8 +3,8 @@ import axios from "axios";
 import { HistoryMenu, HistoryRecord } from "../../types/record";
 
 export default function useGetHistoryRecordContent(){
-    const historyRecords:HistoryRecord[][] = ref("")
-    const historyMenus:HistoryMenu[] = ref("")
+    const historyRecords = ref<HistoryRecord[][]>([])
+    const historyMenus = ref<HistoryMenu[]>([])
     // 既にデータが存在するか
     const hasHistoryRecord = ref<boolean>(false)
 
