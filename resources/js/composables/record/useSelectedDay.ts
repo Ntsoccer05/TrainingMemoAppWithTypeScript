@@ -1,7 +1,7 @@
 import { useStore } from "vuex";
 import { computed, ref, ComputedRef } from "vue";
 
-export default function useSelected(day:Date){
+export default function useSelected(day){
     const store = useStore();
 
     const selectedDay = ()=>{

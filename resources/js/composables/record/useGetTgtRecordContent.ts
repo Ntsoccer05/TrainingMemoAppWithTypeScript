@@ -4,7 +4,7 @@ import useNotLoginedRedirect from "../certification/useNotLoginedRedirect";
 import { TgtRecordContent } from "../../types/record";
 
 export default function useGetTgtRecordContents(){
-    const tgtRecord = ref<TgtRecordContent[]>("")
+    const tgtRecord = ref<TgtRecordContent[]>([])
     // 既にデータが存在するか
     const hasTgtRecord = ref<boolean>(false)
 

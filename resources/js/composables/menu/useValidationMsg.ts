@@ -11,7 +11,7 @@ export default function useValidationMsg(msgs:Errors, data:Errors, hasMsg:DispEr
         data.menu = msgs.menu
         hasMsg.menu = true;
     } else {
-        data.menu = "";
+        data.menu = undefined;
         hasMsg.menu = false;
     }
     // 種目のバリデーションエラー
@@ -19,7 +19,7 @@ export default function useValidationMsg(msgs:Errors, data:Errors, hasMsg:DispEr
         data.category_content = msgs.category_content;
         hasMsg.category_content = true;
     } else {
-        data.category_content = "";
+        data.category_content = undefined;
         hasMsg.category_content = false;
     }
 }

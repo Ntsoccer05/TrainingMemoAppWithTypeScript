@@ -239,7 +239,7 @@ const fillBeforeRecord = async () => {
     menu_id,
     record_state_id,
     route.params.recordId as string,
-    thisTotalSet
+    thisTotalSet.value
   );
   if (hasSecondRecord.value) {
     isBeforeData.value = true;
