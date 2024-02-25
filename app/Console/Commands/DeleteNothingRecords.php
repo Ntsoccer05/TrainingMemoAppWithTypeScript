@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\RecordContent;
+use App\Models\RecordMenu;
 use App\Models\RecordState;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -30,12 +31,14 @@ class DeleteNothingRecords extends Command
      *
      * @return int
      */
-    public function handle(RecordContent $recordContent, RecordState $recordState)
+    public function handle(RecordContent $recordContent, RecordState $recordState, RecordMenu $recordMenu)
     {
         $now = Carbon::now();
         $recordContents = $recordContent->get();
+        $recordMenus = $recordMenu->get();
         $recordStates = $recordState->get();
         foreach($recordContents as $recordContent){
+            // 記録が存在するか
             if(empty($recordContent->weight) && 
                empty($recordContent->rep) && 
                empty($recordContent->right_weight) &&
@@ -49,6 +52,12 @@ class DeleteNothingRecords extends Command
                         $TgtRecordState->delete();
                     }
                 }
+            }
+        }
+        foreach($recordMenus as $recordMenu){
+            // メニューの記録が存在するか
+            if(($recordMenu->recordContents->isEmpty()) && ($now->diffInDays($recordMenu->recorded_at) >= $this->diff_day)){
+                $recordMenu->delete();
             }
         }
         foreach($recordStates as $recordState){

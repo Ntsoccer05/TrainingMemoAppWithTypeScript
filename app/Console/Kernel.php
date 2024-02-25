@@ -15,13 +15,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // 2年以上経った記録を削除(毎朝４時に実行)
         $schedule->command('command:deleteRecords')->dailyAt('4:00');
+        // 記録なし、セット数０の記録を削除(毎朝４時に実行)
         $schedule->command('command:deleteNothingRecords')->dailyAt('4:00');
-        // $schedule->command('command:deleteRecords')->daily();
-        // $schedule->command('command:updateRanking')->everyMinute();
-        // 毎週月曜日の3時に実行
-        // $schedule->command('command:updateRanking')->weeklyOn(1, '3:00');;
+        // テスト用
+        // $schedule->command('command:deleteNothingRecords')->everyMinute();
+        // $schedule->command('command:deleteRecords')->everyMinute();
     }
 
     /**
