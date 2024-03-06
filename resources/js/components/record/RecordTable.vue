@@ -468,6 +468,7 @@ const complementData = (val: string, tgtVal: string[], index: number) => {
   ) {
     val = tgtVal[index - 1].toString();
     tgtVal[index] = tgtVal[index - 1];
+    postRecordContent(index);
   } else {
     tgtVal[index];
   }
