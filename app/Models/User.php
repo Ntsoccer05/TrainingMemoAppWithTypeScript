@@ -12,8 +12,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Mail\BareMail;
 use App\Notifications\PasswordResetNotification;
+use Filament\Models\Contracts\FilamentUser;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -22,10 +23,12 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    // fillableに追加したものがfilamentで変更・更新できる
     protected $fillable = [
         'name',
         'email',
         'password',
+        'is_admin'
     ];
 
     /**
@@ -46,7 +49,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
+    public function canAccessFilament(): bool
+    {
+        return str_ends_with($this->email, '@gmail.com');
+    }
     public function categories():HasMany
     {
         return $this->hasMany(Category::class);
