@@ -8,6 +8,7 @@ type LoginUser = {
     id: number;
     name: string;
     updated_at: string;
+    is_admin: boolean
 };
 
 export default function useGetLoginUser(){
@@ -19,7 +20,8 @@ export default function useGetLoginUser(){
         email_verified_at:null,
         id: 0,
         name: "",
-        updated_at: ""
+        updated_at: "",
+        is_admin: false
     });
 
     // async await を使わないとDOM生成後のonMountedのタイミングでも早すぎてユーザ情報を取得できない

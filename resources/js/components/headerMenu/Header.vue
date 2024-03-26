@@ -150,6 +150,15 @@
                   >メニュー別最高記録</router-link
                 >
               </li>
+              <template v-if="loginUser.is_admin == true">
+                <li class="border-b md:border-none">
+                  <a
+                    class="block px-8 py-2 my-4 hover:bg-gray-600 rounded cursor-pointer"
+                    href="/admin"
+                    >管理画面</a
+                  >
+                </li>
+              </template>
               <li class="border-b md:border-none">
                 <a
                   class="block px-8 py-2 my-4 hover:bg-gray-600 rounded cursor-pointer"
@@ -205,6 +214,7 @@ import { ref, onMounted, computed, watchEffect, ComputedRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import useHoldLoginState from "../../composables/certification/useHoldLoginState";
+import { LoginUser } from "../../types/loginUser";
 import axios from "axios";
 
 const router = useRouter();
@@ -218,6 +228,7 @@ const recorded_day = ref<string>("");
 const recordedAt = ref<string>("");
 const recorded_at: ComputedRef<string> = computed(() => store.getters.getRecordedAt);
 const compGetData: ComputedRef<boolean> = computed(() => store.getters.compGetData);
+const loginUser: ComputedRef<LoginUser> = computed(() => store.getters.loginUser);
 
 const paramName = ref<string>("");
 
