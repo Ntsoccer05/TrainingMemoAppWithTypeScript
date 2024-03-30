@@ -25,6 +25,7 @@
             <input
               class="border w-full pl-0.5"
               type="text"
+              name="weight"
               placeholder="重さ(kg)"
               maxlength="6"
               :value="weight[index]"
@@ -35,6 +36,7 @@
             <input
               class="border w-full pl-0.5"
               type="text"
+              name="rep"
               placeholder="回数"
               maxlength="3"
               :value="rep[index]"
@@ -47,6 +49,7 @@
             <input
               class="border w-full pl-0.5"
               type="text"
+              name="rightWeight"
               placeholder="重さ（右）(kg)"
               maxlength="6"
               :value="rightWeight[index]"
@@ -57,6 +60,7 @@
             <input
               class="border w-full pl-0.5"
               type="text"
+              name="rightRep"
               placeholder="回数（右）"
               maxlength="3"
               :value="rightRep[index]"
@@ -67,6 +71,7 @@
             <input
               class="border w-full pl-0.5"
               type="text"
+              name="leftWeight"
               placeholder="重さ（左）(kg)"
               maxlength="6"
               :value="leftWeight[index]"
@@ -77,6 +82,7 @@
             <input
               class="border w-full pl-0.5"
               type="text"
+              name="leftRep"
               placeholder="回数（左）"
               maxlength="3"
               :value="leftRep[index]"
@@ -89,6 +95,7 @@
             <textarea
               class="w-full leading-4 pl-0.5"
               v-model="memo[index]"
+              name="memo"
               cols="20"
               rows="4"
               placeholder="メモ"
@@ -228,7 +235,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, ComputedRef } from "vue";
-import { useRoute } from "vue-router";
+import { onBeforeRouteLeave, useRoute } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
 import axios from "axios";
@@ -513,6 +520,70 @@ onMounted(async () => {
     props.record_state_id
   );
   store.commit("compGetData", true);
+});
+
+// 戻るボタン押下時に入力中内容を保存する
+onBeforeRouteLeave(async (to, from, next) => {
+  // 現在フォーカスが当たっている要素
+  const activeElem = document.activeElement;
+  // セット数
+  let index: number = -1;
+
+  if (activeElem.tagName == "INPUT") {
+    if (activeElem) {
+      switch ((activeElem as HTMLInputElement).name) {
+        case "weight":
+        case "rep":
+          index =
+            Number(
+              activeElem.parentElement.previousElementSibling.innerHTML.slice(0, 1)
+            ) - 1;
+          if ((activeElem as HTMLInputElement).name == "weight") {
+            validateDecimalNumber(
+              (activeElem as HTMLInputElement).value,
+              weight.value,
+              index
+            );
+          } else if ((activeElem as HTMLInputElement).name == "rep") {
+            validateNumber((activeElem as HTMLInputElement).value, rep.value, index);
+          }
+          break;
+        case "rightWeight":
+        case "rightRep":
+        case "leftWeight":
+        case "leftRep":
+          index =
+            Number(
+              activeElem.parentElement.previousElementSibling.previousElementSibling.innerHTML.slice(
+                0,
+                1
+              )
+            ) - 1;
+          if ((activeElem as HTMLInputElement).name == "rightWeight") {
+            validateDecimalNumber(
+              (activeElem as HTMLInputElement).value,
+              rightWeight.value,
+              index
+            );
+          } else if ((activeElem as HTMLInputElement).name == "rightRep") {
+            validateNumber((activeElem as HTMLInputElement).value, rightRep.value, index);
+          } else if ((activeElem as HTMLInputElement).name == "leftWeight") {
+            validateDecimalNumber(
+              (activeElem as HTMLInputElement).value,
+              leftWeight.value,
+              index
+            );
+          } else if ((activeElem as HTMLInputElement).name == "leftRep") {
+            validateNumber((activeElem as HTMLInputElement).value, leftRep.value, index);
+          }
+          break;
+      }
+    }
+    if (index > -1) {
+      postRecordContent(index);
+    }
+  }
+  next();
 });
 </script>
 
