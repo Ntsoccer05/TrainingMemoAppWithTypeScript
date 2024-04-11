@@ -331,25 +331,24 @@ onMounted(async () => {
   if (dispModal.value) {
     dispAlertModal.value = true;
   }
-  await firstRecord();
   await getLatestRecordState();
   await getMenuContent();
   await getTgtRecords(loginUser.value.id, category_id, menu_id, record_state_id);
-  if (hasTgtRecord.value) {
-    BeforeBtnTxt.value = "前回の記録を埋める";
-    BeforeWeightTxt.value = "前回の体重";
-    BeforeTotalSetTxt.value = "前回の合計セット数";
-    BeforeHeaderTxt.value = "前回の記録";
-    isDispTxt.value = false;
-    compGetData.value = true;
-  } else {
-    // BeforeBtnTxt.value = "前々回の記録を埋める";
-    // BeforeWeightTxt.value = "前々回の体重";
-    // BeforeTotalSetTxt.value = "前々回の合計セット数";
-    // BeforeHeaderTxt.value = "前々回の記録";
-    // isDispTxt.value = true;
-    // compGetData.value = true;
-  }
+  BeforeBtnTxt.value = "前回の記録を埋める";
+  BeforeWeightTxt.value = "前回の体重";
+  BeforeTotalSetTxt.value = "前回の合計セット数";
+  BeforeHeaderTxt.value = "前回の記録";
+  isDispTxt.value = false;
+  // compGetData.value = true;
+  // } else {
+  // BeforeBtnTxt.value = "前々回の記録を埋める";
+  // BeforeWeightTxt.value = "前々回の体重";
+  // BeforeTotalSetTxt.value = "前々回の合計セット数";
+  // BeforeHeaderTxt.value = "前々回の記録";
+  // isDispTxt.value = true;
+  // compGetData.value = true;
+  // }
+  compGetData.value = true;
   const fillBeforeBtnDom: string = fillBeforeBtn.value;
 
   if (latestRecord.value.bodyWeight) {
@@ -358,22 +357,6 @@ onMounted(async () => {
     // bodyWeight.value = "記録されていません";
   }
 });
-
-//遷移前処理
-onBeforeRouteLeave(
-  async (
-    to: RouteLocationNormalized,
-    from: RouteLocationNormalized,
-    next: NavigationGuardNext
-  ) => {
-    if (Number(thisTotalSet.value) === 0) {
-      await deleteFirstRecord();
-      next();
-    } else {
-      next();
-    }
-  }
-);
 </script>
 
 // vue-modalのレイアウト作成
