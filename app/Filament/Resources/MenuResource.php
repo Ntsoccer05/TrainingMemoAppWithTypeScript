@@ -42,7 +42,7 @@ class MenuResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name'),
-                Tables\Columns\TextColumn::make('category.id'),
+                Tables\Columns\TextColumn::make('category.content'),
                 Tables\Columns\TextColumn::make('content'),
                 Tables\Columns\IconColumn::make('oneSide')
                     ->boolean(),
