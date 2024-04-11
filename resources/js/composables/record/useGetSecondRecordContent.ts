@@ -22,6 +22,7 @@ export default function useGetSecondRecordContent(){
                 thisTotalSet,
             }
         }).then((res) =>{
+            debugger
             if(res.data.secondRecords){
                 secondRecord.value = res.data.secondRecords
                 secondRecordState.value = res.data.secondRecordState.record_state

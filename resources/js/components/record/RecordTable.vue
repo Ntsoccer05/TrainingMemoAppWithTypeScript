@@ -413,7 +413,7 @@ const validateDecimalNumber = (val: string, tgtVal: string[], index: number) => 
   tgtVal[index] = val.toString();
 };
 
-const validateNumber = (val, tgtVal, index) => {
+const validateNumber = (val: string, tgtVal: string[], index: number) => {
   // tgtvalの変更がない場合代入してもvalueの値が変化しないため
   tgtVal[index] = val;
   val = replaceFullToHalf(val);
@@ -421,9 +421,9 @@ const validateNumber = (val, tgtVal, index) => {
   val = val.replace(/[^0-9]/g, "");
   // parseFloatで少数型へ変換している
   if (val !== "") {
-    val = parseFloat(val);
+    val = parseFloat(val).toString();
     // toFixedで小数第一位で四捨五入する
-    val = parseFloat(val.toFixed(1));
+    val = parseFloat(Number(val).toFixed(1)).toString();
     // matchは型がStringのもののみ適用できる
     val.toString().match(/^(\d+)(\.\d*)?/u) ? val : "";
   }
@@ -519,6 +519,9 @@ onMounted(async () => {
     props.menu_id,
     props.record_state_id
   );
+  if (tgtRecord.value.length == 0) {
+    emits("totalSet", "0");
+  }
   store.commit("compGetData", true);
 });
 
