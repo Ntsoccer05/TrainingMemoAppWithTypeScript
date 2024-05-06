@@ -36,8 +36,8 @@ const authUser = ref<LoginUser>({
 });
 
 type Attrs = {
-  key: string;
-  highlight: boolean;
+  key?: string;
+  highlight: boolean | string;
   dates: Date;
 };
 
@@ -90,6 +90,10 @@ const isLogined: ComputedRef<Boolean> = computed(() => store.state.isLogined);
 const calendar = ref();
 
 const selected_day = ref<String>("");
+
+// 選択された月日へ移動
+const fromPath = ref<string>("");
+const currentPath = ref<string>("");
 
 const { getLoginUser, loginUser } = useGetLoginUser();
 
@@ -152,6 +156,36 @@ const changeDayFormat = (day) => {
   return day;
 };
 
+// 選択された月日へ移動
+const menuScroll = (calendarDom) => {
+  // 前画面パスを設定
+  if (window.history.state.forward) {
+    fromPath.value = window.history.state.forward.split("/")[2];
+  } else if (window.history.state.back) {
+    fromPath.value = window.history.state.back.split("/")[2];
+  }
+  const day = ref<Date>(null);
+  day.value = new Date(fromPath.value);
+  // 現在画面パスを設定
+  currentPath.value = window.history.state.current.split("/")[1];
+  // クエリパラメータに選択されていたdateを指定することで移動
+  if (!Number.isNaN(day.value.getDate())) {
+    calendarDom.move(new Date((fromPath.value as string).replace(/-/g, "/")));
+    // 選択された日付のクエリパラメータを付与
+    router.push({ name: "home", query: { day: fromPath.value } });
+    // 選択された日付をマーク
+    const obj = {
+      key: "selected_day",
+      highlight: "green",
+      // safariだと年-月-日だとNanとなるため年/月/日に変更
+      dates: new Date((fromPath.value as string).replace(/-/g, "/")),
+    };
+    attrs.value = [...attrs.value, obj];
+  } else {
+    router.push({ name: "home", query: { day: fromPath.value } });
+  }
+};
+
 //ログインしているかの判別をする場合DOMが生成されていない状態だとログイン状態を判別できないため
 //getLoginUser はApp.vueで行う
 onMounted(async () => {
@@ -174,11 +208,11 @@ onMounted(async () => {
 
     // toDetailPage();
     // クエリパラメータがあればリロード時にその日付が存在するページを表示
-    if (route.query.day && calendarDom !== "") {
-      // safariだと年-月-日だとNanとなるため年/月/日に変更
-      calendarDom.move(new Date((route.query.day as string).replace(/-/g, "/")));
-      delete route.query.day;
-    }
+    menuScroll(calendarDom);
+    // if (route.query.day && calendarDom !== "") {
+    //   // safariだと年-月-日だとNanとなるため年/月/日に変更
+    //   calendarDom.move(new Date((route.query.day as string).replace(/-/g, "/")));
+    // }
   });
 });
 

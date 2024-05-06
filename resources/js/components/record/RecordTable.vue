@@ -2,7 +2,9 @@
   <div>
     <thead>
       <tr class="grid grid-cols-2 w-2full">
-        <th class="mx-auto block w-full col-span-2">{{ menuContent }}</th>
+        <th class="mx-auto block w-full col-span-2">
+          {{ menuContent }}
+        </th>
       </tr>
 
       <tr>
@@ -10,14 +12,16 @@
           <div class="border" ref="todayRecordedAt">今回の記録</div>
         </th>
         <th class="text-left md:text-center indent-1 md:indent-0">
-          <div class="border" ref="beforeRecordedAt">{{ beforeHeaderTxt }}</div>
+          <div class="border" ref="beforeRecordedAt">
+            {{ beforeHeaderTxt }}
+          </div>
         </th>
       </tr>
     </thead>
     <tbody>
       <!-- <tr v-for="(content, index) in contents" :key="index"> -->
       <tr v-for="index in maxSet" :key="index">
-        <td>
+        <td @keyup.enter="nextInputFocus($event)">
           <div class="bg-gray-200 border indent-1">{{ index + 1 }}セット目</div>
           <div :class="hasOneHand ? 'hidden' : 'block'">
             <!-- changeだとfocusが外れた時、inputは入力したとき -->
@@ -29,8 +33,20 @@
               placeholder="重さ(kg)"
               maxlength="6"
               :value="weight[index]"
-              @focus="complementData(($event.target as HTMLInputElement).value, weight, index)"
-              @change="validateDecimalNumber(($event.target as HTMLInputElement).value, weight, index)"
+              @focus="
+                                complementData(
+                                    ($event.target as HTMLInputElement).value,
+                                    weight,
+                                    index
+                                )
+                            "
+              @change="
+                                validateDecimalNumber(
+                                    ($event.target as HTMLInputElement).value,
+                                    weight,
+                                    index
+                                )
+                            "
               @blur="postRecordContent(index)"
             />
             <input
@@ -40,8 +56,20 @@
               placeholder="回数"
               maxlength="3"
               :value="rep[index]"
-              @focus="complementData(($event.target as HTMLInputElement).value, rep, index)"
-              @change="validateNumber(($event.target as HTMLInputElement).value, rep, index)"
+              @focus="
+                                complementData(
+                                    ($event.target as HTMLInputElement).value,
+                                    rep,
+                                    index
+                                )
+                            "
+              @change="
+                                validateNumber(
+                                    ($event.target as HTMLInputElement).value,
+                                    rep,
+                                    index
+                                )
+                            "
               @blur="postRecordContent(index)"
             />
           </div>
@@ -53,8 +81,20 @@
               placeholder="重さ（右）(kg)"
               maxlength="6"
               :value="rightWeight[index]"
-              @focus="complementData(($event.target as HTMLInputElement).value, rightWeight, index)"
-              @change="validateDecimalNumber(($event.target as HTMLInputElement).value, rightWeight, index)"
+              @focus="
+                                complementData(
+                                    ($event.target as HTMLInputElement).value,
+                                    rightWeight,
+                                    index
+                                )
+                            "
+              @change="
+                                validateDecimalNumber(
+                                    ($event.target as HTMLInputElement).value,
+                                    rightWeight,
+                                    index
+                                )
+                            "
               @blur="postRecordContent(index)"
             />
             <input
@@ -64,8 +104,20 @@
               placeholder="回数（右）"
               maxlength="3"
               :value="rightRep[index]"
-              @focus="complementData(($event.target as HTMLInputElement).value, rightRep, index)"
-              @change="validateNumber(($event.target as HTMLInputElement).value, rightRep, index)"
+              @focus="
+                                complementData(
+                                    ($event.target as HTMLInputElement).value,
+                                    rightRep,
+                                    index
+                                )
+                            "
+              @change="
+                                validateNumber(
+                                    ($event.target as HTMLInputElement).value,
+                                    rightRep,
+                                    index
+                                )
+                            "
               @blur="postRecordContent(index)"
             />
             <input
@@ -75,8 +127,20 @@
               placeholder="重さ（左）(kg)"
               maxlength="6"
               :value="leftWeight[index]"
-              @focus="complementData(($event.target as HTMLInputElement).value, leftWeight, index)"
-              @change="validateDecimalNumber(($event.target as HTMLInputElement).value, leftWeight, index)"
+              @focus="
+                                complementData(
+                                    ($event.target as HTMLInputElement).value,
+                                    leftWeight,
+                                    index
+                                )
+                            "
+              @change="
+                                validateDecimalNumber(
+                                    ($event.target as HTMLInputElement).value,
+                                    leftWeight,
+                                    index
+                                )
+                            "
               @blur="postRecordContent(index)"
             />
             <input
@@ -86,8 +150,20 @@
               placeholder="回数（左）"
               maxlength="3"
               :value="leftRep[index]"
-              @focus="complementData(($event.target as HTMLInputElement).value, leftRep, index)"
-              @change="validateNumber(($event.target as HTMLInputElement).value, leftRep, index)"
+              @focus="
+                                complementData(
+                                    ($event.target as HTMLInputElement).value,
+                                    leftRep,
+                                    index
+                                )
+                            "
+              @change="
+                                validateNumber(
+                                    ($event.target as HTMLInputElement).value,
+                                    leftRep,
+                                    index
+                                )
+                            "
               @blur="postRecordContent(index)"
             />
           </div>
@@ -241,46 +317,47 @@ import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordCont
 import axios from "axios";
 import { useStore } from "vuex";
 import { LatestRecord, HistoryRecord } from "../../types/record";
+import { forEach } from "lodash";
 
 // エンターキーを押すと次の要素入力可
-function keydown(e) {
-  if (e.keyCode === 13) {
-    var obj: HTMLTextAreaElement | HTMLInputElement = document.activeElement as
-      | HTMLInputElement
-      | HTMLTextAreaElement;
-    if (obj.parentNode) {
-      const parentNode: HTMLDivElement = obj.parentNode as HTMLDivElement;
-      if (obj.nextElementSibling && parentNode.nextElementSibling) {
-        const input: HTMLInputElement = obj.nextElementSibling as HTMLInputElement;
-        input.focus();
-      } else if (obj.parentNode.nextSibling) {
-        const nextSibling: HTMLDivElement = obj.parentNode.nextSibling as HTMLDivElement;
-        if (nextSibling.children) {
-          if (nextSibling.children[0].nodeName == "TEXTAREA") {
-            const nextSiblingChild0: HTMLInputElement = nextSibling
-              .children[0] as HTMLInputElement;
-            nextSiblingChild0.focus();
-          }
-          if (nextSibling.children[2]) {
-            const grandNextSibling: HTMLDivElement = nextSibling.children[2].parentNode
-              .nextSibling as HTMLDivElement;
-            if (grandNextSibling.children) {
-              if (grandNextSibling.children[0].nodeName == "TEXTAREA") {
-                const grandNextSiblingChild0: HTMLInputElement = grandNextSibling
-                  .children[0] as HTMLInputElement;
-                grandNextSiblingChild0.focus();
-                // 1行目指定のため(無いと2行目指定となる)
-                e.returnValue = false;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
+// function keydown(e) {
+//   if (e.keyCode === 13) {
+//     var obj: HTMLTextAreaElement | HTMLInputElement = document.activeElement as
+//       | HTMLInputElement
+//       | HTMLTextAreaElement;
+//     if (obj.parentNode) {
+//       const parentNode: HTMLDivElement = obj.parentNode as HTMLDivElement;
+//       if (obj.nextElementSibling && parentNode.nextElementSibling) {
+//         const input: HTMLInputElement = obj.nextElementSibling as HTMLInputElement;
+//         input.focus();
+//       } else if (obj.parentNode.nextSibling) {
+//         const nextSibling: HTMLDivElement = obj.parentNode.nextSibling as HTMLDivElement;
+//         if (nextSibling.children) {
+//           if (nextSibling.children[0].nodeName == "TEXTAREA") {
+//             const nextSiblingChild0: HTMLInputElement = nextSibling
+//               .children[0] as HTMLInputElement;
+//             nextSiblingChild0.focus();
+//           }
+//           if (nextSibling.children[2]) {
+//             const grandNextSibling: HTMLDivElement = nextSibling.children[2].parentNode
+//               .nextSibling as HTMLDivElement;
+//             if (grandNextSibling.children) {
+//               if (grandNextSibling.children[0].nodeName == "TEXTAREA") {
+//                 const grandNextSiblingChild0: HTMLInputElement = grandNextSibling
+//                   .children[0] as HTMLInputElement;
+//                 grandNextSiblingChild0.focus();
+//                 // 1行目指定のため(無いと2行目指定となる)
+//                 e.returnValue = false;
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
 
-window.onkeydown = keydown;
+// window.onkeydown = keydown;
 
 const props = defineProps<{
   second_record: HistoryRecord[];
@@ -383,6 +460,42 @@ watch(second_record, () => {
     }
   }
 });
+
+// エンターキーを押すと次の入力要素フォーカス
+const nextInputFocus = (e: KeyboardEvent) => {
+  const inputTags = (e.currentTarget as HTMLInputElement)?.querySelectorAll("input");
+  const textareaTags = (e.currentTarget as HTMLInputElement)?.querySelectorAll(
+    "textarea"
+  );
+
+  for (let index = 0; index <= inputTags.length - 1; index++) {
+    //通常の場合
+    if (index === 0 && inputTags[index] === document.activeElement) {
+      // インプットエリアにフォーカス
+      inputTags[index + 1].focus();
+      break;
+    } else if (index === 1 && inputTags[index] === document.activeElement) {
+      // テキストエリアにフォーカス
+      textareaTags[0].focus();
+      break;
+    } else if (
+      2 <= index &&
+      index < inputTags.length - 1 &&
+      inputTags[index] === document.activeElement
+    ) {
+      // 片方ずつ記録する場合
+      inputTags[index + 1].focus();
+      break;
+    } else if (
+      index === inputTags.length - 1 &&
+      inputTags[index] === document.activeElement
+    ) {
+      // テキストエリアにフォーカス
+      textareaTags[0].focus();
+      break;
+    }
+  }
+};
 
 //全角→半角
 const replaceFullToHalf = (str: string) => {
