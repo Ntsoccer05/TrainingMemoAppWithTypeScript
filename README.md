@@ -2,5 +2,5 @@
 
 Laravel9×Vue3で作成したポートフォリオのコードにてJavaScriptで書いていた部分をTypeScriptに移行しています。
 
-## Portfolio
+## ポートフォリオ
 <a>https://training-memo.com/</a>
