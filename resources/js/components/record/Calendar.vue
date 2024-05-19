@@ -76,7 +76,7 @@ const holidays = ref<string[]>([]);
 let data = reactive<Data>({});
 
 // データ取得完了したかどうか
-const isLoaded = ref<boolean>(false);
+// const isLoaded = ref<boolean>(false);
 
 const dispAlertModal = ref(false);
 
@@ -97,7 +97,7 @@ const currentPath = ref<string>("");
 
 const { getLoginUser, loginUser } = useGetLoginUser();
 
-const { records, compGetData, getRecords } = useGetRecords();
+const { records, compGetData, isLoaded, getRecords } = useGetRecords();
 
 watch(records, () => {
   let label: string = "";
@@ -193,8 +193,10 @@ onMounted(async () => {
   getHolidays();
   if (loginUser.value.id) {
     await getRecords(loginUser.value.id);
+  } else {
+    await getRecords(0);
   }
-  isLoaded.value = true;
+  // isLoaded.value = true;
 
   // getLoginUser()内でnextTickを実行
   authUser.value = loginUser.value;
