@@ -31,6 +31,7 @@ export default function useGetRecords(){
     // 配列はArray<>もしくは、変数[]
     const records = ref<DispRecords[]>([]);
     const compGetData = ref<Boolean>(false);
+    const isLoaded = ref<boolean>(false);
 
     const getRecords = async(user_id:Number, recorded_at:String="")=>{
         await axios.get("/api/recordContent", {
@@ -43,10 +44,12 @@ export default function useGetRecords(){
         }).then((res : AxiosResponse<Data>) =>{
             records.value = res.data.records
             compGetData.value = true
+            isLoaded.value = true;
         }).catch((err)=>{
             useNotLoginedRedirect(err);
+            isLoaded.value = true;
         })
     }
 
-    return{records, compGetData, getRecords}
+    return{records, compGetData, isLoaded, getRecords};
 }

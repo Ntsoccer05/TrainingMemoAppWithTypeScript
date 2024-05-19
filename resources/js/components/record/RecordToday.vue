@@ -2,15 +2,17 @@
   <p class="text-red-500 text-center font-bold text-lg mb-5" v-if="loginUser.id">
     ※記録なし、セット数０のデータは毎朝４時に削除されます
   </p>
-  <form @submit.prevent="record">
-    <button
-      type="submit"
-      class="block w-11/12 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border-2 border-black mb-8 mx-auto"
-      @click="alertLogin"
-    >
-      今日のトレーニングを記録する
-    </button>
-  </form>
+  <template v-if="isLoaded">
+    <form @submit.prevent="record">
+      <button
+        type="submit"
+        class="block w-11/12 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border-2 border-black mb-8 mx-auto"
+        @click="alertLogin"
+      >
+        今日のトレーニングを記録する
+      </button>
+    </form>
+  </template>
   <Modal
     v-model="dispAlertModal"
     title="権限エラー"
@@ -35,6 +37,7 @@ import { useStore } from "vuex";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useSelectedDay from "../../composables/record/useSelectedDay";
 import axios from "axios";
+import useGetRecords from "../../composables/record/useGetRecords";
 
 const date = new Date();
 const router = useRouter();
@@ -48,6 +51,11 @@ onMounted(async () => {
   await getLoginUser();
   // ログイン状態をVuexより取得<-このタイミングだとカレンダーの描画が完了しているためVuexの値を取得できる。
   isLogined.value = computed(() => store.state.isLogined);
+  if (loginUser.value.id) {
+    await getRecords(loginUser.value.id);
+  } else {
+    await getRecords(0);
+  }
 });
 
 const toLogin = (): void => {
@@ -62,6 +70,8 @@ const alertLogin = (): void => {
 };
 
 const { selectedDay, postDay } = useSelectedDay(date);
+
+const { isLoaded, getRecords } = useGetRecords();
 
 selectedDay();
 
