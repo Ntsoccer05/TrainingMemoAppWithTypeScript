@@ -84,7 +84,10 @@ const record = async () => {
       })
       .then((res) => {
         store.commit("setRecordedAt", postDay);
-        router.push({ name: "selectMenu", params: { recordId: postDay } });
+        router.push({
+          name: "selectMenu",
+          params: { recordId: postDay },
+        });
       })
       .catch((err) => {});
   }

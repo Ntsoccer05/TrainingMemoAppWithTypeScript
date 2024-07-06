@@ -125,6 +125,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, computed, ComputedRef } from "vue";
+import draggable from "vuedraggable";
 import { useRoute, useRouter } from "vue-router";
 import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordState from "../../composables/record/useGetRecordState";
