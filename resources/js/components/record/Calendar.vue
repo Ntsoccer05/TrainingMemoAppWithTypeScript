@@ -10,6 +10,10 @@ import useGetRecords from "../../composables/record/useGetRecords";
 import axios from "axios";
 import { reactive, ref, computed, ComputedRef, watch, onMounted, nextTick } from "vue";
 
+const emits = defineEmits<{
+  (e: "compGetData", value: boolean): void;
+}>();
+
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
@@ -197,6 +201,7 @@ onMounted(async () => {
     await getRecords(0);
   }
   // isLoaded.value = true;
+  emits("compGetData", true);
 
   // getLoginUser()内でnextTickを実行
   authUser.value = loginUser.value;

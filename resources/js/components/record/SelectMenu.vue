@@ -157,7 +157,6 @@ watch(records, () => {
 });
 
 const toHome = (): void => {
-  debugger;
   //router.pushが効かない
   window.location.href = "/";
 };
