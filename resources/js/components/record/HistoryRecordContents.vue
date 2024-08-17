@@ -84,6 +84,7 @@
                   placeholder="メモ"
                   :value="historyRecord.memo"
                   disabled
+                  ref="historyMemo"
                 ></textarea>
               </div>
             </td>
@@ -95,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef } from "vue";
+import { computed, ComputedRef, onMounted, ref } from "vue";
 import { HistoryMenu, HistoryRecord } from "../../types/record";
 type props = {
   historyMenus: HistoryMenu[];
@@ -105,12 +106,38 @@ type props = {
 };
 const props = defineProps<props>();
 
+const historyMemo = ref<HTMLInputElement[] | null>(null);
+
 const historyMenus: ComputedRef<HistoryMenu[]> = computed(() => props.historyMenus);
 const historyRecords: ComputedRef<HistoryRecord[][]> = computed(
   () => props.historyRecords
 );
 const hasHistoryRecord: ComputedRef<boolean> = computed(() => props.hasHistoryRecord);
 const hasOneHand: ComputedRef<boolean> = computed(() => props.hasOneHand);
+
+// 高さを調整する関数
+const adjustHeight = (element: HTMLInputElement) => {
+  // 内容を改行文字で分割して行数をカウント
+  const textLines = element.value.split("\n").length;
+  const lineHeight = 1;
+
+  const rows: number = Number(element.getAttribute("rows"));
+
+  const newHeight = lineHeight * textLines;
+
+  element.style.height = `${newHeight}rem`; // スクロールの高さに基づいて高さを設定
+};
+onMounted(() => {
+  historyMemo.value &&
+    historyMemo.value.forEach((elm) => {
+      elm.value !== "" && adjustHeight(elm);
+    });
+});
 </script>
 
-<style></style>
+<style scoped>
+textarea {
+  resize: none;
+  overflow: hidden;
+}
+</style>
