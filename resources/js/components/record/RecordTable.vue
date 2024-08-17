@@ -176,74 +176,84 @@
               rows="4"
               placeholder="メモ"
               @blur="postRecordContent(index)"
+              ref="thisMemo"
+              @input="
+                                adjustHeight(
+                                    $event.target as HTMLInputElement,
+                                    beforeMemo[index]
+                                )
+                            "
             ></textarea>
           </div>
         </td>
         <td>
           <div class="bg-gray-200 border indent-1">{{ index + 1 }}セット目</div>
-          <template v-if="contents[index].set">
-            <div :class="hasOneHand ? 'hidden' : 'block'">
-              <!-- readonlyだとfocusできるが、disabledだとfocusもできない -->
-              <!-- inputのvalue値にデータを入力するにはv-bindを用いる -->
-              <input
-                class="border w-full"
-                type="text"
-                placeholder="重さ(kg)"
-                :value="contents[index].weight"
-                disabled
-              />
-              <input
-                class="border w-full"
-                type="text"
-                placeholder="回数"
-                :value="contents[index].rep"
-                disabled
-              />
-            </div>
-            <div :class="hasOneHand ? 'block' : 'hidden'">
-              <input
-                class="border w-full"
-                type="text"
-                placeholder="重さ（右）(kg)"
-                :value="contents[index].right_weight"
-                disabled
-              />
-              <input
-                class="border w-full"
-                type="text"
-                placeholder="回数（右）"
-                :value="contents[index].right_rep"
-                disabled
-              />
-              <input
-                class="border w-full"
-                type="text"
-                placeholder="重さ（左）(kg)"
-                :value="contents[index].left_weight"
-                disabled
-              />
-              <input
-                class="border w-full"
-                type="text"
-                placeholder="回数（左）"
-                :value="contents[index].left_rep"
-                disabled
-              />
-            </div>
-            <div class="border">
-              <textarea
-                class="w-full leading-4 pl-0.5"
-                name=""
-                id=""
-                cols="20"
-                rows="4"
-                placeholder="メモ"
-                :value="contents[index].memo"
-                disabled
-              ></textarea>
-            </div>
-          </template>
-          <template v-else>
+          <!-- 前回のセットがある場合 -->
+          <!-- <template v-if="contents[index].set"> -->
+          <div :class="hasOneHand ? 'hidden' : 'block'">
+            <!-- readonlyだとfocusできるが、disabledだとfocusもできない -->
+            <!-- inputのvalue値にデータを入力するにはv-bindを用いる -->
+            <input
+              class="border w-full"
+              type="text"
+              placeholder="重さ(kg)"
+              :value="contents[index].set ? contents[index].weight : ''"
+              disabled
+            />
+            <input
+              class="border w-full"
+              type="text"
+              placeholder="回数"
+              :value="contents[index].set ? contents[index].rep : ''"
+              disabled
+            />
+          </div>
+          <div :class="hasOneHand ? 'block' : 'hidden'">
+            <input
+              class="border w-full"
+              type="text"
+              placeholder="重さ（右）(kg)"
+              :value="contents[index].set ? contents[index].right_weight : ''"
+              disabled
+            />
+            <input
+              class="border w-full"
+              type="text"
+              placeholder="回数（右）"
+              :value="contents[index].set ? contents[index].right_rep : ''"
+              disabled
+            />
+            <input
+              class="border w-full"
+              type="text"
+              placeholder="重さ（左）(kg)"
+              :value="contents[index].set ? contents[index].left_weight : ''"
+              disabled
+            />
+            <input
+              class="border w-full"
+              type="text"
+              placeholder="回数（左）"
+              :value="contents[index].set ? contents[index].left_rep : ''"
+              disabled
+            />
+          </div>
+          <div class="border">
+            <textarea
+              class="w-full leading-4 pl-0.5"
+              name=""
+              id=""
+              cols="20"
+              rows="4"
+              placeholder="メモ"
+              :value="contents[index].set ? inputBeforeMemo(index) : ''"
+              disabled
+              ref="beforeMemo"
+            ></textarea>
+          </div>
+          <!-- </template> -->
+          <!-- 前回のセットがない場合 -->
+          <!-- <template v-else>
             <div :class="hasOneHand ? 'hidden' : 'block'">
               <input
                 class="border w-full pl-0.5"
@@ -302,7 +312,7 @@
                 ref="beforeMemo"
               ></textarea>
             </div>
-          </template>
+          </template> -->
         </td>
       </tr>
     </tbody>
@@ -316,8 +326,7 @@ import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
 import axios from "axios";
 import { useStore } from "vuex";
-import { LatestRecord, HistoryRecord } from "../../types/record";
-import { forEach } from "lodash";
+import { HistoryRecord } from "../../types/record";
 
 // エンターキーを押すと次の要素入力可
 // function keydown(e) {
@@ -391,6 +400,10 @@ const doDelete = ref<boolean>(false);
 const maxSet: number[] = Array(10)
   .fill(0)
   .map((_, i) => i);
+
+// DOM要素を取得するにはref属性と同じ名前にする
+const beforeMemo = ref<HTMLInputElement[] | null>(null);
+const thisMemo = ref<HTMLInputElement[] | null>(null);
 
 const maxBeforeLength = ref<string>("");
 
@@ -623,6 +636,30 @@ watch(tgtRecord, () => {
     emits("canClick", canClickFillBefore.value);
   }
 });
+// 高さを調整する関数
+const adjustHeight = (
+  element: HTMLInputElement,
+  tgtTxtElm: HTMLInputElement | null = null
+) => {
+  // 現在の高さを取得
+  const currentHeight = element.offsetHeight;
+  const currentTgtHeight = tgtTxtElm.offsetHeight;
+  const newHeight = element.scrollHeight;
+  // 新しい高さが現在の高さより小さくない場合のみ、高さを更新
+  if (newHeight > Math.max(currentHeight, currentTgtHeight)) {
+    element.style.height = `${newHeight}px`; // スクロールの高さに基づいて高さを設定
+    tgtTxtElm.style.height = `${newHeight}px`; // スクロールの高さに基づいて高さを設定
+  } else {
+    element.style.height = `${Math.max(currentHeight, currentTgtHeight)}px`;
+    tgtTxtElm.style.height = `${Math.max(currentHeight, currentTgtHeight)}px`;
+  }
+};
+
+const inputBeforeMemo = (index) => {
+  beforeMemo.value[index].value = contents.value[index].memo;
+  adjustHeight(beforeMemo.value[index], thisMemo.value[index]);
+  return contents.value[index].memo;
+};
 
 onMounted(async () => {
   await getLoginUser();
@@ -636,6 +673,11 @@ onMounted(async () => {
     emits("totalSet", "0");
   }
   store.commit("compGetData", true);
+
+  thisMemo.value &&
+    thisMemo.value.forEach((elm, index) => {
+      elm.value !== "" && adjustHeight(elm, beforeMemo.value[index]);
+    });
 });
 
 // 戻るボタン押下時に入力中内容を保存する
@@ -720,4 +762,9 @@ onBeforeRouteLeave(async (to, from, next) => {
 });
 </script>
 
-<style></style>
+<style scoped>
+textarea {
+  resize: none;
+  overflow: hidden;
+}
+</style>
