@@ -9,6 +9,7 @@ import useSelectedDay from "../../composables/record/useSelectedDay";
 import useGetRecords from "../../composables/record/useGetRecords";
 import axios from "axios";
 import { reactive, ref, computed, ComputedRef, watch, onMounted, nextTick } from "vue";
+import userSessionStorage from "../../utils/userSessionStorage";
 
 const emits = defineEmits<{
   (e: "compGetData", value: boolean): void;
@@ -100,6 +101,7 @@ const fromPath = ref<string>("");
 const currentPath = ref<string>("");
 
 const { getLoginUser, loginUser } = useGetLoginUser();
+const { getSessionLoginUser } = userSessionStorage();
 
 const { records, compGetData, isLoaded, getRecords } = useGetRecords();
 
@@ -193,14 +195,19 @@ const menuScroll = (calendarDom) => {
 //ログインしているかの判別をする場合DOMが生成されていない状態だとログイン状態を判別できないため
 //getLoginUser はApp.vueで行う
 onMounted(async () => {
-  await getLoginUser();
+  const sessionLoginUser = getSessionLoginUser();
+  if (sessionLoginUser) {
+    loginUser.value = sessionLoginUser;
+  } else {
+    await getLoginUser();
+  }
   getHolidays();
   if (loginUser.value.id) {
     await getRecords(loginUser.value.id);
   } else {
     await getRecords(0);
   }
-  // isLoaded.value = true;
+  isLoaded.value = true;
   emits("compGetData", true);
 
   // getLoginUser()内でnextTickを実行
@@ -242,7 +249,7 @@ const selectedDay = (day) => {
   // 日付をクリック時
   if (day.ariaLabel !== null) {
     //ログインしていなかったらメッセージを表示
-    if (loginState.value === false) {
+    if (!loginUser.value) {
       dispAlertModal.value = true;
       return;
     }

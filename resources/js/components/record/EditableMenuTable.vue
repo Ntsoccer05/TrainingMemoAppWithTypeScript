@@ -131,6 +131,8 @@ import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import { DispRecords, Categories, Category, Menu } from "../../types/record";
 import axios from "axios";
+import userSessionStorage from "../../utils/userSessionStorage";
+import session from "../../utils/sessionStorageUtil";
 
 const props = defineProps<{
   editable: boolean;
@@ -160,6 +162,7 @@ const hoverRed = ref<string>("hover:text-red-600");
 const categories = ref<Categories>([]);
 
 const { getLoginUser, loginUser } = useGetLoginUser();
+const { getSessionLoginUser } = userSessionStorage();
 
 const { getLatestRecordState, latestRecord } = useGetRecordState();
 
@@ -196,6 +199,12 @@ const toRecordContents = (category: Category, menu: Menu): void => {
 
 //メニュー内容を取得
 const getMenus = async () => {
+  const cache = session.get<any>("trainingMenus");
+  if (cache) {
+    categories.value = cache.categorylist;
+    isOdd.value = categories.value.length % 2 === 1;
+    return;
+  }
   await axios
     .get("/api/menus", {
       // get時にパラメータを渡す際はparamsで指定が必要
@@ -205,6 +214,7 @@ const getMenus = async () => {
     })
     .then((res) => {
       categories.value = res.data.categorylist;
+      session.set("trainingMenus", res.data);
       if (categories.value.length % 2 === 1) {
         isOdd.value = true;
       } else {
@@ -258,6 +268,7 @@ const deleteMenuContent = async (category: Category, menu: Menu) => {
             menu.className = "hidden";
           }
         }
+        session.remove("trainingMenus");
         getMenus();
       })
       .catch((err) => {});
@@ -285,7 +296,9 @@ const postEditMenu = async (category: Category, menu: Menu) => {
         menu_id: menu.id,
         content: menu.content,
       })
-      .then((res) => {})
+      .then((res) => {
+        session.remove("trainingMenus");
+      })
       .catch((err) => {});
   }
 };
@@ -336,11 +349,15 @@ const cancelEditCategoryClick = (category: Category): void => {
 };
 
 onMounted(async () => {
+  const sessionLoginUser = getSessionLoginUser();
   // DOM取得のため
   const deleteFuncDom = deleteFunc.value;
   const deleteCategoryDom = deleteCategory.value;
-
-  await getLoginUser();
+  if (sessionLoginUser) {
+    loginUser.value = sessionLoginUser;
+  } else {
+    await getLoginUser();
+  }
   await getLatestRecordState();
 
   getMenus();

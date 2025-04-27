@@ -327,6 +327,7 @@ import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordCont
 import axios from "axios";
 import { useStore } from "vuex";
 import { HistoryRecord } from "../../types/record";
+import userSessionStorage from "../../utils/userSessionStorage";
 
 // エンターキーを押すと次の要素入力可
 // function keydown(e) {
@@ -430,6 +431,7 @@ const isDisabled = ref<boolean>(false);
 
 //ログインユーザー情報取得
 const { getLoginUser, loginUser } = useGetLoginUser();
+const { getSessionLoginUser } = userSessionStorage();
 
 //今回記録するデータの値を取得
 const { tgtRecord, hasTgtRecord, getTgtRecords } = useGetTgtRecordContent();
@@ -454,25 +456,29 @@ const emits = defineEmits<{
 }>();
 
 // watchは引数を二つ持つ(一つ目：監視対象、二つ目：新しい値と古い値)
-watch(second_record, () => {
-  if (props.hasSecondRecord) {
-    maxBeforeLength.value = "0";
-    second_record.value.forEach((record) => {
-      const index: number = record.set - 1;
-      contents.value[index] = record;
-      if (Number(maxBeforeLength.value) < record.set) {
-        maxBeforeLength.value = record.set.toString();
+watch(
+  second_record,
+  () => {
+    if (props.hasSecondRecord) {
+      maxBeforeLength.value = "0";
+      second_record.value.forEach((record) => {
+        const index: number = record.set - 1;
+        contents.value[index] = record;
+        if (Number(maxBeforeLength.value) < record.set) {
+          maxBeforeLength.value = record.set.toString();
+        }
+      });
+      //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
+      emits("beforeTotalSet", second_record.value.length.toString());
+      const tempObj = ref<DispContents[]>([]);
+      for (let i = 1; i <= 5 - Number(maxBeforeLength.value); i++) {
+        tempObj.value[i] = { set: Number(maxBeforeLength.value) };
+        contents.value = [...contents.value, tempObj.value[i]];
       }
-    });
-    //emit()で親に値を渡す、第一引数：親側の@～の～の名前、第二引数：親に渡す値
-    emits("beforeTotalSet", second_record.value.length.toString());
-    const tempObj = ref<DispContents[]>([]);
-    for (let i = 1; i <= 5 - Number(maxBeforeLength.value); i++) {
-      tempObj.value[i] = { set: Number(maxBeforeLength.value) };
-      contents.value = [...contents.value, tempObj.value[i]];
     }
-  }
-});
+  },
+  { immediate: true }
+);
 
 // エンターキーを押すと次の入力要素フォーカス
 const nextInputFocus = (e: KeyboardEvent) => {
@@ -656,13 +662,19 @@ const adjustHeight = (
 };
 
 const inputBeforeMemo = (index) => {
+  if (!beforeMemo.value) return;
   beforeMemo.value[index].value = contents.value[index].memo;
   adjustHeight(beforeMemo.value[index], thisMemo.value[index]);
   return contents.value[index].memo;
 };
 
 onMounted(async () => {
-  await getLoginUser();
+  const sessionLoginUser = getSessionLoginUser();
+  if (sessionLoginUser) {
+    loginUser.value = sessionLoginUser;
+  } else {
+    await getLoginUser();
+  }
   await getTgtRecords(
     loginUser.value.id,
     props.category_id,

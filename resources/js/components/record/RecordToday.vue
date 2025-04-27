@@ -38,6 +38,7 @@ import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useSelectedDay from "../../composables/record/useSelectedDay";
 import axios from "axios";
 import useGetRecords from "../../composables/record/useGetRecords";
+import userSessionStorage from "../../utils/userSessionStorage";
 
 const props = defineProps<{
   compGetData: boolean;
@@ -52,9 +53,15 @@ const store = useStore();
 const isLogined = ref<boolean | ComputedRef>(false);
 const dispAlertModal = ref<boolean>(false);
 
+const { getSessionLoginUser } = userSessionStorage();
 const { getLoginUser, loginUser } = useGetLoginUser();
 onMounted(async () => {
-  await getLoginUser();
+  const sessionLoginUser = getSessionLoginUser();
+  if (sessionLoginUser) {
+    loginUser.value = sessionLoginUser;
+  } else {
+    await getLoginUser();
+  }
   // ログイン状態をVuexより取得<-このタイミングだとカレンダーの描画が完了しているためVuexの値を取得できる。
   isLogined.value = computed(() => store.state.isLogined);
   if (loginUser.value.id) {

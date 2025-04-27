@@ -44,6 +44,9 @@
 
 <script setup lang="ts">
 import GoogleRegister from "../../components/certification/GoogleRegister.vue";
+import { setSeo } from "../../utils/setSeo";
+
+setSeo("googleRegister");
 </script>
 
 <style></style>

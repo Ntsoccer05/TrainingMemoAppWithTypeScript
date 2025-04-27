@@ -5,11 +5,16 @@ import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordRanking from "../../composables/ranking/useGetRecordRanking";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import userSessionStorage from "../../utils/userSessionStorage";
+import { setSeo } from "../../utils/setSeo";
+
+setSeo("userRecordRanking");
 
 const router = useRouter();
 const store = useStore();
 
 const { getLoginUser, loginUser } = useGetLoginUser();
+const { getSessionLoginUser } = userSessionStorage();
 const dispModal: ComputedRef<boolean> = computed(() => store.getters.dispAlertModal);
 const dispAlertModal = ref<boolean>(false);
 
@@ -36,7 +41,12 @@ const toLogin = (): void => {
 };
 
 onMounted(async () => {
-  await getLoginUser();
+  const sessionLoginUser = getSessionLoginUser();
+  if (sessionLoginUser) {
+    loginUser.value = sessionLoginUser;
+  } else {
+    await getLoginUser();
+  }
   if (dispModal.value) {
     dispAlertModal.value = true;
   }

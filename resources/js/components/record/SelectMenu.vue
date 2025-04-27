@@ -96,6 +96,8 @@ import useGetLoginUser from "../../composables/certification/useGetLoginUser";
 import useGetRecordState from "../../composables/record/useGetRecordState";
 import useGetRecords from "../../composables/record/useGetRecords";
 import axios from "axios";
+import userSessionStorage from "../../utils/userSessionStorage";
+import session from "../../utils/sessionStorageUtil";
 
 const router = useRouter();
 const route = useRoute();
@@ -132,6 +134,7 @@ const currentPath = ref<string>("");
 const scrollTop = ref<number>(0);
 
 const { getLoginUser, loginUser } = useGetLoginUser();
+const { getSessionLoginUser } = userSessionStorage();
 
 const { getLatestRecordState, latestRecord } = useGetRecordState();
 
@@ -188,8 +191,32 @@ const compEditMenu = (): void => {
   }
 };
 
+const handleMenus = (data: any) => {
+  if (!editable.value) {
+    if (data.categories.length === 0) {
+      dispHeadText.value = "部位・種目を追加してください";
+      hasCategory.value = false;
+      hasMenu.value = false;
+    } else if (data.menulist.length === 0) {
+      dispHeadText.value = "種目を追加してください";
+      hasMenu.value = false;
+      hasCategory.value = true;
+    } else {
+      dispHeadText.value = "鍛える部位を選択してください";
+      hasCategory.value = true;
+      hasMenu.value = true;
+    }
+  }
+};
+
 //メニュー内容を取得
 const getMenus = async () => {
+  const cache = session.get<any>("trainingMenus");
+  if (cache && !editable.value) {
+    // キャッシュあったら使う
+    handleMenus(cache);
+    return;
+  }
   await axios
     .get("/api/menus", {
       // get時にパラメータを渡す際はparamsで指定が必要
@@ -200,6 +227,7 @@ const getMenus = async () => {
     .then((res) => {
       //編集画面でなければ
       if (!editable.value) {
+        session.set("trainingMenus", res.data);
         if (res.data.categories.length === 0) {
           dispHeadText.value = "部位・種目を追加してください";
           hasCategory.value = false;
@@ -309,7 +337,12 @@ onMounted(async () => {
   const deleteFuncDom = deleteFunc.value;
   const deleteCategoryDom = deleteCategory.value;
 
-  await getLoginUser();
+  const sessionLoginUser = getSessionLoginUser();
+  if (sessionLoginUser) {
+    loginUser.value = sessionLoginUser;
+  } else {
+    await getLoginUser();
+  }
   if (dispModal.value) {
     dispAlertModal.value = true;
   }

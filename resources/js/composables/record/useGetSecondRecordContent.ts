@@ -2,11 +2,13 @@ import { ref } from "vue";
 import axios from "axios";
 import { LatestRecord, HistoryRecord } from "../../types/record";
 
-export default function useGetSecondRecordContent() {
-    const secondRecord = ref<HistoryRecord[]>([]);
+export default function useGetSecondRecordContent(fillBeforeRecordSession) {
+    const secondRecord = ref<HistoryRecord[]>(
+        fillBeforeRecordSession?.record || []
+    );
     const secondRecordState = ref<LatestRecord>(undefined);
     // ２番目に新しい記録が存在するか
-    const hasSecondRecord = ref<boolean>(false);
+    const hasSecondRecord = ref<boolean>(!!fillBeforeRecordSession);
 
     //２番目に新しい記録を取得する
     const getSecondRecord = async (

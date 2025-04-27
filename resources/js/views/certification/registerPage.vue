@@ -56,6 +56,9 @@
 import Register from "../../components/certification/Register.vue";
 import SocialLogin from "../../components/certification/SocialLogin.vue";
 import { useRouter } from "vue-router";
+import { setSeo } from "../../utils/setSeo";
+
+setSeo("register");
 
 const router = useRouter();
 const toLogin = () => router.push("/login");

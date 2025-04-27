@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import Inquiry from "../../components/inquiry/inquiry.vue";
+import { setSeo } from "../../utils/setSeo";
+
+setSeo("Inquiry");
 </script>
 
 <template>
