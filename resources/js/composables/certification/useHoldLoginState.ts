@@ -16,7 +16,7 @@ export default function useHoldLoginState() {
         const sessionLoginUser = getSessionLoginUser();
         if (sessionLoginUser) {
             isLogined.value = true;
-            isLogined.value = store.getters.isLogined;
+            store.commit("setIsLogined", true);
             return;
         } else {
             // 非同期処理呼び出しのため async await

@@ -9,7 +9,10 @@
             <router-link
               :to="
                 recorded_day
-                  ? { name: 'home', query: { day: recorded_day } }
+                  ? {
+                      name: 'home',
+                      query: { day: recorded_day },
+                    }
                   : { name: 'home' }
               "
               class="md:text-xl font-semibold text-lg"
@@ -20,7 +23,10 @@
         <template v-else-if="route.name === 'record' && compGetData">
           <h3 class="md:mr-auto md:border-none">
             <router-link
-              :to="{ name: 'selectMenu', params: { recordId: recorded_day } }"
+              :to="{
+                name: 'selectMenu',
+                params: { recordId: recorded_day },
+              }"
               class="md:text-xl font-semibold text-lg"
               ><i class="fa-solid fa-arrow-left mr-2"></i>メニュー選択へ戻る</router-link
             >
@@ -29,7 +35,10 @@
         <template v-else-if="route.name === 'addMenu'">
           <h3 class="md:mr-auto md:border-none">
             <router-link
-              :to="{ name: 'selectMenu', params: { recordId: recorded_day } }"
+              :to="{
+                name: 'selectMenu',
+                params: { recordId: recorded_day },
+              }"
               class="md:text-xl font-semibold text-lg"
               ><i class="fa-solid fa-arrow-left mr-2"></i>メニュー選択へ戻る</router-link
             >
@@ -49,7 +58,10 @@
               <router-link
                 :to="
                   recorded_day
-                    ? { name: 'home', query: { day: recorded_day } }
+                    ? {
+                        name: 'home',
+                        query: { day: recorded_day },
+                      }
                     : { name: 'home' }
                 "
                 class="text-xl font-semibold md:text-4xl"
@@ -84,7 +96,10 @@
                 <router-link
                   :to="
                     recorded_day
-                      ? { name: 'home', query: { day: recorded_day } }
+                      ? {
+                          name: 'home',
+                          query: { day: recorded_day },
+                        }
                       : { name: 'home' }
                   "
                   class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
@@ -95,7 +110,10 @@
             <template v-else-if="route.name === 'record' && !isOpen && compGetData">
               <li class="border-b border-t top- md:mr-auto md:border-none">
                 <router-link
-                  :to="{ name: 'selectMenu', params: { recordId: recorded_day } }"
+                  :to="{
+                    name: 'selectMenu',
+                    params: { recordId: recorded_day },
+                  }"
                   class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
                   ><i class="fa-solid fa-arrow-left mr-2"></i
                   >メニュー選択へ戻る</router-link
@@ -105,7 +123,10 @@
             <template v-else-if="route.name === 'addMenu' && !isOpen">
               <li class="border-b border-t top- md:mr-auto md:border-none">
                 <router-link
-                  :to="{ name: 'selectMenu', params: { recordId: recorded_day } }"
+                  :to="{
+                    name: 'selectMenu',
+                    params: { recordId: recorded_day },
+                  }"
                   class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
                   ><i class="fa-solid fa-arrow-left mr-2"></i
                   >メニュー選択へ戻る</router-link
@@ -126,7 +147,12 @@
                   <router-link
                     :to="
                       recorded_day
-                        ? { name: 'home', query: { day: recorded_day } }
+                        ? {
+                            name: 'home',
+                            query: {
+                              day: recorded_day,
+                            },
+                          }
                         : { name: 'home' }
                     "
                     class="block px-8 py-2 my-4 hover:bg-gray-600 rounded"
@@ -274,6 +300,7 @@ const logout = async () => {
     .post("/api/logout", {})
     .then((res) => {
       if ((res.data.status_code = 200)) {
+        sessionStorage.clear();
         dispAlertModal.value = true;
         if (route.name === "home") {
           dispAlertMessage.value = "ログアウトしました。";

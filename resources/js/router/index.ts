@@ -118,6 +118,11 @@ const routes = [
         // ログインの必要あり
         meta: { requiresAuth: true },
     },
+    {
+        path: "/tr-sitemap",
+        name: "trSitemap",
+        meta: { requiresAuth: false },
+    },
     //指定のないURLの場合ホームにリダイレクト
     {
         path: "/:paths(.*)*",

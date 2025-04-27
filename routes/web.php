@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+// `/tr-sitemap` ルートを最初に定義
+Route::get('/tr-sitemap', [SitemapController::class, 'getSitemap']);
 
 Route::get('/{any}', function () {
     return view('layout');
