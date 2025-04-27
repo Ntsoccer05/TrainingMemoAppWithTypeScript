@@ -5,6 +5,9 @@ import axios from "axios";
 import useValidationMsg from "../../composables/certification/useValidationMsg";
 import dispValidationMsg from "../../composables/certification/useDispValidationMsg";
 import { DispErrorMsg, Errors, Form } from "../../types/certification";
+import { setSeo } from "../../utils/setSeo";
+
+setSeo("ResetPassword");
 
 const router = useRouter();
 

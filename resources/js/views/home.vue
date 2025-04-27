@@ -18,7 +18,9 @@ import { useStore } from "vuex";
 import Calendar from "../components/record/Calendar.vue";
 import RecordToday from "../components/record/RecordToday.vue";
 import { ref } from "vue";
+import { setSeo } from "../utils/setSeo";
 
+setSeo("home");
 const store = useStore();
 const compGetData = ref<boolean>(false);
 // 記録日を初期化

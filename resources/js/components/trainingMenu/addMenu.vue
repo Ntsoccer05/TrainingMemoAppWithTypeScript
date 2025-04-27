@@ -107,6 +107,8 @@ import dispValidationMsg from "../../composables/menu/useDispValidationMsg";
 import MenuTable from "../record/MenuTable.vue";
 import { Errors, DispErrorMsg, Post, Category } from "../../types/trainingMenu";
 import axios from "axios";
+import userSessionStorage from "../../utils/userSessionStorage";
+import session from "../../utils/sessionStorageUtil";
 
 const router = useRouter();
 const route = useRoute();
@@ -166,19 +168,7 @@ if (recorded_at) {
 
 //バリデーションエラーメッセージのレイアウト
 const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
-
-onMounted(async () => {
-  await getLoginUser();
-  if (dispModal.value) {
-    dispAlertModal.value = true;
-  }
-
-  getMenus();
-  //動的に要素を追加したものに対する処理にはnextTickを用いる
-  nextTick(() => {
-    getLoginUser();
-  });
-});
+const { getSessionLoginUser } = userSessionStorage();
 
 const toggleBtnInput = () => {
   if (selectedCategory.value == "新規追加する") {
@@ -220,6 +210,7 @@ const addMenuContent = async () => {
         const { dispCategoryErrMsg, dispMenuErrMsg } = dispValidationMsg(dispErrorMsg);
         return { dispCategoryErrMsg, dispMenuErrMsg };
       }
+      session.remove("trainingMenus");
       if (selectedCategory.value == "新規追加する") {
         isInputMenu.value = false;
         // この状態だとDOMにセレクトボックスがないためaddPartは取得できないためv-modelの状態を初期化することでセレクトボックスの中身を初期化できる
@@ -273,7 +264,10 @@ const cancelAddMenu = () => {
       //前の画面へ戻りたいため
       history.back();
     } else {
-      router.push({ name: "selectMenu", params: { recordId: recorded_day } });
+      router.push({
+        name: "selectMenu",
+        params: { recordId: recorded_day },
+      });
     }
   }
 };
@@ -296,14 +290,26 @@ const getMenus = async () => {
 };
 
 onMounted(async () => {
+  const sessionLoginUser = getSessionLoginUser();
+  if (sessionLoginUser) {
+    loginUser.value = sessionLoginUser;
+  } else {
+    await getLoginUser();
+  }
+  if (dispModal.value) {
+    dispAlertModal.value = true;
+  }
+
+  getMenus();
   // DOM取得のため
   const addPartDom: HTMLElement = addPart.value;
-
-  await getLoginUser();
 
   getMenus();
   //動的に要素を追加したものに対する処理にはnextTickを用いる
   nextTick(() => {
+    if (!sessionLoginUser) {
+      getLoginUser();
+    }
     const addPartBtnDom: HTMLElement = addPartBtn.value;
     toggleBtnInput();
   });

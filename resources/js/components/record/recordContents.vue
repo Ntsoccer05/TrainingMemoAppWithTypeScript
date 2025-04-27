@@ -145,19 +145,34 @@ import HistoryRecordContents from "./HistoryRecordContents.vue";
 import useGetTgtRecordContent from "../../composables/record/useGetTgtRecordContent.js";
 import useGetHistoryRecordContent from "../../composables/record/useGetHistoryRecordContent.js";
 import axios from "axios";
+import userSessionStorage from "../../utils/userSessionStorage";
+import menuContentSessionStorage from "../../utils/menuContentSessionStorage";
 
 const route = useRoute();
 const store = useStore();
 const router = useRouter();
 
-const hasOneHand = ref<boolean>(false);
-
-const bodyWeight = ref<string>("");
-const beforeBodyWeight = ref<string>("");
-
 const category_id: string = route.query.categoryId as string;
 const menu_id: string = route.query.menuId as string;
 const record_state_id: string = route.query.recordId as string;
+
+const {
+  setMenuContentSession,
+  getMenuContentSession,
+  removeMenuContentSession,
+  getFillBeforeRecordSession,
+  setFillBeforeRecordSession,
+  removeFillBeforeRecordSession,
+  getHistoryRecordSession,
+  setHistoryRecordSession,
+  removeHistoryRecordSession,
+} = menuContentSessionStorage(category_id, menu_id, record_state_id);
+const fillBeforeRecordSession = getFillBeforeRecordSession();
+
+const hasOneHand = ref<boolean>(false);
+
+const bodyWeight = ref<string>("");
+const beforeBodyWeight = ref<string>(fillBeforeRecordSession?.bodyWeight || "");
 
 const thisTotalSet = ref<string>("");
 const beforeTotalSet = ref<string>("");
@@ -185,7 +200,7 @@ const dispAlertModal = ref<boolean>(false);
 const complementContents = ref<boolean>(false);
 
 //前回データが存在するか？
-const isBeforeData = ref<boolean>(false);
+const isBeforeData = ref<boolean>(!!fillBeforeRecordSession);
 
 // 最新のレコード状態を取得
 const { getLatestRecordState, latestRecord } = useGetRecordState();
@@ -194,6 +209,7 @@ const { getLatestRecordState, latestRecord } = useGetRecordState();
 const { hasTgtRecord, getTgtRecords } = useGetTgtRecordContent();
 
 const { getLoginUser, loginUser } = useGetLoginUser();
+const { getSessionLoginUser } = userSessionStorage();
 
 //前回のデータを取得
 const {
@@ -201,7 +217,7 @@ const {
   secondRecordState,
   hasSecondRecord,
   getSecondRecord,
-} = useGetSecondRecordContent();
+} = useGetSecondRecordContent(fillBeforeRecordSession);
 
 const toHome = (): void => {
   //router.pushが効かない
@@ -213,6 +229,13 @@ const toLogin = (): void => {
 
 // 片方ずつ記録するかどうかmenusテーブルのoneSideカラムにて判断
 const getMenuContent = async () => {
+  const menuContentSession = getMenuContentSession();
+  if (menuContentSession) {
+    const data = menuContentSession;
+    menuContent.value = data.content;
+    hasOneHand.value = data.oneSide === 1;
+    return;
+  }
   await axios
     .get("/api/menus", {
       params: {
@@ -223,6 +246,7 @@ const getMenuContent = async () => {
     })
     .then((res) => {
       menuContent.value = res.data.menu.content;
+      setMenuContentSession(res.data.menu);
       if (res.data.menu.oneSide === 1) {
         hasOneHand.value = true;
       } else {
@@ -233,6 +257,17 @@ const getMenuContent = async () => {
 };
 
 const fillBeforeRecord = async () => {
+  const fillBeforeRecordSession = getFillBeforeRecordSession();
+
+  if (fillBeforeRecordSession) {
+    const data = fillBeforeRecordSession;
+    hasSecondRecord.value = true;
+    isBeforeData.value = true;
+    beforeBodyWeight.value = data.bodyWeight || "";
+    secondRecord.value = data.record;
+    return;
+  }
+
   await getSecondRecord(
     loginUser.value.id,
     category_id,
@@ -246,6 +281,7 @@ const fillBeforeRecord = async () => {
     beforeBodyWeight.value = secondRecordState.value.bodyWeight
       ? secondRecordState.value.bodyWeight.toString()
       : "";
+    setFillBeforeRecordSession(secondRecordState.value.bodyWeight, secondRecord.value);
   } else {
     msgNoBeforeData.value = "記録がありません";
   }
@@ -287,6 +323,17 @@ const {
 } = useGetHistoryRecordContent();
 
 const confirmHistory = async () => {
+  const historyRecordSession = getHistoryRecordSession();
+
+  if (historyRecordSession) {
+    const data = historyRecordSession;
+    historyRecords.value = data.historyRecords;
+    historyMenus.value = data.historyMenus;
+    hasHistoryRecord.value = data.hasHistoryRecord;
+    showModal.value = true;
+    return;
+  }
+
   //今回記録するデータの値を取得
   await getHistoryRecords(
     loginUser.value.id,
@@ -294,6 +341,11 @@ const confirmHistory = async () => {
     menu_id,
     record_state_id,
     route.params.recordId as string
+  );
+  setHistoryRecordSession(
+    historyRecords.value,
+    historyMenus.value,
+    hasHistoryRecord.value
   );
   showModal.value = true;
 };
@@ -327,7 +379,12 @@ const firstRecord = async () => {
 };
 
 onMounted(async () => {
-  await getLoginUser();
+  const sessionLoginUser = getSessionLoginUser();
+  if (sessionLoginUser) {
+    loginUser.value = sessionLoginUser;
+  } else {
+    await getLoginUser();
+  }
   if (dispModal.value) {
     dispAlertModal.value = true;
   }
