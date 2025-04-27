@@ -29,6 +29,9 @@ export default createStore({
             // ログイン状態
             state.isLogined = true;
         },
+        setIsLogined(state, value) {
+            state.isLogined = value;
+        },
         LogoutState(state) {
             // ログアウト状態
             state.isLogined = false;
